@@ -7,7 +7,7 @@ pg 118
 import numpy as np
 
 
-def nut_factor(
+def kubler_bulten_nut_factor(
         P: float, 
         d_2: float, 
         mu_t: float, 
@@ -20,8 +20,8 @@ def nut_factor(
     Args:
         P: thread pitch, mm
         d_2: pitch diameter, mm
-        mu_t: friction coefficient, threads
-        mu_b: friction coefficient, bearing surface
+        mu_t: friction coefficient between threads
+        mu_b: friction coefficient between bolt head or nut and abutment bearing surface
         d_w: effective diameter, bearing area, mm
         d: nominal thread diameter, mm
     Returns:
@@ -32,12 +32,30 @@ def nut_factor(
 
 
 def main() -> None:
-    pass
     
-    # T = K * d * F_p, Nmm
+    # T = K * d * F_p, torque, Nmm
     # F_p = preload force, N
-    # K = 
-    # d = 
+    # K = nut factor
+    # d = diameter, mm
+    
+    # M5 bolt example:
+    
+    mu_t = 0.15
+    mu_b = 0.15
+    d = 5.0
+    pitch = 0.8
+    d_2 = 4.48
+    d_w = (8.75 + 5.0) / 2.0
+    
+    K = kubler_bulten_nut_factor(
+        P=pitch, 
+        d_2=d_2,
+        mu_t=mu_t, 
+        mu_b=mu_b,
+        d_w=d_w,
+        d=d,
+    )
+    print(f"K = {K}")
 
 
 if __name__ == "__main__":

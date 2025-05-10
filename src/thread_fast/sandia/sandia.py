@@ -2,7 +2,6 @@ import json
 import numpy as np
 
 
-
 inputs = {
     'bolt': {
         'bolt_diameter': 5.0/8.0,
@@ -75,12 +74,10 @@ inputs = {
 }
 
 
-
 def check_inputs(inputs):
     """Validate inputs.
     
     """
-    
     
     # check temperatures:
     T_amb = inputs.environment.T_ambient
@@ -89,7 +86,6 @@ def check_inputs(inputs):
 
     assert T_hot >= T_amb
     assert T_amb >= T_cold
-    
     
     SF_yield = inputs.factors_of_safety.yield
     SF_ultimate = inputs.factors_of_safety.ultimate

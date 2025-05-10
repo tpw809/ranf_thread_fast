@@ -38,16 +38,16 @@ A_t = 0.226
 n_tpi = 11
 
 # [in], min pitch diameter of external threads:
-0.5561
+D_p_min = 0.5561
 
 # [in], min major diameter of external threads:
-0.6052
+D_major_min = 0.6052
 
 # [in], max minor diameter of internal threads:
-0.5460
+D_minor_max = 0.5460
 
 # [in], max pitch diameter of internal threads:
-0.5767
+D_p_max = 0.5767
 
 
 nut_factor = 0.2
@@ -72,4 +72,3 @@ T_max_F = 100.0
 # Factors of Safety:
 SF_yield = 1.5
 SF_ultimate = 2.0
-

@@ -50,22 +50,22 @@ import numpy as np
 # 3.3 Calculation of Max and Min Preloads: pg 3-5
 ########################################################
 
-PLD_max = 
+# PLD_max = 
 
-PLD_min = 
+# PLD_min = 
 
-PLD_max = 
+# PLD_max = 
 
-PLD_min = 
+# PLD_min = 
 
 
-PLD_max = 
+# PLD_max = 
 
-PLD_min = 
+# PLD_min = 
 
-PLD_max = 
+# PLD_max = 
 
-PLD_min = 
+# PLD_min = 
 
 
 ########################################################
@@ -86,7 +86,7 @@ PLD_min =
 # 3.6 Expected Preload Loss: pg 3-8
 ########################################################
 
-P_loss = 0.05 * PLD_max
+# P_loss = 0.05 * PLD_max
 
 
 
@@ -166,8 +166,10 @@ P_si = A_si * F_su_nut
 
 # The two thread shear areas are calculated using the following equations:
 
+
 # external thread shear area:
 A_se = np.pi * L_e * K_i_max * (0.750 - 0.57735 * n_0 * (T*K_i + T*E_e + G_e))
+
 
 # internal thread shear area:
 A_si = np.pi * L_e * D_e_min * (0.875 - 0.57735 * n_0 * (T*D_e + T*E_i + G_e))
