@@ -37,7 +37,7 @@ psi_to_MPa = 0.00689476
 # Temperatures
 # loading plane location
 # E_1: material properties
-
+# FF: fitting factor for loading / stiffness assumptions
 
 # assume config 1: through bolt with nut
 # assume bolt material: A286 stainless steel
@@ -52,6 +52,7 @@ psi_to_MPa = 0.00689476
 
 relaxation_ratio = 0.05
 preload_stress_ratio = 0.65
+fitting_factor = 1.15
 
 # [-], safety factor for separation for structural applications:
 SF_sep = 1.2
@@ -143,7 +144,7 @@ print(f"D_p = {D_p} [mm]")
 r_m = D_p / 2.0
 print(f"r_m = {r_m} [mm]")
 
-# [mm^2], tensile area: eq 4
+# [mm^2], tensile area: NASA-TM-106943 eq 4
 A_t = (np.pi / 4.0) * (D - 0.9743 * pitch)**2
 print(f"A_t = {A_t} [m^2]")
 
@@ -165,25 +166,29 @@ n = 0.5
 n = (l_1 / 2.0 + l_2 + l_n / 2.0) / L
 # TODO: see blendulf pg 142...
 # TODO: see NASA-TM-108377
+# TODO: use geometric load introduction factor from NASA-STD-5020B, eq 37:
+
 print(f"n = {n}")
 
-# bolt stiffness: eq 32  (due to type assumption)
+# bolt stiffness: NASA-TM-106943 eq 32  (due to type assumption)
 # TODO: expand this based on blendulf pg 134...
 # include different lengths and cross sections...
 K_b = A * E_b / L
 print(f"Bolt Stiffness: K_b = {K_b} [N/mm]")
 
-# composite joint modulus: eq 34
+# composite joint modulus: NASA-TM-106943 eq 34
 E_j = L / ((l_1 / E_1) + (l_2 / E_2) + (l_n / E_n))
 print(f"E_j = {E_j}")
 
-# joint stiffness: eq 33 (due to type assumption)
+# joint stiffness: NASA-TM-106943 eq 33 (due to type assumption)
 K_j = np.pi * E_j * D / (2.0 * np.log(5.0 * ((L + 0.5*D)/(L + 2.5*D))))
 # TODO: alternative based on blendulf, pg 136-137
 # based on equivalent joint diameter, D_j
 print(f"Joint Stiffness: K_j = {K_j} [N/mm]")
 
-# joint stiffness factor: eq 29
+# joint stiffness factor: 
+# NASA-TM-106943 eq 29
+# NASA-STD-5020B eq 9
 phi = K_b / (K_b + K_j)
 print(f"phi = {phi}")
 
@@ -204,7 +209,7 @@ print(f"P_th = {P_th} [N]")
 # may need an if statement for P_th...
 # depends on which temperature delta reduces preload...
 
-# nut factor: eq 2
+# nut factor: NASA-TM-106943 eq 2
 # K = D_p / (2.0 * D) * ((np.tan(psi) + mu * np.sec(alpha)) / (1.0 - mu * np.tan(psi) * np.sec(alpha))) + 0.625 * mu_c
 # sec = 1/cos
 K = D_p / (2.0 * D) * ((np.tan(psi) + mu / np.cos(alpha)) / (1.0 - mu * np.tan(psi) / np.cos(alpha))) + 0.625 * mu_c
@@ -213,12 +218,12 @@ K = 0.15
 # print(f"np.cos(alpha) = {np.cos(alpha)}")
 print(f"Nut Factor: K = {K}")
 
-# applied torque: target 0.65 tensile yield stress / strength, eq 3
+# applied torque: target 0.65 tensile yield stress / strength, NASA-TM-106943 eq 3
 T = preload_stress_ratio * F_ty * A_t * K * D
 print(f"Tightening Torque: T = {T:.3f} [N-mm]")
 print(f"Tightening Torque: T = {T / 1000.0:.3f} [N-m]")
 
-# [N], minimum expected bolt preload, eq 13 (re-arranged)
+# [N], minimum expected bolt preload, NASA-TM-106943 eq 13 (re-arranged)
 # P_0_min = (T / (K * D)) * (1.0 - u) - P_th - P_relax
 P_0_min = ((T / (K * D)) * (1.0 - u) - np.abs(P_th)) / (1.0 + relaxation_ratio)
 print(f"Min Preload: P_0_min = {P_0_min} [N]")
@@ -227,15 +232,20 @@ print(f"Min Preload: P_0_min = {P_0_min} [N]")
 P_relax = relaxation_ratio * P_0_min
 print(f"P_relax = {P_relax} [N]")
 
-# [N], separation load: eq 67
+# [N], separation load: 
+# NASA-TM-106943 eq 67
 P_sep = (1.0 - n * phi) * P_et
 print(f"P_sep = {P_sep} [N]")
 
 # use eq67 in nasa_tm_106943.py:
 
 
-# [-], margin of safety against separation: eq68
+# [-], margin of safety against separation: 
+# NASA-TM-106943 eq68
 MS_sep = (P_0_min / (SF_sep * P_sep)) - 1.0
 print(f"MS_sep = {MS_sep}")
+
+# updated in NASA-STD-5020B, eq19:
+
 
 # use eq68 in nasa_tm_106943.py:

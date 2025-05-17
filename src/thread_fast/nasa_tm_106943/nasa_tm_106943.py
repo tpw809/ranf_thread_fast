@@ -196,6 +196,8 @@ def eq10(
     ) -> float:
     """NASA-TM-106943, equation 10, pg 5
     
+    P_th = change in preload due to thermal effects
+    
     Args:
         K_b: bolt stiffness
         K_j: joint stiffness
@@ -216,7 +218,7 @@ def eq11(
     ) -> float:
     """NASA-TM-106943, equation 11, pg 6
     
-    Calculate preload loss due to embedment relaxation.
+    Calculate preload loss due to embedment relaxation, P_relax.
     
     Args:
         P_0_min: minimum expected bolt preload
@@ -237,7 +239,7 @@ def eq12(
     ) -> float:
     """NASA-TM-106943, equation 12, pg 6
     
-    Calculate max expected preload in the joint.
+    Calculate max expected preload in the joint, P_0_max.
     
     Args:
         T: applied torque
@@ -255,7 +257,7 @@ def eq12(
 def eq13(T, D, K, u, P_th, P_relax) -> float:
     """NASA-TM-106943, equation 13, pg 7
     
-    P_o_min = min expected preload in the joint
+    P_0_min = min expected preload in the joint
     
     Args:
         T: applied torque
@@ -273,6 +275,8 @@ def eq13(T, D, K, u, P_th, P_relax) -> float:
 def eq14(T: float, K: float, D: float) -> float:
     """NASA-TM-106943, equation 14, pg 7
     
+    Calculate max expected preload in the joint, P_0_max.
+    
     simplified equation 12, manually torqued, no thermal:
     
     Args:
@@ -288,6 +292,8 @@ def eq14(T: float, K: float, D: float) -> float:
 
 def eq15(T: float, K: float, D: float) -> float:
     """NASA-TM-106943, equation 15, pg 7
+    
+    P_0_min = min expected preload in the joint
     
     simplified equation 13, manually torqued, no thermal
     
@@ -306,6 +312,8 @@ def eq15(T: float, K: float, D: float) -> float:
 
 def eq16(T: float, K: float, D: float) -> float:
     """NASA-TM-106943, equation 16, pg 7
+    
+    P_0_min = min expected preload in the joint
     
     simplified equation 15
     
@@ -428,18 +436,32 @@ def eq21(
 # NASA-TM-106943, equation 25, pg 11
 
 
-def eq26() -> float:
+def eq26(P_0: float, K_b: float) -> float:
     """NASA-TM-106943, equation 26, pg 11
     
+    Args:
+    
     """
-    delta_b = P_o / K_b
+    delta_b = P_0 / K_b
     return delta_b
 
 
 # NASA-TM-106943, equation 27, pg 11
 
-# NASA-TM-106943, equation 28, pg 11
-P_et = delta_P_b * ((K_b + K_j) / (n * K_b))
+
+def eq28(delta_P_b, K_b, K_j, n) -> float:
+    """NASA-TM-106943, equation 28, pg 11
+    
+    Calculate P_et.
+    
+    Args:
+        delta_P_b:
+        K_b:
+        K_j:
+        n:
+    """
+    P_et = delta_P_b * ((K_b + K_j) / (n * K_b))
+    return P_et
 
 
 def eq29(K_b: float, K_j: float) -> float:
@@ -494,11 +516,12 @@ def eq31():
         l_n:
     
     """
+    # TODO: fix...
     L = l_1 + l_2 + ... + l_n
     return L
 
 
-def eq32() -> float:
+def eq32(A: float, E_b: float, L: float) -> float:
     """NASA-TM-106943, equation 32, pg 12
     
     Calculate bolt stiffness, K_b.
@@ -516,7 +539,7 @@ def eq32() -> float:
 # joint stiffness:
 
 
-def eq34(L) -> float:
+def eq34(L, l_, l_2, l_n, E_1, E_2, E_n) -> float:
     """NASA-TM-106943, equation 34, pg 12
     
     Calculate joint composite modulus, E_j.
@@ -530,14 +553,20 @@ def eq34(L) -> float:
         l_n:
         E_n:
     """
+    # TODO: fix...
     E_j = L / ((l_1 / E_1) + (l_2 / E_2) + ... + (l_n / E_n))
     return E_j
 
 
-def eq35() -> float:
+def eq35(l_1: float, l_2: float, l_n: float) -> float:
     """NASA-TM-106943, equation 35, pg 12
     
+    Args:
+        l_1:
+        l_2:
+        l_n:
     """
+    # TODO: fix...
     n = (l_1 / 2.0 + l_2 + ... + l_n / 2.0) + l_1 + l_2 + ... + l_n
     return n
 
@@ -549,17 +578,28 @@ def eq35() -> float:
 
 # equation 36:
 
-# equation 37:
-# bolt stiffness:
-K_b = A * E_b / L
 
-# equation 38:
+def eq37(A: float, E_b: float, L: float) -> float:
+    """NASA-TM-106943, equation 37, pg 
+    
+    Calculate bolt stiffness, K_b.
+    
+    Args:
+        A:
+        E_b:
+        L:
+    """
+    K_b = A * E_b / L
+    return K_b
 
-# equation 39:
 
-# equation 40:
+# NASA-TM-106943, equation 38, pg
 
-# equation 41:
+# NASA-TM-106943, equation 39, pg
+
+# NASA-TM-106943, equation 40, pg
+
+# NASA-TM-106943, equation 41, pg
 
 
 ########################################################
@@ -567,24 +607,51 @@ K_b = A * E_b / L
 # Hex, Socket, or Pan Head Bolt Threaded Into final Part
 ########################################################
 
-# equation 42:
-L = l_1 + l_2 + ... + (l_n - L_i / 2.0)
 
-# equation 43:
+def eq42(l_1, l_2, l_n, L_i) -> float:
+    """NASA-TM-106943, equation 42, pg
+    
+    Args:
+    
+    """
+    # TODO: fix...
+    L = l_1 + l_2 + ... + (l_n - L_i / 2.0)
+    return L
+
+
+# NASA-TM-106943, equation 43: same as 32 and 37...
 # bolt stiffness:
-K_b = A * E_b / L
+# K_b = A * E_b / L
 
-# equation 44:
-K_j = np.pi * E_j * D / (np.log(5.0*((2.0*L + 0.5*D)/(2.0*L + 2.5*D))))
 
-# equation 45:
-E_j = L / (l1 / E_1 + l2 / E_2 + ... + ((l_n - L_i/2.0)/E_n))
+def eq44(E_j: float, D: float, L: float) -> float:
+    """NASA-TM-106943, equation 44, pg
+    
+    Args:
+        E_j:
+        D:
+        L:
+    """
+    K_j = np.pi * E_j * D / (np.log(5.0*((2.0*L + 0.5*D)/(2.0*L + 2.5*D))))
+    return K_j
+
+
+def eq45(L, l1, l2, E_2, l_n, L_i) -> float:
+    """NASA-TM-106943, equation 45, pg
+    
+    Args:
+    
+    """
+    # TODO: fix...
+    E_j = L / (l1 / E_1 + l2 / E_2 + ... + ((l_n - L_i/2.0)/E_n))
+    return E_j
 
 
 def eq46() -> float:
-    """equation 46, pg 
+    """NASA-TM-106943, equation 46, pg 
     
     """
+    # TODO: fix...
     n = (l_1/2 + l_2 + ... + (l_n - L_i/2)) / (l_1 + l_2 + ... + l_n)
     return n
 
@@ -595,21 +662,23 @@ def eq46() -> float:
 ########################################################
 
 
-def eq47() -> float:
+def eq47(l_1, l_h, l_2, l_n, L_i) -> float:
     """NASA-TM-106943, equation 47, pg 
     
     Args:
         l_1:
         l_h:
     """
+    # TODO: fix...
     L = (l_1 - l_h/2.0) + l_2 + ... + (l_n - L_i / 2.0)
     return L
 
 
-def eq48() -> float:
+def eq48(A: float, E_b: float, L: float) -> float:
     """NASA-TM-106943, equation 48, pg 
     
-    # bolt stiffness:
+    Calculate bolt stiffness, K_b.
+    
     Args:
         A:
         E_b:
@@ -619,8 +688,17 @@ def eq48() -> float:
     return K_b
 
 
-def eq49() -> float:
+def eq49(
+        E_j: float, 
+        D: float, 
+        L: float, 
+        d_w: float,
+    ) -> float:
     """NASA-TM-106943, equation 49, pg 
+    
+    Calculate joint stiffness, K_j.
+    
+    For configuration 4: 
     
     Args:
         E_j:
@@ -628,32 +706,35 @@ def eq49() -> float:
         L:
         d_w:
     """
-    K_j = np.pi * E_j * D / np.log(((L + d_w - D)*(d_w + D)) / ((L + d_w + D)*(d_w - D))
+    K_j = (np.pi * E_j * D) / np.log(((L + d_w - D)*(d_w + D)) / ((L + d_w + D)*(d_w - D)))
     return K_j
 
 
-def eq50() -> float:
+def eq50(d_h: float, D: float) -> float:
     """equation 50, pg 
     
     Args:
-    
+        d_h:
+        D:
     """
     d_w = d_h + D / 2.0
     return d_w
 
 
-def eq51(L, l_2, E_2) -> float:
+def eq51(L: float, l_2: float, E_2: float) -> float:
     """equation 51, pg
     
     """
+    # TODO: fix...
     E_j = L / (() + l_2/E_2 + ... + ())
     return E_j
 
 
-def eq52() -> float:
+def eq52(l_1, l_h, l_2, l_n: float) -> float:
     """equation 52, pg 
     
     """
+    # TODO: fix...
     n = ((l_1 - l_h / 2.0) + l_2 + ... + (l_n - L_i/2.0)) / (l_1 + l_2 + ... + l_n)
     return n
 
@@ -667,13 +748,14 @@ def eq52() -> float:
 ########################################################
 
 
-def eq53(tensile_allowable, P_b) -> float:
+def eq53(tensile_allowable: float, P_b: float) -> float:
     """NASA-TM-106943, equation 53, pg 15
     
     margin of safety
     
     Args:
-    
+        tensile_allowable:
+        P_b:
     """
     MS = (tensile_allowable / P_b) - 1.0
     return MS
@@ -691,27 +773,33 @@ def eq54(
     ) -> float:
     """NASA-TM-106943, equation 54, pg 16
     
-    Calculate margin of safety against ???
+    Calculate margin of safety against fastener shear failure.
+    
+    utimate or yield?
     
     Args:
-        V = externally applied shear load
+        V: externally applied shear load
+        shear_allowable:
+        SF: safety factor
     Returns:
-        float: margin of safety against ???
+        float: margin of safety against fastener shear failure
     """
     MS = (shear_allowable / (SF * V)) - 1.0
     return MS
 
 
-def eq55(F_su, A_s) -> float:
+def eq55(F_su: float, A_s: float) -> float:
     """NASA-TM-106943, equation 55, pg 16
     
-    Calculate shear allowable.
+    Calculate fastener shear allowable.
+    
+    Compare to NASA-STD-5020B eq 13.
     
     Args:
         F_su: material ultimate shear strength
         A_s: shear area
     Returns:
-        float: shear allowable
+        float: fastener shear allowable
     """
     shear_allowable = F_su * A_s
     return shear_allowable
@@ -726,27 +814,43 @@ def eq55(F_su, A_s) -> float:
 # See update in NASA-STD-5020 based on NASA-TM-2012-217454
 
 
-def eq57() -> float:
+def eq57(
+        P_b: float, 
+        bending_allowable: float,
+    ) -> float:
     """NASA-TM-106943, equation 57, pg 16
     
     axial (tension) load ratio:
     
+    Args:
+        P_b:
+        bending_allowable:
     """
     R_t = P_b / bending_allowable
     return R_t
 
 
-# NASA-TM-106943, equation 58, pg 16
-# shear load ratio:
-R_s = SF * V / shear_allowable
+def eq58(SF: float, V: float, shear_allowable: float) -> float:
+    """NASA-TM-106943, equation 58, pg 16
+    
+    Calculate shear load ratio, R_s.
+    
+    Args:
+        SF: safety factor
+        V:
+        shear_allowable:
+    """
+    assert SF >= 1.0, "SF must be >= 1.0"
+    R_s = SF * V / shear_allowable
+    return R_s
 
 
 def eq59(R_t: float, R_s: float) -> float:
     """NASA-TM-106943, equation 59, pg 16
     
-    margin of safety for combined tension and shear
+    Calculate margin of safety for combined tension and shear.
     
-    See update in NASA-STD-5020 based on NASA-TM-2012-217454
+    See update in NASA-STD-5020 based on NASA-TM-2012-217454.
     
     Args:
         R_t: axial load ratio
@@ -769,14 +873,21 @@ def eq59(R_t: float, R_s: float) -> float:
 # See update in NASA-STD-5020 based on NASA-TM-2012-217454
 
 
-def eq61(SF: float, M: float, bending_allowable: float) -> float:
+def eq61(
+        SF: float, 
+        M: float, 
+        bending_allowable: float,
+    ) -> float:
     """NASA-TM-106943, equation 61, pg 17
     
-    bending load ratio
+    Calculate bending load ratio, R_b
     
     Args:
-    
+        SF:
+        M:
+        bending_allowable:
     """
+    assert SF >= 1.0, "SF must be >= 1.0"
     R_b = SF * M / bending_allowable
     return R_b
 
@@ -784,14 +895,14 @@ def eq61(SF: float, M: float, bending_allowable: float) -> float:
 def eq62(R_t: float, R_b: float, R_s: float) -> float:
     """NASA-TM-106943, equation 62, pg 17
     
-    margin of safety
+    Calculate margin of safety for combined loading.
     
-    See update in NASA-STD-5020 based on NASA-TM-2012-217454
+    See update in NASA-STD-5020 based on NASA-TM-2012-217454.
     
     Args:
         R_t:
-        R_b:
-        R_s:
+        R_b: bending load ratio
+        R_s: shear load ratio
     """
     print("warning: deprecated, see updated criteria based on NASA-TM-2012-217454...")
     MS = (1.0 / np.sqrt((R_t + R_b)**2 + R_s**3)) - 1.0
@@ -806,7 +917,7 @@ def eq62(R_t: float, R_b: float, R_s: float) -> float:
 def eq63(L_e: float, D_minor_int: float) -> float:
     """NASA-TM-106943, equation 63, pg 18
     
-    Calculate shear area of the bolt thread.
+    Calculate shear area of the bolt thread, A_s.
     
     Args:
         L_e: engaged length of bolt thread
@@ -872,7 +983,9 @@ def eq67(
     ) -> float:
     """NASA-TM-106943, equation 67, pg 19
     
-    Calculate load trying to separate the joint.
+    Calculate load trying to separate the joint, P_sep.
+    
+    Compare to NASA-STD-5020B eq 11, pg 28.
     
     Args:
         n: loading plane factor
@@ -898,6 +1011,8 @@ def eq68(
     1.2 for structural applications
     1.4 for pressure applications
     
+    Compare to NASA-STD-5020B eq 19, pg 32.
+    
     Args:
         P_0_min: minimum expected bolt preload
         P_sep: load trying to separate the joint
@@ -905,6 +1020,7 @@ def eq68(
     Return:
         float: margin of safety against joint separation
     """
+    assert SF >= 1.0, "error: SF must be >= 1.0"
     MS = (P_0_min / (SF * P_sep)) - 1.0
     return MS
 
@@ -915,9 +1031,14 @@ def eq68(
 ########################################################
 
 
-def eq69():
+def eq69(F_su: float, A_s: float) -> float:
     """NASA-TM-106943, equation 69, pg 19
     
+    Calculate , P_ult.
+    
+    Args:
+        F_su:
+        A_s:
     """
     P_ult = F_su * A_s
     return P_ult
@@ -926,7 +1047,7 @@ def eq69():
 def eq70(t: float, e: float, D: float) -> float:
     """NASA-TM-106943, equation 70, pg 19
     
-    A_s = shear area
+    Calculate shear area, A_s.
     
     Args:
         t: thickness of sheet or lug
@@ -946,8 +1067,11 @@ def eq71(P_ult: float, SF: float, V: float) -> float:
     margin of safety
     
     Args:
-    
+        P_ult:
+        SF:
+        V:
     """
+    assert SF >= 1.0, "error: SF must be >= 1.0"
     MS = P_ult / (SF * V) - 1.0
     return MS
 
@@ -961,8 +1085,8 @@ def eq72(F_br: float, A_br: float) -> float:
     """NASA-TM-106943, equation 72, pg 20
     bearing load capability:
     Args:
-        F_br = material bearing (yield or ultimate) strength
-        A_br = bearing area
+        F_br: material bearing (yield or ultimate) strength
+        A_br: bearing area
     Returns:
         float: bearing load capability
     """
@@ -973,7 +1097,7 @@ def eq72(F_br: float, A_br: float) -> float:
 def eq73(D: float, t: float) -> float:
     """NASA-TM-106943, equation 73, pg 20
     
-    bearing area
+    Calculate bearing area, A_br.
     
     Args:
         D: through hole diameter ?
@@ -990,11 +1114,12 @@ def eq74(P_br: float, SF: float, V: float) -> float:
     
     Args:
         P_br: bearing load capability
-        SF:
+        SF: safety factor
         V:
     Returns:
         float: margin of safety to bolt bearing failure
     """
+    assert SF >= 1.0, "error: SF must be >= 1.0"
     MS = P_br / (SF * V) - 1.0
     return MS
 
@@ -1007,7 +1132,7 @@ def eq74(P_br: float, SF: float, V: float) -> float:
 def eq75(d_h: float, d_t: float) -> float:
     """NASA-TM-106943, equation 75, pg 21
     
-    A_br = bearing area
+    Calculate A_br = bearing area
     
     Args:
         d_h: minimum contact diameter of the bolt head or washer
@@ -1137,3 +1262,14 @@ def eq81(A_t: float) -> float:
     print("\nwarning, eq81, this is hardcoded in english units...\n")
     P_ult = 125000.0 * A_t
     return P_ult
+
+
+def main() -> None:
+    pass
+    # Tests:
+    
+
+
+if __name__ == "__main__":
+    main()
+    
