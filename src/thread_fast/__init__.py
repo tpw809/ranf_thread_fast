@@ -1,3 +1,4 @@
-import conversion_factors as cf
-import nasa_tm_106943.nasa_tm_106943 as nasa_tm_106943
-import nasa_std_5020.nasa_std_5020 as nasa_std_5020
+import thread_fast.conversion_factors as cf
+import thread_fast.nasa_tm_106943.nasa_tm_106943 as nasa_tm_106943
+import thread_fast.nasa_std_5020.nasa_std_5020b as nasa_std_5020b
+import thread_fast.nsts_08307a.nsts_08307a as nsts_08307a

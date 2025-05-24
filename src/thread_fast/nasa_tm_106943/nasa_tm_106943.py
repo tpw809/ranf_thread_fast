@@ -63,10 +63,15 @@ def eq1(
         K = nut factor, factor applied to account for the effects of friction in the torquing elements (both in the threads and under the bolt head/nut)
         u = preload uncertainty factor
     Returns:
-        nominal bolt preload
+        float: nominal bolt preload
     """
-    P_0_max = T / (K * D) * (1.0 + u)
-    P_0_min = T / (K * D) * (1.0 - u)
+    assert T > 0.0, "T must be > 0.0"
+    assert K > 0.0, "K must be > 0.0"
+    assert D > 0.0, "D must be > 0.0"
+    assert u >= 0.0, "u must be >= 0.0"
+    P_0 = T / (K * D)
+    P_0_max = P_0 * (1.0 + u)
+    P_0_min = P_0 * (1.0 - u)
     return P_0_min, P_0_max
 
 
@@ -80,7 +85,7 @@ def eq2(
     ) -> float:
     """NASA-TM-106943, equation 2, pg 4
     
-    K = nut factor
+    Calculate and estimated nut factor, K.
     
     sec = 1/cos
     
@@ -94,6 +99,8 @@ def eq2(
     Returns:
         float: estimated nut factor
     """
+    assert mu >= 0.0, "mu must be >= 0.0"
+    assert mu_c >= 0.0, "mu_c must be >= 0.0"
     # K = D_p / (2.0 * D) * ((np.tan(psi) + mu * np.sec(alpha)) / (1.0 - mu * np.tan(psi) * np.sec(alpha))) + 0.625 * mu_c
     K = D_p / (2.0 * D) * ((np.tan(psi) + mu / np.cos(alpha)) / (1.0 - mu * np.tan(psi) / np.cos(alpha))) + 0.625 * mu_c
     return K
@@ -111,9 +118,9 @@ def eq2(
 
 
 def eq4(D: float, p: float) -> float:
-    """NASA-TM-106943, equation 4:, pg 5
+    """NASA-TM-106943, equation 4, pg 5
     
-    A_t =  tensile area (min cross section area of bolt)
+    Calculate tensile area (min cross section area of bolt), A_t.
     
     Args:
         D: nominal diameter
@@ -121,6 +128,8 @@ def eq4(D: float, p: float) -> float:
     Returns:
         float: tensile area (min cross section area of bolt)
     """
+    assert D > 0.0
+    assert p > 0.0
     A_t = (np.pi / 4.0) * (D - 0.9743*p)**2
     return A_t
 
@@ -254,10 +263,17 @@ def eq12(
     return P_0_max
 
 
-def eq13(T, D, K, u, P_th, P_relax) -> float:
+def eq13(
+        T: float, 
+        D: float, 
+        K: float, 
+        u: float, 
+        P_th: float, 
+        P_relax: float,
+    ) -> float:
     """NASA-TM-106943, equation 13, pg 7
     
-    P_0_min = min expected preload in the joint
+    Calculate min expected preload in the joint, P_0_min.
     
     Args:
         T: applied torque
@@ -293,11 +309,11 @@ def eq14(T: float, K: float, D: float) -> float:
 def eq15(T: float, K: float, D: float) -> float:
     """NASA-TM-106943, equation 15, pg 7
     
-    P_0_min = min expected preload in the joint
+    Calculate min expected preload in the joint, P_0_min.
     
     simplified equation 13, manually torqued, no thermal
     
-    assumed relaxation percentage
+    assumed relaxation percentage of 5%
     
     Args:
         T: applied torque
@@ -306,6 +322,7 @@ def eq15(T: float, K: float, D: float) -> float:
     Returns:
         float: min expected preload in the joint
     """
+    # TODO: rearrange so this actually works...
     P_0_min = T/(K*D) * 0.75 - 0.05 * P_0_min
     return P_0_min
 
@@ -313,11 +330,11 @@ def eq15(T: float, K: float, D: float) -> float:
 def eq16(T: float, K: float, D: float) -> float:
     """NASA-TM-106943, equation 16, pg 7
     
-    P_0_min = min expected preload in the joint
+    Calculate min expected preload in the joint, P_0_min.
     
     simplified equation 15
     
-    assumed relaxation percentage
+    assumed relaxation percentage of 5%
     
     Args:
         T: applied torque
@@ -344,7 +361,7 @@ def eq17(
     ) -> float:
     """NASA-TM-106943, equation 17, pg 8
     
-    Calculate total axial load in the fastener.
+    Calculate total axial load in the fastener, P_b.
     
     Safety factor is not applied to the preload!
     
@@ -357,6 +374,8 @@ def eq17(
     Returns:
         float: total axial load in the fastener
     """
+    assert SF >= 1.0
+    assert 0.0 >= n >= 1.0
     P_b = P_0_max + (SF * n * phi * P_et)
     return P_b
 
@@ -401,6 +420,7 @@ def eq20(
     Returns:
         float: change in axial bolt load
     """
+    assert 0.0 >= n >= 1.0
     delta_P_b = (P_0 / (delta_b + (1.0-n)*delta_j)) * delta
     return delta_P_b
 
@@ -423,6 +443,7 @@ def eq21(
     Returns:
         float: change in joint load
     """
+    assert 0.0 >= n >= 1.0
     delta_P_j = (P_0 / (n * delta_j)) * delta
     return delta_P_j
 
@@ -440,7 +461,8 @@ def eq26(P_0: float, K_b: float) -> float:
     """NASA-TM-106943, equation 26, pg 11
     
     Args:
-    
+        P_0: 
+        K_b: bolt stiffness
     """
     delta_b = P_0 / K_b
     return delta_b
@@ -449,17 +471,23 @@ def eq26(P_0: float, K_b: float) -> float:
 # NASA-TM-106943, equation 27, pg 11
 
 
-def eq28(delta_P_b, K_b, K_j, n) -> float:
+def eq28(
+        delta_P_b: float, 
+        K_b: float, 
+        K_j: float, 
+        n: float,
+    ) -> float:
     """NASA-TM-106943, equation 28, pg 11
     
-    Calculate P_et.
+    Calculate total externally applied axial load, P_et.
     
     Args:
         delta_P_b:
-        K_b:
-        K_j:
-        n:
+        K_b: bolt stiffness
+        K_j: joint stiffness
+        n: loading plane factor
     """
+    assert 0.0 >= n >= 1.0
     P_et = delta_P_b * ((K_b + K_j) / (n * K_b))
     return P_et
 
@@ -495,6 +523,7 @@ def eq30(
     Returns:
         float: change in axial bolt load
     """
+    assert 0.0 >= n >= 1.0
     delta_P_b = n * phi * P_et
     return delta_P_b
 
@@ -527,10 +556,15 @@ def eq32(A: float, E_b: float, L: float) -> float:
     Calculate bolt stiffness, K_b.
     
     Args:
-        A:
-        E_b:
-        L:
+        A: nominal fastener cross-sectional area
+        E_b: bolt modulus of elasticity
+        L: fastener grip length
+    Returns:
+        float: bolt stiffness
     """
+    assert A > 0.0
+    assert L > 0.0
+    assert E_b > 0.0
     K_b = A * E_b / L
     return K_b
 
@@ -539,7 +573,7 @@ def eq32(A: float, E_b: float, L: float) -> float:
 # joint stiffness:
 
 
-def eq34(L, l_, l_2, l_n, E_1, E_2, E_n) -> float:
+def eq34(L: float, l_, l_2, l_n, E_1, E_2, E_n) -> float:
     """NASA-TM-106943, equation 34, pg 12
     
     Calculate joint composite modulus, E_j.
@@ -552,6 +586,8 @@ def eq34(L, l_, l_2, l_n, E_1, E_2, E_n) -> float:
         E_2:
         l_n:
         E_n:
+    Return:
+        float: joint composite modulus
     """
     # TODO: fix...
     E_j = L / ((l_1 / E_1) + (l_2 / E_2) + ... + (l_n / E_n))
@@ -561,10 +597,16 @@ def eq34(L, l_, l_2, l_n, E_1, E_2, E_n) -> float:
 def eq35(l_1: float, l_2: float, l_n: float) -> float:
     """NASA-TM-106943, equation 35, pg 12
     
+    Calculate loading plane factor, n.
+    
+    Also called load introduction factor.
+    
     Args:
         l_1:
         l_2:
         l_n:
+    Returns:
+        float: loading plane factor
     """
     # TODO: fix...
     n = (l_1 / 2.0 + l_2 + ... + l_n / 2.0) + l_1 + l_2 + ... + l_n
@@ -585,10 +627,15 @@ def eq37(A: float, E_b: float, L: float) -> float:
     Calculate bolt stiffness, K_b.
     
     Args:
-        A:
-        E_b:
-        L:
+        A: nominal fastener cross-sectional area
+        E_b: bolt modulus of elasticity
+        L: fastener grip length
+    Returns:
+        float: bolt stiffness
     """
+    assert A > 0.0
+    assert L > 0.0
+    assert E_b > 0.0
     K_b = A * E_b / L
     return K_b
 
@@ -694,35 +741,45 @@ def eq49(
         L: float, 
         d_w: float,
     ) -> float:
-    """NASA-TM-106943, equation 49, pg 
+    """NASA-TM-106943, equation 49, pg 15
     
     Calculate joint stiffness, K_j.
     
     For configuration 4: 
     
     Args:
-        E_j:
-        D:
-        L:
-        d_w:
+        E_j: joint modulus of elasticity
+        D: nominal fastener diameter
+        L: fastener grip length
+        d_w: effective countersunk head diameter
+    Returns:
+        float: joint stiffness
     """
+    assert E_j > 0.0
+    assert D > 0.0
+    assert L > 0.0
+    assert d_w > 0.0
     K_j = (np.pi * E_j * D) / np.log(((L + d_w - D)*(d_w + D)) / ((L + d_w + D)*(d_w - D)))
     return K_j
 
 
 def eq50(d_h: float, D: float) -> float:
-    """equation 50, pg 
+    """NASA-TM-106943, equation 50, pg 15
+    
+    Calculate effective countersunk head diameter, d_w.
     
     Args:
-        d_h:
-        D:
+        d_h: countersunk head diameter or head bearing diameter
+        D: nominal fastener diameter
+    Returns:
+        float: effective countersunk head diameter
     """
     d_w = d_h + D / 2.0
     return d_w
 
 
 def eq51(L: float, l_2: float, E_2: float) -> float:
-    """equation 51, pg
+    """NASA-TM-106943, equation 51, pg 15
     
     """
     # TODO: fix...
@@ -731,7 +788,7 @@ def eq51(L: float, l_2: float, E_2: float) -> float:
 
 
 def eq52(l_1, l_h, l_2, l_n: float) -> float:
-    """equation 52, pg 
+    """NASA-TM-106943, equation 52, pg 15
     
     """
     # TODO: fix...
@@ -751,11 +808,13 @@ def eq52(l_1, l_h, l_2, l_n: float) -> float:
 def eq53(tensile_allowable: float, P_b: float) -> float:
     """NASA-TM-106943, equation 53, pg 15
     
-    margin of safety
+    Calculate margin of safety
     
     Args:
         tensile_allowable:
         P_b:
+    Returns:
+        float: margin of safety
     """
     MS = (tensile_allowable / P_b) - 1.0
     return MS
@@ -820,11 +879,13 @@ def eq57(
     ) -> float:
     """NASA-TM-106943, equation 57, pg 16
     
-    axial (tension) load ratio:
+    Calculate axial (tension) load ratio, 
     
     Args:
         P_b:
         bending_allowable:
+    Returns:
+        float: axial (tension) load ratio
     """
     R_t = P_b / bending_allowable
     return R_t
@@ -837,8 +898,10 @@ def eq58(SF: float, V: float, shear_allowable: float) -> float:
     
     Args:
         SF: safety factor
-        V:
+        V: applied shear load
         shear_allowable:
+    Returns:
+        float: shear load ratio
     """
     assert SF >= 1.0, "SF must be >= 1.0"
     R_s = SF * V / shear_allowable
@@ -925,6 +988,8 @@ def eq63(L_e: float, D_minor_int: float) -> float:
     Returns:
         float: shear area of the bolt thread
     """
+    assert L_e > 0.0
+    assert D_minor_int > 0.0
     A_s = 5.0 * np.pi * L_e * D_minor_int / 8.0
     return A_s
 
@@ -936,7 +1001,7 @@ def eq64(F_su: float, A_s: float) -> float:
     
     Args:
         F_su: material ultimate shear strength
-        A_s: 
+        A_s: fastener shear cross-sectional area
     Returns:
         float: ultimate load
     """
@@ -1037,8 +1102,10 @@ def eq69(F_su: float, A_s: float) -> float:
     Calculate , P_ult.
     
     Args:
-        F_su:
-        A_s:
+        F_su: material ultimate shear strength
+        A_s: fastener shear cross-sectional area
+    Returns:
+        float:
     """
     P_ult = F_su * A_s
     return P_ult
@@ -1057,6 +1124,9 @@ def eq70(t: float, e: float, D: float) -> float:
     Returns:
         float: shear area
     """
+    assert t > 0.0
+    assert e > 0.0
+    assert D > 0.0
     A_s = 2.0 * t * (e - D / 2.0)
     return A_s
 
@@ -1064,14 +1134,17 @@ def eq70(t: float, e: float, D: float) -> float:
 def eq71(P_ult: float, SF: float, V: float) -> float:
     """NASA-TM-106943, equation 71, pg 20
     
-    margin of safety
+    Calculate margin of safety to ???
     
     Args:
         P_ult:
-        SF:
-        V:
+        SF: safety factor
+        V: applied shear load
+    Returns:
+        float: margin of safety to ???
     """
     assert SF >= 1.0, "error: SF must be >= 1.0"
+    assert V >= 0.0
     MS = P_ult / (SF * V) - 1.0
     return MS
 
@@ -1083,13 +1156,17 @@ def eq71(P_ult: float, SF: float, V: float) -> float:
 
 def eq72(F_br: float, A_br: float) -> float:
     """NASA-TM-106943, equation 72, pg 20
-    bearing load capability:
+    
+    Calculate bearing load capability, P_br.
+    
     Args:
         F_br: material bearing (yield or ultimate) strength
         A_br: bearing area
     Returns:
         float: bearing load capability
     """
+    assert F_br > 0.0
+    assert A_br > 0.0 
     P_br = F_br * A_br
     return P_br
 
@@ -1105,6 +1182,8 @@ def eq73(D: float, t: float) -> float:
     Returns:
         float: bearing area
     """
+    assert D > 0.0
+    assert t > 0.0
     A_br = D * t
     return A_br
 
@@ -1112,14 +1191,17 @@ def eq73(D: float, t: float) -> float:
 def eq74(P_br: float, SF: float, V: float) -> float:
     """NASA-TM-106943, equation 74, pg 20
     
+    Calculate margin of safety for ???
+    
     Args:
         P_br: bearing load capability
         SF: safety factor
-        V:
+        V: applied shear load
     Returns:
         float: margin of safety to bolt bearing failure
     """
     assert SF >= 1.0, "error: SF must be >= 1.0"
+    assert V >= 0.0, "error: V must be >= 0.0"
     MS = P_br / (SF * V) - 1.0
     return MS
 
@@ -1140,6 +1222,8 @@ def eq75(d_h: float, d_t: float) -> float:
     Returns:
         float: bearing area
     """
+    assert d_t > 0.0
+    assert d_h > d_t
     A_br = np.pi * (d_h**2 - d_t**2) / 4.0
     return A_br
 
@@ -1160,6 +1244,8 @@ def eq76(L_e: float, D_major_ext: float) -> float:
     Returns:
         float: thread shear area available to resist axial loading of the bolt
     """
+    assert L_e > 0.0
+    assert D_major_ext > 0.0
     A_s = 3.0 * np.pi * L_e * D_major_ext / 4.0
     return A_s
 
@@ -1180,6 +1266,8 @@ def eq77(F_su: float, A_s: float) -> float:
     Returns:
         float: insert ultimate allowable pull-out strength
     """
+    assert F_su > 0.0
+    assert A_s > 0.0
     P_ult = F_su * A_s
     return P_ult
 
@@ -1200,6 +1288,8 @@ def eq78(F_su: float, A_s: float) -> float:
     Returns:
         float: insert external thread pull-out strength
     """
+    assert F_su > 0.0
+    assert A_s > 0.0
     P_ult = F_su * A_s
     return P_ult
 
@@ -1220,6 +1310,8 @@ def eq79(F_su: float, A_s: float) -> float:
     Returns:
         float: insert parent material pull out strength
     """
+    assert F_su > 0.0
+    assert A_s > 0.0
     P_ult = F_su * A_s
     return P_ult
 
@@ -1265,8 +1357,75 @@ def eq81(A_t: float) -> float:
 
 
 def main() -> None:
-    pass
     # Tests:
+    
+    # conversion factors:
+    deg_to_rad = np.pi / 180.0
+    psi_to_MPa = 0.00689476
+    
+    # [N-mm], applied torque:
+    T = 10.0
+    
+    # nut factor:
+    K = 0.2
+    
+    # [mm], screw pitch: for M5 coarse thread
+    pitch = 0.8
+    print(f"pitch = {pitch}")
+    
+    # [mm], nominal fastener diameter:
+    D = 5.0
+    
+    # preload uncertainty factor:
+    u = 0.25
+    
+    print("\nTest eq1:")
+    P0max, P0min = eq1(
+        T, 
+        K, 
+        D, 
+        u,
+    )
+    print(f"P0max = {P0max} [N]")
+    print(f"P0min = {P0min} [N]")
+    
+    # mean thread diameter:
+    D_p = (D_major + D_minor) / 2.0
+    print(f"D_p = {D_p} [mm]")
+    
+    # [mm], mean radius of the screw thread:
+    r_m = D_p / 2.0
+    print(f"r_m = {r_m} [mm]")
+    
+    # [rad], thread lead angle:
+    psi = np.arctan(pitch / (2.0 * np.pi * r_m))
+    print(f"psi = {psi} [rad]")
+    # print(f"psi = {psi / deg_to_rad} [deg]")
+    
+    # [rad], thread angle:
+    alpha = 60.0 * deg_to_rad
+    print(f"alpha = {alpha} [rad]")
+    
+    # thread friction coefficient:
+    mu = 0.15
+    
+    # bolt head / nut friction coefficient:
+    mu_c = 0.15
+    
+    print("\nTest eq2:")
+    K = eq2(
+        D_p, 
+        D, 
+        psi, 
+        alpha, 
+        mu, 
+        mu_c,
+    )
+    print(f"K = {K}")
+    
+    print("\nTest eq4:")
+    A_t = eq4(D, p)
+    print(f"A_t = {A_t} [mm^2]")
     
 
 

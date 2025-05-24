@@ -8,10 +8,17 @@ Parameter Tracing:
 -once complete, collect all of the direct assignments as inputs
 """
 import numpy as np
+import thread_fast
+import thread_fast.nsts_08307a as nsts_08307a
+import thread_fast.nasa_tm_106943 as nasa_tm_106943
+import thread_fast.nasa_std_5020 as nasa_std_5020
 
 # conversion factors:
 deg_to_rad = np.pi / 180.0
 psi_to_MPa = 0.00689476
+
+deg_to_rad = thread_fast.cf.deg_to_rad
+psi_to_MPa = thread_fast.cf.psi_to_MPa
 
 # assumptions and inputs:
 # P_et : from application conditions
