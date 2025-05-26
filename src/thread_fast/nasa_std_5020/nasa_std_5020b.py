@@ -367,14 +367,16 @@ def eq18(
         F_tu: float, 
         P_tu_allow: float,
     ) -> float:
-    """nasa-std-5020b, equation 18, pg 30
+    """Estimate allowable yield tensile load, when value is not available.
     
-    Estimate allowable yield tensile load, when value is not available.
+    nasa-std-5020b, equation 18, pg 30
     
     Args:
         F_ty: yield strength
         F_tu: ultimate strength
         P_tu_allow: allowable ultimate load of the fastener in tension
+    Returns:
+        float: allowable yield tensile load
     """
     P_ty_allow = (F_ty / F_tu) * P_tu_allow
     return P_ty_allow
@@ -391,9 +393,9 @@ def eq19(
         P_tL: float,
         FF: float=1.15, 
     ) -> float:
-    """nasa-std-5020b, equation 19, pg 32
+    """Calculate margin of safety for separation, MS_sep.
     
-    Calculate margin of safety for separation, MS_sep.
+    nasa-std-5020b, equation 19, pg 32
     
     Axial loading only.
     
@@ -402,6 +404,8 @@ def eq19(
         SF_sep: separation factor of safety
         P_tL: 
         FF: fitting factor
+    Returns:
+        float: margin of safety for separation
     """
     MS_sep = P_p_min / (FF * FS_sep * P_tL) - 1.0
     return MS_sep
@@ -438,6 +442,8 @@ def eq20mod(
     
     Args:
     
+    Returns:
+        float: ultimate margin of safety for combined loading
     """
     eq20 = (P_su / P_su_allow)**2.5 + (P_tu / P_tu_allow + f_bu / F_tu)**1.5
     MS_comb = 1.0 / eq20 - 1.0
@@ -452,17 +458,23 @@ def eq21mod(
         f_bu: float,
         F_bu: float,
     ) -> float:
-    """nasa-std-5020b, modified equation 21, pg 33
+    """Calculate ultimate margin of safety for combined loading, MS_comb.
     
-    Calculate ultimate margin of safety for combined loading, MS_comb.
+    nasa-std-5020b, modified equation 21, pg 33
     
     For when the full diameter body is in the shear plane.
     
     For when accounting for plastic bending.
     
     Args:
-    
-    
+        P_su:
+        P_su_allow:
+        P_tu:
+        P_tu_allow:
+        f_bu:
+        F_bu:
+    Returns:
+        float: ultimate margin of safety for combined loading
     """
     eq21 = (P_su / P_su_allow)**2.5 + (P_tu / P_tu_allow)**1.5 + f_bu / F_bu
     MS_comb = 1.0 / eq21 - 1.0
@@ -477,16 +489,21 @@ def eq22mod(
         f_bu: float,
         F_tu: float,
     ) -> float:
-    """nasa-std-5020b, modified equation 22, pg 33
+    """Calculate ultimate margin of safety for combined loading, MS_comb.
     
-    Calculate ultimate margin of safety for combined loading, MS_comb.
+    nasa-std-5020b, modified equation 22, pg 33
     
     For when the full diameter body is in the shear plane.
     
     For when not accounting for plastic bending.
     
     Args:
-    
+        P_su:
+        P_su_allow:
+        P_tu:
+        P_tu_allow:
+        f_bu:
+        F_tu:
     """
     eq22 = (P_su / P_su_allow)**1.2 + (P_tu / P_tu_allow + f_bu / F_tu)**2
     MS_comb = 1.0 / eq22 - 1.0
@@ -501,9 +518,9 @@ def eq23mod(
         f_bu: float,
         F_bu: float,
     ) -> float:
-    """nasa-std-5020b, modified equation 23, pg 34
+    """Calculate ultimate margin of safety for combined loading, MS_comb.
     
-    Calculate ultimate margin of safety for combined loading, MS_comb.
+    nasa-std-5020b, modified equation 23, pg 34
     
     For when the full diameter body is in the shear plane.
     
@@ -524,14 +541,16 @@ def eq23mod(
 
 
 def eq24(T: float, K_nom: float, D: float) -> float:
-    """nasa-std-5020b, equation 24, pg 46
+    """Calculate initial nominal preload, P_pi_nom.
     
-    Calculate initial nominal preload, P_pi_nom.
+    nasa-std-5020b, equation 24, pg 46
     
     Args:
         T: nominal effective torque
         K_nom: nominal nut factor
         D: nominal bolt diameter
+    Returns:
+        float: initial nominal preload
     """
     P_pi_nom = T / (K_nom * D)
     return P_pi_nom
@@ -557,11 +576,18 @@ def eq26a() -> float:
     return P_pi_min
 
 
-def eq26b() -> float:
+def eq26b(
+        gamma: float, 
+        n_f, 
+        T_min, 
+        K_nom: float,
+    ) -> float:
     """nasa-std-5020b, equation 26b, pg 47
     
     Args:
     
+    Returns:
+        float: 
     """
     P_pi_min = (1.0 - gamma / np.sqrt(n_f)) * T_min / (K_nom * D)
     return P_pi_min
@@ -589,6 +615,8 @@ def eq37(L_lp: float, L: float) -> float:
     Args:
         L_lp: length between loading planes
         L: total thickness of the joint
+    Returns:
+        float: geometric load introduction factor
     """
     assert L_lp >= 0.0, "error, L_lp must be >= 0.0"
     assert L > 0.0, "error, L must be > 0.0"
@@ -631,6 +659,8 @@ def eq47(
         n: load introduction factor
         phi: stiffness factor
         P_t: external applied tensile load
+    Returns:
+        float: tensile load in preloaded bolt
     """
     P_tb = P_p + n * phi * P_t
     return P_tb
@@ -724,7 +754,10 @@ def main() -> None:
     k_c = 1.0
     
     # stiffness factor:
-    phi = eq9(k_b=k_b, k_c=k_c)
+    phi = eq9(
+        k_b=k_b, 
+        k_c=k_c,
+    )
     print(f"stiffness factor, phi = {phi}")
     
     # length to second loading plane:
@@ -737,7 +770,11 @@ def main() -> None:
     L = 2.0
     
     # geometric load introduction factor:
-    n_G = eq57(l4, l2, L)
+    n_G = eq57(
+        l4=l4, 
+        l2=l2, 
+        L=L,
+    )
     print(f"geometric load introduction factor, n_G = {n_G}")
 
 

@@ -1,9 +1,9 @@
-"""
-Equations from NSTS 08307 Rev A
+"""Equations from NSTS 08307 Rev A
 
 Criteria for Preloaded Bolts
 """
 import numpy as np
+from typing import Tuple
 
 
 ########################################################
@@ -52,34 +52,40 @@ import numpy as np
 
 # 1. Typical Coefficient Method:
 
-# K_typ = 
-# K_min = 
-# K_max = 
+# K_typ = typical nut factor
+# K_min = minimum nut factor
+# K_max = maximum nut factor
 
 
 def nut_factor(
         R_t: float, 
         R_e: float, 
-        mu_t: float, 
-        mu_b: float, 
+        mu_t_min: float,
+        mu_t_typ: float, 
+        mu_t_max: float,
+        mu_b_min: float,
+        mu_b_typ: float, 
+        mu_b_max: float,
         alpha: float, 
         beta: float, 
         D: float,
-    ):
+    ) -> Tuple[float, float, float]:
     """Calculate nut factor, K.
     
     NSTS 08307 Rev A, pg 3-5 to 3-6
     
     Args:
-        R_t: Effective radius of thread forces = 1/2 x E . . . approximately
+        R_t: Effective radius of thread forces (1/2 x E approximately)
         R_e: Effective radius of torqued element-to-joint bearing forces = 1/2 x (Ro + Ri)
-        mu_t: coefficient of friction at the external-to-internal thread interface
-        mu_b: coefficient of friction at the nut-to-joint bearing interface
-        alpha: Thread lead angle = Tan^-1 [1/(n_0*pi*E)] . . . for unified thread form
-        beta: Thread half angle = 30° . . . for unified thread form
+        mu_t_typ: typical coefficient of friction at the external-to-internal thread interface
+        mu_b_typ: typical coefficient of friction at the nut-to-joint bearing interface
+        alpha: Thread lead angle (Tan^-1 [1/(n_0*pi*E)] for unified thread form)
+        beta: Thread half angle (30° for unified thread form)
         D: Basic major diameter of external threads (bolt)
+    Returns:
+        Tuple[float, float, float]: estimated nut factor
     """
-    K_typ = (R_t * (np.tan(alpha) + mu_t / np.cos(beta)) + R_e * mu_b) / D
+    K_typ = (R_t * (np.tan(alpha) + mu_t_typ / np.cos(beta)) + R_e * mu_b_typ) / D
     
     K_min = (R_t * (np.tan(alpha) + mu_t_min / np.cos(beta)) + R_e * mu_b_min) / D
     
@@ -88,49 +94,92 @@ def nut_factor(
     return K_min, K_typ, K_max
 
 
-# T_max = max specified torque
-# T_min = min specified torque
-# T_p = prevailing torque
-# gamma = preload uncertainty
-# P_thr_pos = positive thermal load
-# P_thr_neg = negative thermal load
 
-
-# PLD_max = (1.0 + gamma) * T_max / () + P_thr_pos
-
-# PLD_min = (1.0 - gamma) * (T_min - T_p) / () + P_thr_neg - P_loss
-
-# PLD_max = (1.0 + gamma) * T_max / (K_typ * D) + P_thr_pos
-
-# PLD_min = (1.0 - gamma) * (T_min - T_p) / (K_typ * D) + P_thr_neg - P_loss
-
-
-# 2.0 Experimental Coefficient Method:
-
-# PLD_max = T_max / () + P_thermal_pos
-
-# PLD_min = (T_min - T_p) / () + P_thr_neg - P_loss
-
-# PLD_max = T_max / (K_min * D) + P_thr_pos
-
-# PLD_min = (T_min - T_p) / (K_max * D) + P_thr_neg - P_loss
-
-
-def max_preload(gamma: float) -> float:
-    """
+def max_preload(
+        gamma: float, 
+        T_max: float,
+        K_typ: float,
+        D: float,
+        P_thr_pos: float=0.0,
+        K_min: float=None,
+    ) -> float:
+    """Calculate max preload, PLD_max.
+    
     NSTS 08307 Rev A, pg 
+    
+    Args:
+        gamma: preload uncertainty factor
+        T_max: maximum applied (specified) torque to tighten fastener
+        K_typ: typical nut factor
+        D: nominal fastener diameter
+        P_thr_pos: thermally induced load that increases the preload
+        K_min: minimum expected nut factor
+    Returns:
+        float: maximum predicted preload
     """
+    assert gamma >= 0.0
+    assert D > 0.0
+    assert K_typ > 0.0
+    assert P_thr_pos >= 0.0, "error, P_thr_pos must increase the preload"
     # TODO: finish...
-    PLD_max = (1.0 + gamma)
+    
+    # 1. Typical Coefficient Method:
+    PLD_max = (1.0 + gamma) * T_max / (K_typ * D) + P_thr_pos
+    
+    # 2.0 Experimental Coefficient Method:
+    if K_min is not None:
+        print("using experimental coefficient method...")
+        PLD_max = T_max / (K_min * D) + P_thr_pos
     return PLD_max
 
 
-def min_preload(gamma: float) -> float:
-    """
+def min_preload(
+        gamma: float, 
+        T_min: float,
+        K_typ: float,
+        T_p: float,
+        D: float,
+        P_thr_neg: float=0.0,
+        relaxation_ratio: float=0.05,
+        P_loss: float=None,
+        K_max: float=None,
+    ) -> float:
+    """Calculate min preload, PLD_min.
+    
     NSTS 08307 Rev A, pg 
+    
+    Args:
+        gamma: preload uncertainty factor
+        T_min: minimum applied (specified) torque to tighten fastener
+        K_typ: typical nut factor
+        T_p: prevailing torque
+        D: nominal fastener diameter
+        P_thr_neg: thermally induced load that decreases the preload
+        relaxation_ratio: assumed preload percentage loss due to relaxation
+        K_max: maximum expected nut factor
+    Returns:
+        float: minimum predicted preload
     """
+    assert gamma >= 0.0
+    assert D > 0.0
+    assert K_typ > 0.0
+    assert P_thr_neg <= 0.0, "error, P_thr_neg must decrease the preload"
+    assert relaxation_ratio >= 0.0
     # TODO: finish...
-    PLD_min = (1.0 - gamma)
+    
+    # 1. Typical Coefficient Method:
+    if P_loss is not None:
+        PLD_min = (1.0 - gamma) * (T_min - T_p) / (K_typ * D) + P_thr_neg - P_loss
+    else:
+        PLD_min = ((1.0 - gamma) * (T_min - T_p) / (K_typ * D) + P_thr_neg) / (1.0 + relaxation_ratio)
+    
+    # 2.0 Experimental Coefficient Method:
+    if K_max is not None:
+        print("using experimental coefficient method...")
+        if P_loss is not None:
+            PLD_min = (T_min - T_p) / (K_max * D) + P_thr_neg - P_loss
+        else:
+            PLD_min = ((T_min - T_p) / (K_max * D) + P_thr_neg) / (1.0 + relaxation_ratio)
     return PLD_min
 
 
@@ -165,7 +214,7 @@ def bolt_axial_load_for_strength(
         SF: float, 
         P: float,
     ) -> float:
-    """Bolt axial load resulting from yield, ultimate or joint separation load
+    """Bolt axial load resulting from yield, ultimate or joint separation load, P_b.
     
     Used for strength margin calculations (highest expected load in the bolt).
     
@@ -177,8 +226,11 @@ def bolt_axial_load_for_strength(
         n: loading plane factor
         SF: safety factor
         P: External axial load applied to joint at bolt location due to application of limit load to the structure
+    Returns:
+        float: bolt axial load used for strength margins
     """
     assert SF >= 1.0, "error: SF must be >= 1.0"
+    assert 0.0 <= n <= 1.0
     P_b = PLD_max + n * phi * (SF * P)
     return P_b
 
@@ -203,6 +255,8 @@ def bolt_tensile_margin(
         SF: safety factor
         P: External axial load applied to joint at bolt location due to application of limit load to the structure
         P_b: Bolt axial load resulting from yield, ultimate or joint separation load
+    Returns:
+        float: margin of safety for bolt tensile failure
     """
     assert SF >= 1.0, "error: SF must be >= 1.0"
     MS_crit1 = PA_t / (SF * P) - 1.0
@@ -228,6 +282,8 @@ def thread_shear_pull_out_margin(
         SF: safety factor
         P: External axial load applied to joint at bolt location due to application of limit load to the structure
         P_b: Bolt axial load resulting from yield, ultimate or joint separation load
+    Returns:
+        float: margin of safety for thread shear pullout failure
     """
     assert SF >= 1.0, "error: SF must be >= 1.0"
     MS_crit1 = PA_s / (SF * P) - 1.0
@@ -270,6 +326,8 @@ def bolt_bending_margin(
         K_p: plastic bending factor
         SF: factor of safety
         M: Bolt bending moment resulting from limit load
+    Returns:
+        float: margin of safety for bolt bending failure
     """
     assert SF >= 1.0, "error: SF must be >= 1.0"
     MS = (MA * K_p) / (SF * M) - 1.0
@@ -287,7 +345,7 @@ def bending_load_ratio(
         MA: float, 
         K_p: float,
     ) -> float:
-    """Ratio of bending load to bending allowable.
+    """Calculate ratio of bending load to bending allowable, R_b.
     
     NSTS 08307 Rev A, pg 3-11
     
@@ -298,6 +356,8 @@ def bending_load_ratio(
         M: Bolt bending moment resulting from limit load
         MA: Bending load allowable of bolt
         K_p: plastic bending factor
+    Returns: 
+        float: Ratio of bending load to bending allowable
     """
     assert SF >= 1.0, "error: SF must be >= 1.0"
     R_b = (SF * M) / (MA * K_p)
@@ -329,6 +389,7 @@ def bolt_axial_load_for_separation(
     Returns:
         float: bolt axial load (used for joint separation margin)
     """
+    assert 0.0 <= n <= 1.0
     P_b = PLD_min + n * phi * P_sep
     return P_b
 
@@ -354,7 +415,7 @@ def joint_separation_margin_of_safety(
         n: float, 
         phi: float,
     ) -> float:
-    """Calculate margin of safety for joint separation.
+    """Calculate margin of safety for joint separation, MS_sep.
     
     NSTS 08307 Rev A, pg 3-12
     
@@ -365,6 +426,7 @@ def joint_separation_margin_of_safety(
     Returns:
         float: margin of safety for joint separation
     """
+    assert 0.0 <= n <= 1.0
     MS_sep = PLD_min / (1.0 - n * phi) - 1.0
     return MS_sep
 
@@ -458,6 +520,8 @@ def tensile_axial_load_allowable_ultimate(
     Args:
         A_t: tensile stress area of the bolt
         F_tu: Minimum tensile ultimate strength of bolt
+    Returns:
+        float: tensile allowable load against ultimate failure
     """
     assert A_t > 0.0
     PA_t_ultimate = A_t * F_tu
@@ -675,6 +739,26 @@ def main() -> None:
     # [rad], thread half angle:
     beta = 30.0 * deg_to_rad
     print(f"beta = {beta} [rad]")
+    
+    # Effective radius of torqued element-to-joint bearing forces = 1/2 x (Ro + Ri)
+    R_e = 0.5 * (D / 2.0 + 8.5 / 2.0)
+    print(f"R_e = {R_e} [mm]")
+    
+    
+    K = nut_factor(
+        R_t=r_m, 
+        R_e=R_e, 
+        mu_t_min=0.1,
+        mu_t_typ=0.15, 
+        mu_t_max=0.2,
+        mu_b_min=0.1,
+        mu_b_typ=0.15, 
+        mu_b_max=0.2,
+        alpha=alpha, 
+        beta=beta, 
+        D=D,
+    )
+    print(f"nut factor, K = {K}")
     
     
     A_se = external_thread_shear_area(

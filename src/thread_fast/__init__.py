@@ -2,3 +2,4 @@ import thread_fast.conversion_factors as cf
 import thread_fast.nasa_tm_106943.nasa_tm_106943 as nasa_tm_106943
 import thread_fast.nasa_std_5020.nasa_std_5020b as nasa_std_5020b
 import thread_fast.nsts_08307a.nsts_08307a as nsts_08307a
+from thread_fast.kubler_bulten_nut_factor import kubler_bulten_nut_factor
