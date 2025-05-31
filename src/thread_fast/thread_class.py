@@ -16,6 +16,7 @@ class Thread:
             diameter: basic major diameter
             pitch: thread pitch [mm/thread]
             es: external thread upper deviation, based on tolerance
+            external: external or internal thread?
         """
         # [mm], major (outer) diameter:
         self.d_major_basic = diameter
@@ -47,7 +48,7 @@ class Thread:
             f"pitch = {self.pitch}",
             f"H = {self.H}",
             f"r_min = {self.r_min}",
-        })
+        ])
 
 
 def main() -> None:

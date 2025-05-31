@@ -5,18 +5,29 @@ Preloaded Joint Analysis Methodology for Space Flight Systems
 Jeffrey A. Chambers
 
 References:
+
 1. Criteria for Preloaded Bolts. NSTS-08307, 1989.
+
 2. Barrett, R.T.: Fastener Design Manual. NASA RP-1228, 1990.
+
 3. Wood, C.M.: Standard Threaded Fasteners, Torque Limits For. MSFC-STD-486B, Nov. 1992.
+
 4. Shigley, J.E.; and Mischke, C.R.: Fastening, Joining, and Connecting, A Mechanical Designers' Workbook.
 McGraw-Hill Publishing Co., New York, 1990.
+
 5. Payload Flight Equipment Requirements for Safety-Critical Structures. JA-418, Rev. A, 1989.
+
 6. Shigley, J.E.; and Mitchell, L.D.: Mechanical Engineering Design, Fourth Ed., McGraw-Hill Publishing Co., New
 York, 1983.
+
 7. Bruhn, E.E: Analysis and Design of Flight Vehicle Structures. Jacobs Publishing, Co., Carmel, Indiana, 1973.
+
 8. Federal Standard: Screw-Thread Standards For Federal Service. FED-STD-H28, 1978.
+
 9. Metallic Materials and Elements for Aerospace Vehicle Structures. MIL-HDBK-5E 1990.
+
 10. Astronautic Structures Manual. NASA TM X-73305, vol. I, 1975.
+
 11. Nut, Self Locking, 250 °E 450 °F, and 800 °E MIL-N-25027E 1994.
 """
 import numpy as np
@@ -516,7 +527,9 @@ def eq21(
 
 
 def eq26(P_0: float, K_b: float) -> float:
-    """NASA-TM-106943, equation 26, pg 11
+    """
+    
+    NASA-TM-106943, equation 26, pg 11
     
     Args:
         P_0: 
@@ -596,18 +609,19 @@ def eq30(
 ########################################################
 
 
-def eq31():
-    """
+def eq31(l_1: float, l_2: float, l_n: float) -> float:
+    """Calculate length of clamped joint.
     
-    Configuration 1
+    Configuration 1: through bolt with nut
     
     NASA-TM-106943, equation 31, pg 12
     
     Args:
-        l_1:
-        l_2:
-        l_n:
-    
+        l_1: length from head to load point 1
+        l_2: length from load point 1 to load point 2
+        l_n: length from load point 2 to nut
+    Returns:
+        float: total length of clamped joint
     """
     # TODO: fix...
     L = l_1 + l_2 + ... + l_n
@@ -637,19 +651,27 @@ def eq32(A: float, E_b: float, L: float) -> float:
 # joint stiffness:
 
 
-def eq34(L: float, l_, l_2, l_n, E_1, E_2, E_n) -> float:
-    """NASA-TM-106943, equation 34, pg 12
+def eq34(
+        L: float, 
+        l_1: float, 
+        l_2: float, 
+        l_n: float, 
+        E_1: float, 
+        E_2: float, 
+        E_n: float,
+    ) -> float:
+    """Calculate joint composite modulus, E_j.
     
-    Calculate joint composite modulus, E_j.
+    NASA-TM-106943, equation 34, pg 12
     
     Args:
         L: total clamped length
         l_1:
-        E_1:
+        E_1: modulus of elasticity of part 1
         l_2:
-        E_2:
+        E_2: modulus of elasticity of part 1
         l_n:
-        E_n:
+        E_n: modulus of elasticity of part n
     Return:
         float: joint composite modulus
     """

@@ -5,19 +5,19 @@ import numpy as np
 inputs = {
     'bolt': {
         'bolt_diameter': 5.0/8.0,
-        'head_diameter': ,
+        'head_diameter': 1.0,
         'elastic_modulus': 30.0e6,
-        'yield_strength': ,
-        'ultimate_strength': ,
-        'tensile_area': ,
-        'min_pitch_diameter_external': ,
-        'min_major_diameter_external': ,
+        'yield_strength': 1.0,
+        'ultimate_strength': 1.0,
+        'tensile_area': 1.0,
+        'min_pitch_diameter_external': 1.0,
+        'min_major_diameter_external': 1.0,
         'coefficient_thermal_expansion': 0.0000096,
     },
     'thread': {
         'threads_per_inch': 11,
-        'lead_angle': ,
-        'half_angle': ,  # 30 degrees for unified threads
+        'lead_angle': 1.0,
+        'half_angle': 1.0,  # 30 degrees for unified threads
     },
     'joint': {
         'n_layers': 2,
@@ -27,23 +27,23 @@ inputs = {
     'top_layer': {
         'elastic_modulus': 30.0e6,
         'yield_strength': 100000.0,
-        'ultimate_strength': ,
-        'thickness': ,
+        'ultimate_strength': 1.0,
+        'thickness': 1.0,
         'coefficient_thermal_expansion': 0.0000096,
     },
     'middle_layer': {
         'elastic_modulus': 30.0e6,
         'yield_strength': 100000.0,
-        'ultimate_strength': ,
-        'thickness': ,
-        'coefficient_thermal_expansion': ,
+        'ultimate_strength': 1.0,
+        'thickness': 1.0,
+        'coefficient_thermal_expansion': 1.0,
     },
     'bottom_layer': {
         'elastic_modulus': 30.0e6,
         'yield_strength': 100000.0,
-        'ultimate_strength': ,
-        'thickness': ,
-        'coefficient_thermal_expansion': ,
+        'ultimate_strength': 1.0,
+        'thickness': 1.0,
+        'coefficient_thermal_expansion': 1.0,
     },
     
     'preload': {
@@ -62,9 +62,9 @@ inputs = {
         'T_ambient': 20.0,
         'T_hot': 60.0,
         'T_cold': -24.0,
-    }
+    },
     'factors_of_safety': {
-        'yield': 1.2,
+        'fs_yield': 1.2,
         'ultimate': 1.5,
     },
     'friction': {
@@ -78,20 +78,21 @@ def check_inputs(inputs):
     """Validate inputs.
     
     """
+    print(inputs['friction'])
     
     # check temperatures:
-    T_amb = inputs.environment.T_ambient
-    T_hot = inputs.environment.T_hot
-    T_cold = inputs.environment.T_cold
+    T_amb = inputs['environment']['T_ambient']
+    T_hot = inputs['environment']['T_hot']
+    T_cold = inputs['environment']['T_cold']
 
     assert T_hot >= T_amb
     assert T_amb >= T_cold
     
-    SF_yield = inputs.factors_of_safety.yield
-    SF_ultimate = inputs.factors_of_safety.ultimate
-
-    assert SF_yield > 1.0
-    assert SF_ultimate > 1.0
+    # SF_yield = inputs.factors_of_safety.fs_yield
+    # SF_ultimate = inputs.factors_of_safety.ultimate
+    # 
+    # assert SF_yield > 1.0
+    # assert SF_ultimate > 1.0
     
     
 def main() -> None:

@@ -1,6 +1,7 @@
-# Welcome to MkDocs
+# Welcome to Thread Fast
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+Part of the Roads Are No Fun project.
+
 
 ## Commands
 
