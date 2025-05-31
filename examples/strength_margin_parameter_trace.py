@@ -8,7 +8,7 @@ Parameter Tracing:
 -once complete, collect all of the direct assignments as inputs
 """
 import numpy as np
-
+import thread_fast
 
 # conversion factors:
 deg_to_rad = np.pi / 180.0
@@ -46,6 +46,9 @@ print(f"SF_y = {SF_y}")
 # [mm], nominal fastener diameter:
 D = 5.0
 
+# [mm], screw pitch: for M5 coarse thread
+pitch = 0.8
+print(f"pitch = {pitch}")
 
 # Loads:
 
@@ -53,14 +56,25 @@ D = 5.0
 P_sL = 100.0
 
 
+# allowable ultimate tensile strength for the fastener material:
+F_tu = 120000.0 * psi_to_MPa
+print(f"F_tu = {F_tu} [MPa]")
+
 # allowable ultimate shear strength for the fastener material:
 # ratio of 0.577 to tensile strength (von Mises criterion)
-F_su = 
-
+F_su = 0.577 * F_tu
+print(f"F_su = {F_su} [MPa]")
 
 # [mm^2], minimum minor diameter area for the fastener threads:
-A_m = 
+# NSTS 08307A, bolt_tensile_stress_area
 
+# TODO: this might not be the right area... need shear area...
+A_m = thread_fast.nsts_08307a.bolt_tensile_stress_area(
+    D_e_bsc=D, 
+    n_0=None,
+    pitch=pitch,
+)
+print(f"A_m = {A_m}")
 
 
 # [N], allowable ultimate shear load:
@@ -68,10 +82,11 @@ A_m =
 
 # NASA-STD-5020B eq 12:
 P_su_allow = np.pi * D**2 * F_su / 4.0
+print(f"P_su_allow = {P_su_allow}")
 
 # NASA-STD-5020B eq 13:
 P_su_allow = F_su * A_m
-
+print(f"P_su_allow = {P_su_allow}")
 
 
 
@@ -85,6 +100,14 @@ P_su_allow = F_su * A_m
 # NASA-STD-5020B eq 14
 # compare to: NASA-TM-106943, equation 54, pg 16
 MS_u_shear = P_su_allow / (fitting_factor * SF_u * P_sL) - 1.0
+print(f"MS_u_shear = {MS_u_shear}")
+
+MS_u_shear = thread_fast.nasa_std_5020b.eq14(
+    P_su_allow=P_su_allow,
+    FS_u=SF_u,
+    P_sL=P_sL,
+    FF=fitting_factor,
+)
 print(f"MS_u_shear = {MS_u_shear}")
 
 # yield, axial load only:

@@ -51,6 +51,7 @@ design = {
     'u': 0.25,  # preload uncertainty_factor, due to preloading method
     'config': 1,  # through bolt with nut, or bolt into insert
     'threads_in_shear_plane': False, # are the threads in the shear plane? 
+    'separation_critical': False, # is the application separation critical?
 }
 
 # Washer:

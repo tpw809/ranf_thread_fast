@@ -547,6 +547,9 @@ def bolt_tensile_stress_area(
         float: tensile stress area of the bolt
     """
     # TODO: pitch vs tpi logic
+    if n_0 is None:
+        assert pitch is not None
+        n_0 = 25.4 / pitch 
     A_t = 0.7854 * (D_e_bsc - 0.9743 / n_0)**2
     return A_t
 
