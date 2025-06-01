@@ -1,9 +1,12 @@
 """Equations from NASA-STD-5020B
+
 REQUIREMENTS FOR THREADED FASTENING
 SYSTEMS IN SPACEFLIGHT HARDWARE
+
 2021
 """
 import numpy as np
+from typing import List
 
 
 ############################################
@@ -914,7 +917,7 @@ def eq57(l4: float, l2: float, L: float) -> float:
 ############################################
 
 
-def eq87(n_i, N_i) -> None:
+def eq87(n_i: list[float], N_i: list[float]) -> float:
     """Calculate cumulative damage according to Miner's rule.
     
     nasa-std-5020b, equation 87, pg 99

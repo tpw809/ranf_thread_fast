@@ -3,32 +3,51 @@
 From: NASA-TM-108377 The Mechanism of Bolt Loading
 
 The load in a preloaded bolt, P_b, is:
+
 P_b = PLD + n * phi * P_ext
+
 where:
+
 PLD = preload
+
 n = load introduction factor
+
 phi = stiffness factor
+
 P_ext = externally applied tensile load
 
 The stiffness factor, phi, is:
+
 phi = k_b / (k_a + k_b)
+
 where 
+
 k_b = stiffness of the bolt
+
 k_a = stiffness of the abutment
 
 The stiffness based load introduction factor, n, is:
+
 n = (B + C) / (B*C) = 1.0 - (A + D) / (A*D)
+
 where:
+
 1 / k_a = 1/(A*k_a) + 1/(B*k_a) + 1/(C*k_a) + 1/(D*k_a)
+
 means that:
+
 1 = 1/A + 1/B + 1/C + 1/D
 
 What do A,B,C,D actually represent?
+
 A,B,C,D = stiffness coefficients
 
 A = portion of clamped joint compressed in loaded part 1
+
 B = portion of clamped joint relieved in loaded part 1
+
 C = portion of clamped joint relieved in loaded part 2
+
 D = portion of clamped joint compressed in loaded part 2
 """
 import numpy as np

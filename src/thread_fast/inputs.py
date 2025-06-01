@@ -9,11 +9,6 @@ Material = {
     'cte': 16.9e-6,  # coefficient of thermal expansion
 }
 
-# Safety Factors:
-Safety_Factors = {
-    'SF_sep': 1.2,  # safety factor against joint separation
-}
-
 # Temperatures:
 Temperature = {
     'T_amb': 20.0,  # ambient temperature
@@ -66,3 +61,43 @@ Load = {
     # shear load
     # bending load
 }
+
+
+def generate_inputs(
+        SF_u: float, 
+        SF_y: float,
+        SF_sep: float,
+    ) -> dict:
+    """
+    
+    Args:
+        SF_u: ultimate safety factor
+        SF_y: yield safety factor
+        SF_sep: joint separation safety factor
+    """
+    assert SF_u >= 1.0
+    assert SF_y >= 1.0
+    
+    # Safety Factors:
+    safety_factors = {
+        'SF_u': SF_u,
+        'SF_y': SF_y,
+        'SF_sep': SF_sep,  # safety factor against joint separation
+    }
+    
+    input_dict = {
+        'safety_factor': safety_factors,
+    }
+    return input_dict
+
+
+def main() -> None:
+    
+    Sf_u = 1.2
+    Sf_y = 1.1
+    Sf_sep = 1.2
+    
+    
+if __name__ == "__main__":
+    main()
+    

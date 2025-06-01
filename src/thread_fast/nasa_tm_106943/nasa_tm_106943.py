@@ -435,11 +435,11 @@ def eq17(
     Safety factor is not applied to the preload!
     
     Args:
-        P_0_max(float): max expected preload in the joint
-        SF(float): factor of safety
-        P_et(float): resultant external load directed at the joint
-        n(float): loading plane factor
-        phi(float): joint stiffness factor
+        P_0_max (float): max expected preload in the joint
+        SF (float): factor of safety
+        P_et (float): resultant external load directed at the joint
+        n (float): loading plane factor
+        phi (float): joint stiffness factor
     Returns:
         float: total axial load in the fastener
     """
@@ -481,7 +481,7 @@ def eq20(
     NASA-TM-106943, equation 20, pg 10
     
     Args:
-        P_o: nominal bolt preload
+        P_0: nominal bolt preload
         delta_b: bolt deflection
         n: loading plane factor
         delta_j: joint abutment deflection
@@ -795,7 +795,13 @@ def eq46() -> float:
 ########################################################
 
 
-def eq47(l_1, l_h, l_2, l_n, L_i) -> float:
+def eq47(
+        l_1: float, 
+        l_h: float, 
+        l_2: float, 
+        l_n: float, 
+        L_i: float,
+    ) -> float:
     """Calculate L.
     
     NASA-TM-106943, equation 47, pg 
@@ -1409,8 +1415,8 @@ def eq79(F_su: float, A_s: float) -> float:
     P_ult = insert parent material pull out strength
     
     Args:
-        F_su(float): material ultimate shear strength
-        A_s(float): fastener shear cross sectional area
+        F_su (float): material ultimate shear strength
+        A_s (float): fastener shear cross sectional area
     Returns:
         float: insert parent material pull out strength
     """
@@ -1431,8 +1437,8 @@ def eq80(P_ult: float, P_b: float) -> float:
     MS = margin of safety
     
     Args:
-        P_ult(float): strength
-        P_b(float): total axial bolt load
+        P_ult (float): strength
+        P_b (float): total axial bolt load
     Returns:
         float: margin of safey to ???
     """
@@ -1451,7 +1457,7 @@ def eq81(A_t: float) -> float:
     P_ult = nut strength of standard MS class II nuts
     
     Args:
-        A_t(float): tensile area
+        A_t (float): tensile area
     Returns:
         float: nut strength of standard MS class II nuts
     """

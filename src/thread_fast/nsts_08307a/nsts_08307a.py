@@ -394,7 +394,7 @@ def bolt_axial_load_for_separation(
     return P_b
 
 
-def joint_separation_load(P: float, SF_Sep: float) -> float:
+def joint_separation_load(P: float, SF_sep: float) -> float:
     """Calculate joint separation load, P_sep.
     
     NSTS 08307 Rev A, pg 3-12
