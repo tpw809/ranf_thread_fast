@@ -33,11 +33,13 @@ preload_stress_ratio = 0.65
 # fitting factor: requirement TFSR3 in NASA-STD-5020B
 fitting_factor = 1.15
 
-# [-], ultimate safety factor: requirement TFSR2 in NASA-STD-5020B
+# [-], ultimate safety factor: 
+# requirement TFSR2 in NASA-STD-5020B
 SF_u = 1.4
 print(f"SF_u = {SF_u}")
 
-# [-], yield safety factor: requirement TFSR2 in NASA-STD-5020B
+# [-], yield safety factor: 
+# requirement TFSR2 in NASA-STD-5020B
 SF_y = 1.1
 print(f"SF_y = {SF_y}")
 

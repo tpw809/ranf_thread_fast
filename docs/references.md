@@ -24,6 +24,40 @@
 
 [NASA-STD-8739.14 NASA FASTENER PROCUREMENT, RECEIVING INSPECTION, AND STORAGE PRACTICES FOR NASA MISSION HARDWARE](references/nasa-std-873914_fastener_procurement_receiving_inspection.pdf)
 
+AMSE B1.13M-2005 Metric Screw Threads: M Profile
+
+ASME B1.21M-1997 (R2003) Metric Screw Threads: MJ Profile
+
+ISO 68-1: ISO general purpose screw threads — Basic profile — Metric screw threads
+
+ISO 261: ISO general purpose metric screw threads — General plan
+
+ISO 262: ISO general purpose metric screw threads — Selected sizes for screws, bolts and nuts
+
+ISO 724: ISO general purpose metric screw threads — Basic dimensions
+
+ISO 965: ISO general purpose metric screw threads — Tolerances
+
+ISO 965-1: Principles and basic data
+
+ISO 965-2: Limits of sizes for general purpose external and internal screw threads
+
+ISO 965-3: Deviations for constructional screw threads
+
+ISO 965-4: Limits of sizes for hot-dip galvanized external screw threads to mate with internal screw threads tapped with tolerance position H or G after galvanizing
+
+ISO 965-5: Limits of sizes for internal screw threads to mate with hot-dip galvanized external screw threads with maximum size of tolerance position h before galvanizing
+
+ISO 5408:1983 Cylindrical screw threads - Vocabulary
+
+ISO 5855  Aerospace - MJ Threads
+
+JIS B 0205 Metric Coarse Screw Threads
+
+JIS B 0206 Unified Thread
+
+MIL-S-8879C UNJ Thread Definition
+
 ## Technical Papers
 
 [NASA-TM-106943 Preloaded Joint Analysis Methodology for Space Flight Systems](references/NASA-TM-106943_preloaded_joint_analysis_methodology_for_space_flight_systems.pdf)

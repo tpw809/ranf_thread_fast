@@ -5,7 +5,6 @@ Criteria for Preloaded Bolts
 import numpy as np
 from typing import Tuple
 
-
 ########################################################
 # 3.0 Required Criteria for Preloaded Bolts: pg 3-1
 ########################################################
@@ -105,7 +104,7 @@ def max_preload(
     ) -> float:
     """Calculate max preload, PLD_max.
     
-    NSTS 08307 Rev A, pg 
+    NSTS 08307 Rev A, pg 3-5 & 3-6
     
     Args:
         gamma: preload uncertainty factor
@@ -121,7 +120,7 @@ def max_preload(
     assert D > 0.0
     assert K_typ > 0.0
     assert P_thr_pos >= 0.0, "error, P_thr_pos must increase the preload"
-    # TODO: finish...
+    # TODO: finish... PLD input & TOL
     
     # 1. Typical Coefficient Method:
     PLD_max = (1.0 + gamma) * T_max / (K_typ * D) + P_thr_pos
@@ -146,7 +145,7 @@ def min_preload(
     ) -> float:
     """Calculate min preload, PLD_min.
     
-    NSTS 08307 Rev A, pg 
+    NSTS 08307 Rev A, pg 3-5 & 3-6
     
     Args:
         gamma: preload uncertainty factor
@@ -165,7 +164,7 @@ def min_preload(
     assert K_typ > 0.0
     assert P_thr_neg <= 0.0, "error, P_thr_neg must decrease the preload"
     assert relaxation_ratio >= 0.0
-    # TODO: finish...
+    # TODO: finish...  PLD input & TOL
     
     # 1. Typical Coefficient Method:
     if P_loss is not None:
@@ -201,6 +200,7 @@ def min_preload(
 
 # P_loss = 0.05 * PLD_max
 # input: relaxation_ratio
+# included in max_preload & min_preload functions
 
 ########################################################
 # 3.7 Preloaded Bolt Strength Criteria: pg 3-8
@@ -233,7 +233,6 @@ def bolt_axial_load_for_strength(
     assert 0.0 <= n <= 1.0
     P_b = PLD_max + n * phi * (SF * P)
     return P_b
-
 
 
 # a. Axial Load: pg 3-9
@@ -277,6 +276,8 @@ def thread_shear_pull_out_margin(
     
     NSTS 08307 Rev A, pg 3-10
     
+    Only checked at ultimate load.
+    
     Args:
         PA_s: thread shear load allowable
         SF: safety factor
@@ -294,12 +295,135 @@ def thread_shear_pull_out_margin(
 # b. Shear Load:
 
 
+def shear_margin(VA: float, SF: float, V: float) -> float:
+    """Calculate margin of safety for shear.
+    
+    NSTS 08307 Rev A, pg 3-10
+    
+    Args:
+        VA: shear load allowable of bolt
+        SF: safety factor
+        V: Bolt shear load resulting from limit load
+    Returns:
+        float: margin of safety for shear
+    """
+    assert SF >= 1.0, "error: SF must be >= 1.0"
+    MS = (VA / (SF * V)) - 1.0
+    return MS
+
+
 # c. Bending Load:
+
+
+def bending_margin(MA: float, SF: float, M: float) -> float:
+    """Calculate margin of safety for bending.
+    
+    NSTS 08307 Rev A, pg 3-10
+    
+    Args:
+        MA: bending load allowable of bolt
+        SF: safety factor
+        M: Bolt bending load resulting from limit load
+    Returns:
+        float: margin of safety for bending
+    """
+    assert SF >= 1.0, "error: SF must be >= 1.0"
+    MS = (MA / (SF * M)) - 1.0
+    return MS
 
 
 # d. Combined Axial, Shear and/or Bending Load:
 
 
+def axial_load_ratio(
+        SF: float, 
+        P: float, 
+        PA_t: float, 
+        P_b: float, 
+        PLD_max: float,
+    ) -> float:
+    """Calculate ratio of axial load to axial load allowable.
+    
+    NSTS 08307 Rev A, pg 3-10
+    
+    Args:
+        SF:
+        P:
+        PA_t:
+        P_b:
+        PLD_max:
+    Returns:
+        float: Ratio of axial load to axial load allowable
+    """
+    assert SF >= 1.0, "error: SF must be >= 1.0"
+    R_a1 = (SF * P) / PA_t
+    R_a2 = P_b / PA_t
+    R_a3 = PLD_max / PA_t
+    return np.max([R_a1, R_a2, R_a3])
+
+
+def bending_load_ratio(
+        SF: float, 
+        M: float, 
+        MA: float, 
+        K_p: float=1.0,
+    ) -> float:
+    """Calculate ratio of bending load to bending allowable, R_b.
+    
+    NSTS 08307 Rev A, pg 3-10 & 3-11
+    
+    Used in combined loading criteria.
+    
+    Args:
+        SF: factor of safety
+        M: Bolt bending moment resulting from limit load
+        MA: Bending load allowable of bolt
+        K_p: plastic bending factor
+    Returns: 
+        float: Ratio of bending load to bending allowable
+    """
+    assert SF >= 1.0, "error: SF must be >= 1.0"
+    R_b = (SF * M) / (MA * K_p)
+    return R_b
+
+
+def shear_load_ratio(SF: float, V: float, VA: float) -> float:
+    """Calculate ratio of shear load to shear load allowable.
+    
+    Args:
+        SF: safety factor
+        V:
+        VA:
+    Returns:
+        float: Ratio of shear load to shear load allowable
+    """
+    assert SF >= 1.0, "error: SF must be >= 1.0"
+    R_s = (SF * V) / VA
+    return R_s
+
+
+def combined_load_margin(
+        R_a: float, 
+        R_b: float, 
+        R_s: float,
+        K: float,
+    ) -> float:
+    """Calculate combined load failure criterion.
+    
+    Result must be > 1.0
+    
+    Deprecated, see: 
+    
+    Args:
+        R_a: Ratio of axial load to axial load allowable
+        R_b: Ratio of bending load to bending load allowable
+        R_s: Ratio of shear load to shear load allowable
+        K: plastic bending factor
+    Returns:
+        float: combined load failure criterion
+    """
+    print("warning: this criteria for combined loading is deprecated")
+    return (R_a + R_b/K)**2 + R_s**3 
 
 
 ########################################################
@@ -336,32 +460,30 @@ def bolt_bending_margin(
 
 # b. combined axial, shear, and/or bending load:
 
-# R_a**2 + R_b + R_s**3 <= 1.0
 
-
-def bending_load_ratio(
-        SF: float, 
-        M: float, 
-        MA: float, 
-        K_p: float,
+def combined_load_margin2(
+        R_a: float, 
+        R_b: float, 
+        R_s: float,
     ) -> float:
-    """Calculate ratio of bending load to bending allowable, R_b.
+    """Calculate combined load failure criterion.
     
-    NSTS 08307 Rev A, pg 3-11
+    Result must be > 1.0
     
-    Used in combined loading criteria.
+    R_a**2 + R_b + R_s**3 <= 1.0
+    
+    Deprecated, see: 
     
     Args:
-        SF: factor of safety
-        M: Bolt bending moment resulting from limit load
-        MA: Bending load allowable of bolt
-        K_p: plastic bending factor
-    Returns: 
-        float: Ratio of bending load to bending allowable
+        R_a: Ratio of axial load to axial load allowable
+        R_b: Ratio of bending load to bending load allowable
+        R_s: Ratio of shear load to shear load allowable
+        K: plastic bending factor
+    Returns:
+        float: combined load failure criterion
     """
-    assert SF >= 1.0, "error: SF must be >= 1.0"
-    R_b = (SF * M) / (MA * K_p)
-    return R_b
+    print("warning: this criteria for combined loading is deprecated")
+    return R_a**2 + R_b + R_s**3 
 
 
 ########################################################
@@ -418,6 +540,8 @@ def joint_separation_margin_of_safety(
     """Calculate margin of safety for joint separation, MS_sep.
     
     NSTS 08307 Rev A, pg 3-12
+    
+    Only for P_b < tensile yield allowable of the bolt.
     
     Args:
         PLD_min: minimum preload
@@ -477,11 +601,17 @@ def tensile_axial_load_allowable_yield(
     return PA_t_yield
 
 
-def tensile_axial_load_allowable_ultimate() -> float:
-    """Calculate tensile axial load allowable
+def tensile_axial_load_allowable_ultimate(
+        minimum_ultimate_tensile_load: float,
+    ) -> float:
+    """Calculate tensile axial ultimate load allowable, PA_t.
     
     NSTS 08307 Rev A, pg A-4
     
+    Args:
+        minimum_ultimate_tensile_load:
+    Returns:
+        float: tensile axial ultimate load allowable
     """
     PA_t_ultimate = minimum_ultimate_tensile_load
     return PA_t_ultimate
@@ -542,11 +672,10 @@ def bolt_tensile_stress_area(
     Args:
         D_e_bsc: basic (nominal) major diameter of external threads
         n_0: threads per inch (tpi)
-        pitch: thread pitch 
+        pitch: thread pitch, mm
     Returns:
         float: tensile stress area of the bolt
     """
-    # TODO: pitch vs tpi logic
     if n_0 is None:
         assert pitch is not None
         n_0 = 25.4 / pitch 
@@ -626,11 +755,13 @@ def external_thread_shear_area(
         TK_i: Tolerance on minor diameter of internal threads
         TE_e: Tolerance on pitch diameter of external threads
         G_e: Allowance on external threads
-        pitch: thread pitch
+        pitch: thread pitch, mm
     Returns:
         float: external thread shear area
     """
-    # TODO: pitch vs tpi logic
+    if n_0 is None:
+        assert pitch is not None
+        n_0 = 25.4 / pitch 
     assert L_e > 0.0
     assert K_i_max > 0.0
     A_se = np.pi * L_e * K_i_max * (0.750 - 0.57735 * n_0 * (TK_i + TE_e + G_e))
@@ -661,11 +792,13 @@ def internal_thread_shear_area(
         TD_e: Tolerance on major diameter of external threads
         TE_i: Tolerance on pitch diameter of internal threads
         G_e: Allowance on external threads
-        pitch: thread pitch
+        pitch: thread pitch, mm
     Returns:
         float: internal thread shear area
     """
-    # TODO: pitch vs tpi logic
+    if n_0 is None:
+        assert pitch is not None
+        n_0 = 25.4 / pitch 
     assert L_e > 0.0
     assert D_e_min > 0.0
     A_si = np.pi * L_e * D_e_min * (0.875 - 0.57735 * n_0 * (TD_e + TE_i + G_e))
@@ -673,6 +806,8 @@ def internal_thread_shear_area(
 
 
 def main() -> None:
+    from thread_fast.threads.iso_68_1998 import eq_H
+    from thread_fast.threads.iso_724_1993 import eq_d_1
     
     # conversion factors:
     deg_to_rad = np.pi / 180.0
@@ -703,20 +838,41 @@ def main() -> None:
     # Bolt bending moment resulting from limit load:
     M = 5.0
     
+    
+    # Geometry:
+    
+    # height of fundamental triangle:
+    H = eq_H(pitch)
+    print(f"H = {H} [mm]")
+    
     # Basic major diameter of external threads (bolt):
     D = 5.0
     
     # [mm], fastener major (outer) diameter:
     D_major = 4.976
     
-    # [mm], fastener minor diameter:
+    # [mm], fastener minor diameter (basic):
     D_minor = 4.134
+    print(f"D_minor = {D_minor}")
+    D_minor = eq_d_1(d=D, H=None, P=pitch)
+    print(f"D_minor = {D_minor}")
+    D_minor = eq_d_1(d=D, H=H)
+    print(f"D_minor = {D_minor}")
+    D_minor = D - (5.0/4.0)*H
+    print(f"D_minor = {D_minor}")
+    
+    # Major diameter of external threads (basic (nominal) dimension):
+    D_e_bsc = D_major
     
     # preload uncertainty due to installation method:
     gamma = 0.25
     
     # assumed preload relaxation:
     relaxation_ratio = 0.05
+    
+    
+    # length of thread engagement:
+    L_e = 5.0
     
     # [mm], mean thread (pitch?) diameter:
     # Basic pitch diameter of external threads (bolt)
@@ -747,6 +903,58 @@ def main() -> None:
     R_e = 0.5 * (D / 2.0 + 8.5 / 2.0)
     print(f"R_e = {R_e} [mm]")
     
+    # Allowance on external threads:
+    G_e = 0.01
+    
+    # Tolerance on pitch diameter of internal threads:
+    TE_i = 0.001
+    
+    # Tolerance on pitch diameter of external threads:
+    TE_e = 0.001
+    
+    # Tolerance on minor diameter of internal threads:
+    TK_i = 0.001
+    
+    # Tolerance on major diameter of external threads:
+    TD_e = 0.001
+    
+    
+    # Material Properties:
+    
+    # Minimum tensile yield strength of bolt:
+    F_ty = 30.0e3
+    
+    # Minimum tensile ultimate strength of bolt:
+    F_tu = 40.0e3
+    
+    # Minimum shear ultimate strength of bolt:
+    F_su_bolt=20.e3
+    
+    # Minimum shear ultimate strength of nut:
+    F_su_nut=20.0e3
+    
+    # Shear load allowable of bolt:
+    VA = 1.0
+    
+    # Bending load allowable of bolt:
+    MA = 1.0
+    
+    # load introduction factor:
+    n = 0.5
+    
+    # stiffness factor:
+    phi = 0.75
+    phi = k_b / (k_b + k_j)
+    
+    
+    # Preload Plan:
+    
+    # applied torque:
+    T_max = 12.0
+    T_min = 8.0
+    
+    
+    # Nut Factor:
     
     K = nut_factor(
         R_t=r_m, 
@@ -763,40 +971,180 @@ def main() -> None:
     )
     print(f"nut factor, K = {K}")
     
+    # Tensile Area:
+    
+    A_t = bolt_tensile_stress_area(
+        D_e_bsc=D_e_bsc, 
+        n_0=n_0,
+        pitch=None,
+    )
+    print(f"A_t = {A_t} [mm^2]")
+    
+    A_t = bolt_tensile_stress_area(
+        D_e_bsc=D_e_bsc, 
+        n_0=None,
+        pitch=pitch,
+    )
+    print(f"A_t = {A_t} [mm^2]")
+    
+    # Thread Shear Area:
     
     A_se = external_thread_shear_area(
-        L_e=10.0,
+        L_e=L_e,
         K_i_max=4.5,
         n_0=n_0,
-        TK_i=0.001,
-        TE_e=0.001,
-        G_e=0.01,
+        TK_i=TK_i,
+        TE_e=TE_e,
+        G_e=G_e,
         pitch=None,
     )
     print(f"A_se = {A_se} [mm^2]")
     
+    A_se = external_thread_shear_area(
+        L_e=L_e,
+        K_i_max=4.5,
+        n_0=None,
+        TK_i=TK_i,
+        TE_e=TE_e,
+        G_e=G_e,
+        pitch=pitch,
+    )
+    print(f"A_se = {A_se} [mm^2]")
+    
     A_si = internal_thread_shear_area(
-        L_e=10.0,
+        L_e=L_e,
         D_e_min=4.7,
         n_0=n_0,
-        TD_e=0.001,
-        TE_i=0.001,
-        G_e=0.01,
+        TD_e=TD_e,
+        TE_i=TE_i,
+        G_e=G_e,
         pitch=None,
     )
     print(f"A_si = {A_si} [mm^2]")
     
+    A_si = internal_thread_shear_area(
+        L_e=L_e,
+        D_e_min=4.7,
+        n_0=None,
+        TD_e=TD_e,
+        TE_i=TE_i,
+        G_e=G_e,
+        pitch=pitch,
+    )
+    print(f"A_si = {A_si} [mm^2]")
+    
+    
+    # Estimated Preload:
+    PLD_max = max_preload(
+        gamma=gamma, 
+        T_max=T_max,
+        K_typ=K[1],
+        D=D,
+        P_thr_pos=0.0,
+        K_min=None,
+    )
+    print(f"PLD_max = {PLD_max} [??]")
+    
+    PLD_min = min_preload(
+        gamma=gamma, 
+        T_min=T_min,
+        K_typ=K[1],
+        T_p=0.5,
+        D=D,
+        P_thr_neg=0.0,
+        relaxation_ratio=0.05,
+        P_loss=None,
+        K_max=None,
+    )
+    print(f"PLD_min = {PLD_min} [??]")
+    
+    
+    # Bolt Axial Load: 
+    
+    P_b_str = bolt_axial_load_for_strength(
+        PLD_max=PLD_max, 
+        n=n, 
+        phi=phi, 
+        SF=SF, 
+        P=P,
+    )
+    print(f"P_b_str = {P_b_str} [??]")
+    
+    P_sep = joint_separation_load(
+        P=P, 
+        SF_sep=SF_sep,
+    )
+    
+    P_b_sep = bolt_axial_load_for_separation(
+        PLD_min=PLD_min,
+        n=n,
+        phi=phi,
+        P_sep=P_sep,
+    )
+    print(f"P_b_sep = {P_b_sep} [??]")
+    
+    
+    # Allowables:
+    
+    PA_t = tensile_axial_load_allowable_ultimate(
+        A_t=A_t, 
+        F_tu=F_tu,
+    )
+    print(f"PA_t = {PA_t} [??]")
+    
     P_se = external_thread_shear_load_allowable(
         A_se=A_se,
-        F_su_bolt=20.e3,
+        F_su_bolt=F_su_bolt,
     )
-    print(f"P_se = {P_se} [???]")
+    print(f"P_se = {P_se} [N]")
     
     P_si = internal_thread_shear_load_allowable(
         A_si=A_si, 
-        F_su_nut=20.0e3,
+        F_su_nut=F_su_nut,
     )
-    print(f"P_si = {P_si} [???]")
+    print(f"P_si = {P_si} [N]")
+    
+    
+    # Margins of Safety:
+    
+    MS_tensile = bolt_tensile_margin(
+        PA_t=PA_t, 
+        SF=SF, 
+        P=P, 
+        P_b=P_b_str,
+    )
+    print(f"MS_tensile = {MS_tensile} [-]")
+    
+    MS_pull_out_i = thread_shear_pull_out_margin(
+        PA_s=P_si, 
+        SF=SF, 
+        P=P, 
+        P_b=P_b_str,
+    )
+    print(f"MS_pull_out_i = {MS_pull_out_i} [-]")
+    
+    MS_pull_out_e = thread_shear_pull_out_margin(
+        PA_s=P_se, 
+        SF=SF, 
+        P=P, 
+        P_b=P_b_str,
+    )
+    print(f"MS_pull_out_e = {MS_pull_out_e} [-]")
+    
+    MS_shear = shear_margin(
+        VA=VA, 
+        SF=SF, 
+        V=V,
+    )
+    print(f"MS_shear = {MS_shear} [-]")
+    
+    MS_bend = bending_margin(
+        MA=MA, 
+        SF=SF, 
+        M=M,
+    )
+    
+
 
 
 if __name__ == "__main__":
