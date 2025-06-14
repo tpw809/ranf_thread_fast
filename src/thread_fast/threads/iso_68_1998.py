@@ -4,6 +4,22 @@ ISO general purpose screw threads - Basic profile
 
 Part 1: Metric screw threads
 Part 2: Inch screw threads
+
+Standards:
+-ISO 965-1:1998, ISO general purpose metric screw threads — Tolerances — Part 1: Principles and basic data
+-ISO 5408:1983, Cylindrical screw threads — Vocabulary
+
+Symbols:
+-D: basic major diameter of internal thread (nominal diameter)
+-d: basic major diameter of external thread (nominal diameter)
+-D2:basic pitch diameter of internal thread
+-d2: basic pitch diameter of external thread
+-D1: basic minor diameter of internal thread
+-d1: basic minor diameter of external thread
+-H: height of fundamental triangle
+-P: thread pitch
+
+#TODO: add figure
 """
 import numpy as np
 
