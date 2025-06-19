@@ -1,10 +1,15 @@
 """Equations from ISO-965-1:1998
 
-ISO general purpose metric screw threads —
-
-Tolerances —
+ISO general purpose metric screw threads — Tolerances
 
 Part 1: Principles and basic data
+
+
+Standards:
+-ISO 68
+-ISO 262
+-ISO 965-1
+-ISO 5408
 
 
 Symbols:
@@ -25,6 +30,7 @@ Symbols:
 -C: root truncation of external thread
 
 EI + T = ES
+
 es + T = ei ???
 
 """
@@ -71,7 +77,12 @@ import numpy as np
 
 def eq_C_max(H: float, R_min: float, T_d2: float) -> float:
     """
+    ISO 965:1998
     
+    Args:
+    
+    Returns:
+        float:
     """
     C_max = H/4.0 - R_min * (1.0 - np.cos(np.pi/3.0 - np.arccos(1.0 - T_d2 / (4.0*R_min)))) + T_d2 / 2.0
     return C_max
@@ -79,7 +90,12 @@ def eq_C_max(H: float, R_min: float, T_d2: float) -> float:
 
 def eq_C_min(P: float) -> float:
     """
+    ISO 965:1998
     
+    Args:
+    
+    Returns:
+        float:
     """
     C_min = 0.125 * P
     return C_min
@@ -119,7 +135,15 @@ def eq_C_min(P: float) -> float:
 
 
 def main() -> None:
-    pass
+    # Tests:
+    
+    # basic major diameter:
+    d = 6.0
+    
+    # thread pitch:
+    pitch = 1.0
+    
+    
     
 
 if __name__ == "__main__":
