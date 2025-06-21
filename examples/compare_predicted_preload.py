@@ -28,6 +28,7 @@ T_max = 22.0
 T_p = 5.0
 
 
+# NSTS 08307A:
 PLD_min = nsts_08307a.min_preload(
     gamma=gamma, 
     T_min=T_min,  # add or subtract prevailing torque?
@@ -48,3 +49,7 @@ PLD_max = nsts_08307a.max_preload(
     P_thr_pos=0.0,
 )
 print(f"PLD_max = {PLD_max}")
+
+
+# NASA-STD-5020B:
+

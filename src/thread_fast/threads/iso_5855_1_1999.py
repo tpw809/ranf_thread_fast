@@ -640,6 +640,8 @@ def main() -> None:
     for i, thread in enumerate(sorted_array):
         # print(f"\ni = {i}")
         print(thread)
+        
+        #TODO: finish testing...
 
 
 if __name__ == "__main__":

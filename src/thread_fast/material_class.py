@@ -82,7 +82,7 @@ def main() -> None:
     
     a286 = Material(
         name='a286',
-        E_mpa='200.0e3',
+        E_mpa=200.0e3,
         nu=0.3,
         rho_gcc=7.93,
         cte_mm_mm_C=16.5e-6,
@@ -92,6 +92,19 @@ def main() -> None:
         Su_mpa=896.0,
     )
     print(a286)
+    
+    inconel_718 = Material(
+        name='inconel_718',
+        E_mpa=200.0e3,
+        nu=0.29,
+        rho_gcc=8.19,
+        cte_mm_mm_C=13.0e-6,
+        tc_w_mK=11.4,
+        hc_J_gC=0.435,
+        Sy_mpa=1100.0,
+        Su_mpa=1375.0,
+    )
+    print(inconel_718)
     
 
 if __name__ == "__main__":

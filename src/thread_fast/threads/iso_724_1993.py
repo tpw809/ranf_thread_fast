@@ -74,9 +74,9 @@ metric_thread_list = [
     [10.0, 1.0],
     [10.0, 0.75],
 ]
-# TODO: finish the list!!!
+#TODO: finish the list!!!
 
-# a better data structure?
+#TODO: a better data structure?
 metric_thread_dict = {
     '5.0': {'0.8', '0.5'}
 }
@@ -219,12 +219,22 @@ def main() -> None:
     for thread in metric_thread_list:
         print(f"\nthread = {thread}")
         H = eq_H(thread[1])
+        
+        # external thread pitch diameter:
         d2 = eq_d_2(thread[0], None, thread[1])
+        
+        # internal thread pitch diameter:
         D2 = eq_D_2(thread[0], None, thread[1])
+        
+        # external thread minor diameter:
         d1 = eq_d_1(thread[0], None, thread[1])
+        
+        # internal thread minor diameter:
         D1 = eq_D_1(thread[0], None, thread[1])
+        
         h3 = eq_h_3(H)
         d3 = eq_d_3(thread[0], None, thread[1])
+        
         print(f"H = {H} [mm]")
         print(f"d2 = {d2} [mm]")
         print(f"D2 = {D2} [mm]")

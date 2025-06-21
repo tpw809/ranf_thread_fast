@@ -23,6 +23,9 @@ D_minor = 4.134
 
 # [mm], mean thread (pitch?) diameter:
 # Basic pitch diameter of external threads (bolt)
+# Metric d2 and D2
+#TODO: combine external and internal thread tolerances...
+# this has to do with where the friction acts (on average)
 E = (D_major + D_minor) / 2.0
 print(f"E = {E} [mm]")
 
@@ -46,7 +49,8 @@ beta = 30.0 * deg_to_rad
 print(f"beta = {beta} [rad]")
 
 # Effective radius of torqued element-to-joint bearing forces = 1/2 x (Ro + Ri)
-R_e = 0.5 * (D / 2.0 + 8.5 / 2.0)
+D_head = 8.5
+R_e = 0.5 * (D / 2.0 + D_head / 2.0)
 print(f"R_e = {R_e} [mm]")
 
 # check if TM-106942 should be using half angle:

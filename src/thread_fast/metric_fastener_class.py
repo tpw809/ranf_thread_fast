@@ -3,14 +3,19 @@
 Timothy P Woodard
 
 References:
+-Machinery Handbook 29th Ed.
+-NASA STD 5020A, 2018
+-NASA STD 5020B, 2021
+-Mil-Hdbk-60: threaded fasteners, tightening to proper tension
 
-Machinery Handbook 29th Ed.
 
-NASA STD 5020A, 2018
+Fastener consists of:
+-thread
+-head
+-shank
+-material
 
-NASA STD 5020B, 2021
 
-Mil-Hdbk-60: threaded fasteners, tightening to proper tension
 """
 import numpy as np
 
@@ -64,12 +69,6 @@ class MetricFastener:
         
         self.coarse = True
         
-        # [MPa], ultimate tensile strength:
-        self.sigma_u = 480.0
-        
-        # [MPa], yield strength:
-        self.sigma_y = 410.0
-        
         # [rad], thread angle:
         self.thread_angle = 60.0 * np.pi / 180.0
         
@@ -85,6 +84,15 @@ class MetricFastener:
         # [mm], tapped hole size:
         self.tapped_hole = 2.8
 
+
+        # MATERIAL PROPERTIES:
+        
+        # [MPa], ultimate tensile strength:
+        self.sigma_u = 480.0
+        
+        # [MPa], yield strength:
+        self.sigma_y = 410.0
+        
         # e [MPa], young's modulus:
         self.e = 200.0e3
 

@@ -11,11 +11,15 @@ Safety factor against ultimate failure (rupture).
 
 A good starting safety factor for ultimate failure is: SF_u = 1.4
 
+NASA-STD-5001 is an example of a structural factors of safety requirements document.
+
 ### Yield Safety Factor
 
 Safety factor against yield (plastic deformation).
 
 A good starting safety factor for yield failure is: SF_u = 1.2
+
+NASA-STD-5001 is an example of a structural factors of safety requirements document.
 
 ### Separation Safety Factor
 
@@ -86,7 +90,7 @@ Threaded Fastener failure modes include:
 -joint slip
 
 
-# Preload
+## Preload
 
 Most joints rely on preload to perform adequately.
 The preload is a tension in the fastener and compression in the clamped parts.
@@ -102,4 +106,23 @@ Common means of installation to control preload include:
 -bolt elongation
 -ultrasonic measurement
 -preload indicating washers
+
+## Washers
+
+Always use a washer unless there is a very good reason you can't.
+
+The purpose of washers includes:
+-protect the clamped part bearing surface
+-control coefficient of friction between fastener head and bearing surface
+-protect the radius joining the head and shank on the fastener
+-provide a hard bearing surface for the head or nut
+
+
+## Load Application Factor
+
+The load application factor accounts for the effective stiffness that is loaded and unloaded in the fastener as external load is applied.
+
+There is a geometric and stiffness based method for estimating load application factor.
+
+TODO: show 3 extreme cases and compare goodness, show stiffness diagrams
 

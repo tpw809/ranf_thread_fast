@@ -4,13 +4,10 @@ ISO general purpose metric screw threads — Tolerances
 
 Part 1: Principles and basic data
 
-
 Standards:
--ISO 68
+-ISO 68 ISO general purpose screw threads - Basic profile
 -ISO 262
--ISO 965-1
 -ISO 5408
-
 
 Symbols:
 -d: basic major diameter of external thread
@@ -76,8 +73,9 @@ import numpy as np
 
 
 def eq_C_max(H: float, R_min: float, T_d2: float) -> float:
-    """
-    ISO 965:1998
+    """Calculate 
+    
+    ISO 965:1998, pg
     
     Args:
     
@@ -89,8 +87,9 @@ def eq_C_max(H: float, R_min: float, T_d2: float) -> float:
 
 
 def eq_C_min(P: float) -> float:
-    """
-    ISO 965:1998
+    """Calculate
+    
+    ISO 965:1998, pg 
     
     Args:
     
