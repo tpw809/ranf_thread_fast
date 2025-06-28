@@ -1,6 +1,34 @@
 """Equations from NSTS 08307 Rev A
 
 Criteria for Preloaded Bolts
+
+Symbols:
+
+a. External/Internal Loads:
+
+- P = External axial load applied to joint at bolt location due to application of limit load to the structure
+- Pb = Bolt axial load resulting from yield, ultimate or joint separation load
+- V = Bolt shear load resulting from limit load
+- M = Bolt bending moment resulting from limit load
+
+b. Factors of Safety:
+
+- SF = Bolt strength factor of safety
+- SFsep = Joint separation factor of safety
+
+c. Allowables/Strengths:
+
+- PAt = Axial load allowable of bolt due to tension
+- PAs = Axial load allowable of bolt or nut due to thread shear
+- VA = Shear load allowable of bolt
+- MA = Bending load allowable of bolt
+
+Nut Factors:
+
+- K_typ = typical nut factor
+- K_min = minimum nut factor
+- K_max = maximum nut factor
+
 """
 import numpy as np
 from typing import Tuple
@@ -22,38 +50,15 @@ from typing import Tuple
 # 3.2 Definitions: pg 3-1
 ########################################################
 
-
 ########################################################
 # 3.2.2 Definition of Symbols: pg 3-2
 ########################################################
-
-# a. External/Internal Loads:
-
-# P = External axial load applied to joint at bolt location due to application of limit load to the structure
-# Pb = Bolt axial load resulting from yield, ultimate or joint separation load
-# V = Bolt shear load resulting from limit load
-# M = Bolt bending moment resulting from limit load
-
-# b. Factors of Safety:
-# SF = Bolt strength factor of safety
-# SFsep = Joint separation factor of safety
-
-# c. Allowables/Strengths:
-# PAt = Axial load allowable of bolt due to tension
-# PAs = Axial load allowable of bolt or nut due to thread shear
-# VA = Shear load allowable of bolt
-# MA = Bending load allowable of bolt
-
 
 ########################################################
 # 3.3 Calculation of Max and Min Preloads: pg 3-5
 ########################################################
 
 # 1. Typical Coefficient Method:
-
-# K_typ = typical nut factor
-# K_min = minimum nut factor
-# K_max = maximum nut factor
 
 
 def nut_factor(
@@ -390,10 +395,12 @@ def bending_load_ratio(
 def shear_load_ratio(SF: float, V: float, VA: float) -> float:
     """Calculate ratio of shear load to shear load allowable.
     
+    NSTS 08307 Rev A, pg ???
+    
     Args:
         SF: safety factor
-        V:
-        VA:
+        V: Bolt shear load resulting from limit load
+        VA: Shear load allowable of bolt
     Returns:
         float: Ratio of shear load to shear load allowable
     """
@@ -410,6 +417,8 @@ def combined_load_margin(
     ) -> float:
     """Calculate combined load failure criterion.
     
+    NSTS 08307 Rev A, pg ???
+    
     Result must be > 1.0
     
     Deprecated, see: 
@@ -423,7 +432,7 @@ def combined_load_margin(
         float: combined load failure criterion
     """
     print("warning: this criteria for combined loading is deprecated")
-    return (R_a + R_b/K)**2 + R_s**3 
+    return (R_a + R_b / K)**2 + R_s**3 
 
 
 ########################################################
@@ -467,6 +476,8 @@ def combined_load_margin2(
         R_s: float,
     ) -> float:
     """Calculate combined load failure criterion.
+    
+    NSTS 08307 Rev A, pg ???
     
     Result must be > 1.0
     

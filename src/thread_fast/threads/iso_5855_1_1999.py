@@ -7,18 +7,18 @@ Part 1: General requirements
 Tolerances in accordance with ISO 965-1 or as defined by part designer.
 
 Symbols:
--d: basic major diameter of external thread
--d_2: basic pitch diameter of external thread
--d_3: minor diameter of external thread
--D: basic major diameter of internal thread
--D_1: basic minor diameter of internal thread
--D_2: basic pitch diameter of internal thread
--D_3: diameter to root of internal thread
--T_d: tolerance for d (major diameter)
--T_D1: tolerance for D1 (minor diameter)
--T_D2: tolerance for D2 (pitch diameter)
--es: upper deviation (allowance)
--EI: lower deviation (allowance)
+- d: basic major diameter of external thread
+- d_2: basic pitch diameter of external thread
+- d_3: minor diameter of external thread
+- D: basic major diameter of internal thread
+- D_1: basic minor diameter of internal thread
+- D_2: basic pitch diameter of internal thread
+- D_3: diameter to root of internal thread
+- T_d: tolerance for d (major diameter)
+- T_D1: tolerance for D1 (minor diameter)
+- T_D2: tolerance for D2 (pitch diameter)
+- es: upper deviation (allowance)
+- EI: lower deviation (allowance)
 
 EI + T = ES
 
@@ -268,7 +268,7 @@ def eq_D3_max(
     """
     assert D > 0.0
     assert P > 0.0
-    D2_max = eq_D2_min(D, P, EI, T_D2)
+    D2_max = eq_D2_min(D, P, EI)
     D3_max = D2_max + 0.79386 * P
     return D3_max
 

@@ -1,14 +1,15 @@
 """Material Class
 
 Critical Material Parameters:
--modulus of elasticity
--tensile yield strength
--tensile ultimate strength
--shear yield strength
--shear ultimate strength
--bearing (contact) yield strength
--bearing (contact) ultimate strength
--coefficient of thermal expansion
+
+- modulus of elasticity
+- tensile yield strength
+- tensile ultimate strength
+- shear yield strength
+- shear ultimate strength
+- bearing (contact) yield strength
+- bearing (contact) ultimate strength
+- coefficient of thermal expansion
 
 shear yield strength may be assumed to be 0.577 * tensile yield strength, per von Mises criterion
 
@@ -23,12 +24,13 @@ S_by = 1.5 * S_ty
 where S_bu is ultimate bearing stress, S_by is yeild bearing stress, and S_ty is tensile yield stress.
 
 Subscript keys:
-S for stress or strength
-_t = tensile
-_s = shear
-_c or _b = contact or bearing
-_y = yield
-_u = ultimate
+
+- S for stress or strength (sigma)
+- _t = tensile
+- _s = shear
+- _c or _b = contact or bearing
+- _y = yield
+- _u = ultimate
 
 """
 import json
@@ -47,6 +49,8 @@ class Material:
     rho_gcc: float  # density [g/cm^3]
     tc_w_mK: float  # thermal conductivity [W/m-K]
     hc_J_gC: float  # heat capacity [J/g-C]
+    # override bearing or contact strength ???
+    # override shear strength ???
     
     @property
     def Sc_mpa(self) -> float:
@@ -62,6 +66,24 @@ class Material:
         Sc_max = max applied contact surface stress
         """
         return (1.0/np.sqrt(3.0)) / 0.335 * self.Sy_mpa
+
+    @property
+    def Ssy_mpa(self) -> float:
+        """
+        yield shear strength
+        
+        shear yield strength may be assumed to be 0.577 * tensile yield strength, per von Mises criterion
+        """
+        return 0.577 * self.Sy_mpa
+
+    @property
+    def Ssu_mpa(self) -> float:
+        """
+        ultimate shear strength
+        
+        shear yield strength may be assumed to be 0.577 * tensile yield strength, per von Mises criterion
+        """
+        return 0.577 * self.Su_mpa
 
     def to_dict(self) -> dict:
         """Create dictionary with material data."""
@@ -105,6 +127,36 @@ def main() -> None:
         Su_mpa=1375.0,
     )
     print(inconel_718)
+    
+    stainless_steel_18_8 = Material(
+        name='stainless_steel_18_8',
+        E_mpa=200.0e3,
+        nu=0.29,
+        rho_gcc=8.0,
+        cte_mm_mm_C=17.5e-6,
+        tc_w_mK=16.2,
+        hc_J_gC=0.5,
+        Sy_mpa=215.0,
+        Su_mpa=505.0,
+    )
+    print(stainless_steel_18_8)
+    
+    ti6al4v = Material(
+        name='ti6al4v',
+        E_mpa=114.0e3,
+        nu=0.342,
+        rho_gcc=4.43,
+        cte_mm_mm_C=8.6e-6,
+        tc_w_mK=6.7,
+        hc_J_gC=0.526,
+        Sy_mpa=880.0,
+        Su_mpa=950.0,
+    )
+    print(ti6al4v)
+    print(ti6al4v.Sc_mpa)
+    
+    # test to_dict:
+    print(a286.to_dict())
     
 
 if __name__ == "__main__":

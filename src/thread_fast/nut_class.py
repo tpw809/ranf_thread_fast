@@ -3,14 +3,15 @@
 Timothy P Woodard, June 21, 2025
 
 Nut consists of:
--body
--thread
--material
+
+- body (length and outer diameter)
+- thread
+- material
 
 """
 import numpy as np
-from thread_fast import Material
-from thread_fast import MetricThread
+from thread_fast.material_class import Material
+from thread_fast.threads.metric_thread_class import MetricThread
 import thread_fast.conversion_factors as cf
 
 
@@ -23,7 +24,7 @@ class Nut:
             material,
         ):
         
-        # outer bearing diameter:
+        # outer bearing diameter (on abutment):
         self.Do = Do
         
         self.length = length
@@ -38,6 +39,7 @@ class Nut:
             f"{self.thread}",
             f"Do = {self.Do_head}",
             f"\n{self.material}",
+            f"length = {self.length}"
             "",
         ])
 

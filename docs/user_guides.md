@@ -44,23 +44,23 @@ CRES 300 series
 
 
 ### Components
--Fastener
--Nut or Nut Plate
--Insert
--Washers
--Clamped Parts
--Lubricants
--Coatings
+- Fastener
+- Nut or Nut Plate
+- Insert
+- Washers
+- Clamped Parts
+- Lubricants
+- Coatings
 
 
 ### Material Properties
 
--Modulus of elasticity
--Coefficient of thermal expansion
--Tensile Yield Strength
--Tensile Ultimate Strength
--Shear Ultimate Strength
--Bearing (Contact) Strength
+- Modulus of elasticity
+- Coefficient of thermal expansion
+- Tensile Yield Strength
+- Tensile Ultimate Strength
+- Shear Ultimate Strength
+- Bearing (Contact) Strength
 
 
 
@@ -80,14 +80,15 @@ The capability is usually the minimum expected.
 
 
 Threaded Fastener failure modes include:
--joint separation or loss of adequate joint preload
--fastener yielding
--fastener rupture (ultimate failure)
--thread shear (fastener, nut, insert internal, insert external, parent internal)
--joint bearing
--bolt bearing
--shear tear out
--joint slip
+
+- joint separation or loss of adequate joint preload
+- fastener yielding
+- fastener rupture (ultimate failure)
+- thread shear (fastener, nut, insert internal, insert external, parent internal)
+- joint bearing
+- bolt bearing
+- shear tear out
+- joint slip
 
 
 ## Preload
@@ -101,21 +102,23 @@ Most joints cannot afford to implement direct preload measurement, so it must be
 See MIL-HDBK-60 in the references section.
 
 Common means of installation to control preload include:
--torque
--turn of the nut / head
--bolt elongation
--ultrasonic measurement
--preload indicating washers
+
+- torque
+- turn of the nut / head
+- bolt elongation
+- ultrasonic measurement
+- preload indicating washers
 
 ## Washers
 
 Always use a washer unless there is a very good reason you can't.
 
 The purpose of washers includes:
--protect the clamped part bearing surface
--control coefficient of friction between fastener head and bearing surface
--protect the radius joining the head and shank on the fastener
--provide a hard bearing surface for the head or nut
+
+- protect the clamped part bearing surface
+- control coefficient of friction between fastener head and bearing surface
+- protect the radius joining the head and shank on the fastener
+- provide a hard bearing surface for the head or nut
 
 
 ## Load Application Factor

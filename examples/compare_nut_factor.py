@@ -3,10 +3,7 @@ import thread_fast
 import thread_fast.nsts_08307a as nsts_08307a
 import thread_fast.nasa_tm_106943 as nasa_tm_106943
 import thread_fast.nasa_std_5020 as nasa_std_5020
-
-# conversion factors:
-deg_to_rad = np.pi / 180.0
-psi_to_MPa = 0.00689476
+import thread_fast.conversion_factors as cf
 
 # [mm/thread], screw pitch: for M5 coarse thread
 pitch = 0.8
@@ -39,13 +36,13 @@ print(f"r_m = {r_m} [mm]")
 # [rad], thread lead angle:
 psi = np.arctan(pitch / (2.0 * np.pi * r_m))
 print(f"psi = {psi} [rad]")
-print(f"psi = {psi / deg_to_rad} [deg]")
+print(f"psi = {psi / cf.deg_to_rad} [deg]")
 # alpha = np.arctan(1.0 / (n_0 * np.pi * E_in))
 # print(f"alpha = {alpha} [rad]")
 # print(f"alpha = {alpha / deg_to_rad} [deg]")
 
 # [rad], thread half angle:
-beta = 30.0 * deg_to_rad
+beta = 30.0 * cf.deg_to_rad
 print(f"beta = {beta} [rad]")
 
 # Effective radius of torqued element-to-joint bearing forces = 1/2 x (Ro + Ri)
@@ -55,8 +52,10 @@ print(f"R_e = {R_e} [mm]")
 
 # check if TM-106942 should be using half angle:
 # [rad], thread angle:
-alpha2 = 60.0 * deg_to_rad
+alpha2 = 60.0 * cf.deg_to_rad
 print(f"alpha2 = {alpha2} [rad]")
+
+# conclusion: TM-106942 should be using ...
 
 
 K_kb = thread_fast.kubler_bulten_nut_factor(
@@ -71,8 +70,8 @@ print(f"K_kb = {K_kb}")
 
 
 K_08307 = nsts_08307a.nut_factor(
-    R_t=r_m, 
-    R_e=R_e, 
+    R_t=r_m,  # mean radius of thread
+    R_e=R_e,  # mean head or nut radius
     mu_t_min=0.1,
     mu_t_typ=0.15, 
     mu_t_max=0.2,

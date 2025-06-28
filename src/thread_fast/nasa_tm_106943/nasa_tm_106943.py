@@ -76,7 +76,7 @@ def eq1(
     Returns:
         float: nominal bolt preload
     """
-    assert T > 0.0, "T must be > 0.0"
+    assert T >= 0.0, "T must be >= 0.0"
     assert K > 0.0, "K must be > 0.0"
     assert D > 0.0, "D must be > 0.0"
     assert u >= 0.0, "u must be >= 0.0"
@@ -110,6 +110,8 @@ def eq2(
     Returns:
         float: estimated nut factor
     """
+    assert D_p > 0.0
+    assert D > D_p
     assert mu >= 0.0, "mu must be >= 0.0"
     assert mu_c >= 0.0, "mu_c must be >= 0.0"
     # K = D_p / (2.0 * D) * ((np.tan(psi) + mu * np.sec(alpha)) / (1.0 - mu * np.tan(psi) * np.sec(alpha))) + 0.625 * mu_c
@@ -117,15 +119,39 @@ def eq2(
     return K
 
 
-# NASA-TM-106943, equation 3, pg 4
-# assume 65% of tensile yield = preload_stress_ratio
-# T_KD = T / (K * D)
-# T_KD = 0.65 * F_ty * A_t
-# T = preload_stress_ratio * F_ty * A_t * K * D
-# A_t = tensile area
-# F_ty = tensile yeild strength
-# K = nut factor
-# D = nominal bolt diameter
+def eq3(
+        D: float, 
+        K: float, 
+        A_t: float,
+        F_ty: float,
+        preload_stress_ratio: float=0.65,
+    ) -> float:
+    """Calculate torque applied to achieve target stress in fastener, T_applied.
+    
+    NASA-TM-106943, equation 3, pg 4
+    
+    assume 65% of tensile yield = preload_stress_ratio
+    
+    T_KD = T / (K * D)
+    
+    T_KD = 0.65 * F_ty * A_t
+    
+    T = 0.65 * F_ty * A_t * K * D
+    
+    Args:
+        D: nominal bolt diameter
+        K: nut factor
+        A_t: tensile area
+        F_ty: tensile yield strength
+    Returns:
+        float: torque applied to achieve target stress in fastener
+    """
+    assert D > 0.0
+    assert K > 0.0
+    assert F_ty > 0.0
+    assert preload_stress_ratio > 0.0
+    T_applied = preload_stress_ratio * F_ty * A_t * K * D
+    return T_applied
 
 
 def eq4(D: float, p: float) -> float:
@@ -200,10 +226,10 @@ def eq7(
 
 
 # NASA-TM-106943, equation 8, pg 5
-# intermediate algebra to get to 10
+# intermediate algebra to get to equation 10
 
 # NASA-TM-106943, equation 9, pg 5
-# intermediate algebra to get to 10
+# intermediate algebra to get to equation 10
 
 
 def eq10(

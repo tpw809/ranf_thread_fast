@@ -4,10 +4,11 @@ Timothy P Woodard, June 21, 2025
 
 
 Fastener consists of:
--head
--shank (un-threaded length)
--thread
--material
+
+- head
+- shank (un-threaded length)
+- thread
+- material
 
 Shank definition:
 [
@@ -19,8 +20,9 @@ Shank definition:
 
 """
 import numpy as np
-from thread_fast import Material
-from thread_fast import MetricThread
+import thread_fast.nsts_08307a as nsts_08307a
+from thread_fast.material_class import Material
+from thread_fast.threads.metric_thread_class import ExternalMetricThread
 import thread_fast.conversion_factors as cf
 
 
@@ -28,7 +30,7 @@ class Fastener:
     def __init__(
             self, 
             name: str,
-            thread: MetricThread,
+            thread: ExternalMetricThread,
             material: Material,
             Do_head: float,
             Do_shank: float,
@@ -58,6 +60,34 @@ class Fastener:
         
         # threaded length:
         self.L_thread = L_thread
+        
+        
+        # [mm^2], minimum minor diameter area for the fastener threads:
+        # NSTS 08307A, bolt_tensile_stress_area
+        
+        # TODO: this might not be the right area... need shear area...
+        self.A_m = nsts_08307a.bolt_tensile_stress_area(
+            D_e_bsc=self.thread.d, 
+            n_0=None,
+            pitch=self.thread.pitch,
+        )
+        print(f"A_m = {self.A_m}")
+        print(f"A_t = {self.thread.A_t}")
+        
+        # [N], allowable ultimate shear load:
+        # NASA-STD-5020B eq 12 & 13
+        
+        # NASA-STD-5020B eq 12:
+        # F_su = allowable ultimate shear strength for the fastener material
+        F_su = self.material.Ssu_mpa
+        P_su_allow = np.pi * self.thread.d**2 * F_su / 4.0
+        print(f"P_su_allow = {P_su_allow}")
+        
+        # NASA-STD-5020B eq 13:
+        P_su_allow = F_su * self.A_m
+        print(f"P_su_allow = {P_su_allow}")
+        
+        
         
     @property
     def length(self) -> float:
@@ -101,13 +131,13 @@ def main() -> None:
         Su_mpa=896.0,
     )
     
-    thread = MetricThread(
+    thread = ExternalMetricThread(
         name='M6x1.0',
         basic_major_diameter=6.0,
         pitch=1.0,
         tolerance_grade=4,
         allowance_class='h',
-        external=True,
+        # external=True,
         profile='M',
         beta=30.0 * cf.deg_to_rad,
     )
