@@ -11,7 +11,7 @@ Nut consists of:
 """
 import numpy as np
 from thread_fast.material_class import Material
-from thread_fast.threads.metric_thread_class import MetricThread
+from thread_fast.threads.metric_thread_class import InternalMetricThread
 import thread_fast.conversion_factors as cf
 
 
@@ -36,10 +36,10 @@ class Nut:
     def __str__(self):
         return "\n".join([
             "\nNut:",
+            f"Do = {self.Do}",
+            f"length = {self.length}",
             f"{self.thread}",
-            f"Do = {self.Do_head}",
             f"\n{self.material}",
-            f"length = {self.length}"
             "",
         ])
 
@@ -59,13 +59,13 @@ def main() -> None:
         Su_mpa=896.0,
     )
     
-    thread = MetricThread(
+    thread = InternalMetricThread(
         name='M6x1.0',
         basic_major_diameter=6.0,
         pitch=1.0,
         tolerance_grade=4,
         allowance_class='H',
-        internal=True,
+        # internal=True,
         profile='M',
         beta=30.0 * cf.deg_to_rad,
     )

@@ -5,6 +5,7 @@ machinery handbook 29th ed, pg 1878
 60-degree symmetrical screw thread
 
 Standards:
+
 - ANSI/ASME B1.13M-2005 Metric Screw Threads: M Profile
 - ANSI B1.18M-1982 (R1987) Metric Screw Threads for Commercial Mechanical Fasteners - Boundary Profile Defined
 - ISO 68-1:1998, ISO general purpose screw threads — Basic profile — Part 1: Metric screw threads
@@ -15,6 +16,7 @@ Standards:
 - ISO 5408:1983, Cylindrical screw threads — Vocabulary
 
 Symbols:
+
 - D: basic major diameter (internal thread)
 - D1: basic minor diameter (internal thread)
 - D2: basic pitch diameter (internal thread)
@@ -627,7 +629,7 @@ class InternalMetricThread:
         return "\n".join([
             "\nThread:",
             f"name = {self.name}",
-            f"basic_major_diameter = {self.d}",
+            f"basic_major_diameter = {self.D}",
             f"pitch = {self.pitch}",
             "",
         ])

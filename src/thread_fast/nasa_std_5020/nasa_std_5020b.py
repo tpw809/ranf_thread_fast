@@ -756,6 +756,7 @@ def eq38() -> float:
     See: The Mechanism of Bolt Loading, NASA-TM-108377
     
     """
+    # TODO: complete...
     k = 0.0
     return k
 

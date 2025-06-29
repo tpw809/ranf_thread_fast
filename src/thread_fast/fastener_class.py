@@ -97,6 +97,8 @@ class Fastener:
     def stiffness(self) -> float:
         """axial stiffness, N/mm
         
+        NASA-TM-106943 eq 32, pg 12
+        
         k = (A * E) / L
         """
         return self.material.E_mpa / self.length

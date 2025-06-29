@@ -553,7 +553,7 @@ def eq21(
 
 
 def eq26(P_0: float, K_b: float) -> float:
-    """
+    """Calculate , delta_b.
     
     NASA-TM-106943, equation 26, pg 11
     
@@ -636,7 +636,7 @@ def eq30(
 
 
 def eq31(l_1: float, l_2: float, l_n: float) -> float:
-    """Calculate length of clamped joint.
+    """Calculate length of clamped joint, L.
     
     Configuration 1: through bolt with nut
     
@@ -768,10 +768,14 @@ def eq37(A: float, E_b: float, L: float) -> float:
 
 
 def eq42(l_1, l_2, l_n, L_i) -> float:
-    """NASA-TM-106943, equation 42, pg
+    """Calculate total length of clamped components, L.
+    
+    NASA-TM-106943, equation 42, pg
     
     Args:
     
+    Returns:
+        float: total length of clamped components
     """
     # TODO: fix...
     L = l_1 + l_2 + ... + (l_n - L_i / 2.0)
@@ -796,10 +800,14 @@ def eq44(E_j: float, D: float, L: float) -> float:
 
 
 def eq45(L, l1, l2, E_2, l_n, L_i) -> float:
-    """NASA-TM-106943, equation 45, pg
+    """Calculate , E_j.
+    
+    NASA-TM-106943, equation 45, pg
     
     Args:
     
+    Returns:
+        float:
     """
     # TODO: fix...
     E_j = L / (l1 / E_1 + l2 / E_2 + ... + ((l_n - L_i/2.0)/E_n))
@@ -807,8 +815,14 @@ def eq45(L, l1, l2, E_2, l_n, L_i) -> float:
 
 
 def eq46() -> float:
-    """NASA-TM-106943, equation 46, pg 
+    """Calculate , n.
     
+    NASA-TM-106943, equation 46, pg 
+    
+    Args:
+    
+    Returns:
+        float: 
     """
     # TODO: fix...
     n = (l_1/2 + l_2 + ... + (l_n - L_i/2)) / (l_1 + l_2 + ... + l_n)
@@ -844,17 +858,20 @@ def eq47(
 
 
 def eq48(A: float, E_b: float, L: float) -> float:
-    """NASA-TM-106943, equation 48, pg 
+    """Calculate bolt stiffness, K_b.
     
-    Calculate bolt stiffness, K_b.
+    NASA-TM-106943, equation 48, pg 
     
     Args:
-        A:
-        E_b:
-        L:
+        A: nominal fastener cross-sectional area
+        E_b: bolt modulus of elasticity
+        L: fastener grip length
     Returns:
-        float:
+        float: bolt stiffness
     """
+    assert A > 0.0
+    assert L > 0.0
+    assert E_b > 0.0
     K_b = A * E_b / L
     return K_b
 
@@ -865,9 +882,9 @@ def eq49(
         L: float, 
         d_w: float,
     ) -> float:
-    """NASA-TM-106943, equation 49, pg 15
+    """Calculate joint stiffness, K_j.
     
-    Calculate joint stiffness, K_j.
+    NASA-TM-106943, equation 49, pg 15
     
     For configuration 4: 
     

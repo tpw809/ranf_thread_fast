@@ -22,6 +22,8 @@ from thread_fast.kubler_bulten_nut_factor import kubler_bulten_nut_factor
 from thread_fast.nut_class import Nut
 from thread_fast.material_class import Material
 from thread_fast.fastener_class import Fastener
+from thread_fast.washer_class import Washer
+from thread_fast.clamped_part_class import ClampedPart
 from thread_fast.threads.metric_thread_class import MetricThread
 from thread_fast.threads.metric_thread_class import ExternalMetricThread
 from thread_fast.threads.metric_thread_class import InternalMetricThread
@@ -34,8 +36,9 @@ class BoltedJoint:
             name: str,
             fastener: Fastener,
             clamped_parts,
-            mu_thread: float,
-            mu_abutment: float,
+            nut: Nut,
+            mu_thread: float=0.15,
+            mu_abutment: float=0.15,
             separation_safety_factor: float=1.2,
             yield_safety_factor: float=1.1,
             ultimate_safety_factor: float=1.4,
@@ -54,6 +57,10 @@ class BoltedJoint:
         self.name = name
         
         self.fastener = fastener
+        
+        self.clamped_parts = clamped_parts
+        
+        self.nut = nut
         
         self.override_nut_factor = override_nut_factor
         
@@ -105,19 +112,37 @@ class BoltedJoint:
         # [bool], is the nut or fastener head torqued?
         self.nut_torqued = nut_torqued
         
-    
+        ###############################
         # Joint Stiffness:
+        ###############################
         
+        
+        
+        
+        ###############################
         # Joint Stiffness Factor:
+        ###############################
+        
         # NASA-TM-106943 eq 29
         # NASA-STD-5020B eq 9
         # phi = K_b / (K_b + K_j)
         
         
-        # axial bolt load due to thermal effects: eq 10
-        # P_th_min = ((K_b * K_j) / (K_b + K_j)) * L * delta_T_min * (alpha_j - alpha_b)
-        # P_th_max = ((K_b * K_j) / (K_b + K_j)) * L * delta_T_max * (alpha_j - alpha_b)
-        # P_th = np.min([P_th_min, P_th_max])
+        
+        
+        ###############################
+        # Load Introduction Factor, n:
+        ###############################
+        
+        # NASA-STD-5020B, eq 37, pg 52:
+        # NASA-STD-5020B, eq 48, pg 56:
+        # NASA-STD-5020B, eq 52, pg 56:
+        # NASA-STD-5020B, eq 57, pg 57:
+        
+        
+        # NASA-TM-106943 eq 35, pg 12:
+        
+        # NASA-TM-106943 eq 46, pg 12:
         
         
         ###############################
@@ -129,7 +154,7 @@ class BoltedJoint:
         self.mean_thread_diameter = self.fastener.thread.d2
         
         # head mean diameter for friction:
-        #TODO: refine:
+        #TODO: refine with hole diameter, not thread major d:
         self.mean_head_diameter = (self.fastener.Do_head + self.fastener.thread.d) / 2.0
         
         self.K_kb = kubler_bulten_nut_factor(
@@ -184,10 +209,21 @@ class BoltedJoint:
         print(f"K_min = {self.K_min}")
         print(f"K_max = {self.K_max}")
         
+        ###############################
+        # Applied Installation Torque:
+        ###############################
         
-        # applied torque: 
         # target 0.65 tensile yield stress / strength 
         # NASA-TM-106943 eq 3:
+        self.T_applied_min = nasa_tm_106943.eq3(
+            D=self.fastener.thread.d,  # major diameter
+            K=self.K_min,  # nut factor
+            A_t=self.fastener.thread.A_t,  # A_t = tensile area
+            F_ty=self.fastener.material.Sy_mpa,  # F_ty = material tensile yield strength
+            preload_stress_ratio=self.preload_stress_ratio,
+        )
+        print(f"T_applied_min = {self.T_applied_min}")
+        
         self.T_applied_max = nasa_tm_106943.eq3(
             D=self.fastener.thread.d,  # major diameter
             K=self.K_max,  # nut factor
@@ -198,17 +234,32 @@ class BoltedJoint:
         print(f"T_applied_max = {self.T_applied_max}")
     
     
+        ###############################
+        # axial bolt load due to thermal effects: 
+        ###############################
+        
+        # eq 10
+        # P_th_min = ((K_b * K_j) / (K_b + K_j)) * L * delta_T_min * (alpha_j - alpha_b)
+        # P_th_max = ((K_b * K_j) / (K_b + K_j)) * L * delta_T_max * (alpha_j - alpha_b)
+        # P_th = np.min([P_th_min, P_th_max])
+
 
     def sep_margin_tm106943(self) -> float:
         """
         NASA-TM-106943 eq68
+        
+        P_0_min = 
+        P_sep = 
         """
-        MS_sep = (P_0_min / (SF_sep * P_sep)) - 1.0
+        MS_sep = (P_0_min / (self.SF_sep * P_sep)) - 1.0
         return MS_sep
     
     def ultimate_shear_margin_5020b(self) -> float:
         """
         NASA-STD-5020B eq 14
+        
+        P_su_allow = 
+        P_sL = limit shear load acting on the shear plane
         """
         MS_u_shear = thread_fast.nasa_std_5020b.eq14(
             P_su_allow=P_su_allow,
@@ -220,6 +271,8 @@ class BoltedJoint:
     
 
     # TODO: constructor with all basic parameters:
+    
+    # TODO: to_dict()
     
     def __str__(self):
         return "\n".join([
@@ -369,6 +422,7 @@ def main() -> None:
     # [N], limit shear load acting on the shear plane:
     P_sL = 100.0
     
+    # TODO: bending load...
     
     
     ######################################
@@ -376,21 +430,53 @@ def main() -> None:
     ######################################
     
     # washers under head:
+    washer1 = Washer(
+        nominal_size=6.0,
+        D_hole = 6.4,
+        D_outer=12.0,
+        thickness=1.4,
+        material=inconel_718,
+        # chamfer=True,
+    )
     
     # loaded part 1
-    
+    part1 = ClampedPart(
+        name='part1',
+        D_hole = 6.4,
+        D_outer=12.0,
+        thickness=10.0,
+        material=ti6al4v,
+    )
     
     # loaded part 2
+    part2 = ClampedPart(
+        name='part2',
+        D_hole = 6.4,
+        D_outer=12.0,
+        thickness=10.0,
+        material=ti6al4v,
+    )
     
     # washers under nut:
-    
+    washer2 = Washer(
+        nominal_size=6.0,
+        D_hole = 6.4,
+        D_outer=12.0,
+        thickness=1.4,
+        material=inconel_718,
+        # chamfer=True,
+    )
     
     ######################################
     # Define Nut:
     ######################################
     
-    
-    
+    nut = Nut(
+        Do=10.0,
+        length=5.0,
+        thread=nut_thread,
+        material=a286,
+    )
     
     ######################################
     # Define Bolted Joint:
@@ -399,7 +485,13 @@ def main() -> None:
     bj1 = BoltedJoint(
         name='bj1',
         fastener=fastener,
-        clamped_parts=[],
+        clamped_parts=[
+            washer1,
+            part1,
+            part2,
+            washer2,
+        ],
+        nut=nut,
         mu_thread=0.2,
         mu_abutment=0.2,
         separation_safety_factor=SF_sep,

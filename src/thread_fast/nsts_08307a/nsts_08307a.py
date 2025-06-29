@@ -950,7 +950,7 @@ def main() -> None:
     # Bending load allowable of bolt:
     MA = 1.0
     
-    # load introduction factor:
+    # load introduction factor (loading plane factor):
     n = 0.5
     
     # stiffness factor:
