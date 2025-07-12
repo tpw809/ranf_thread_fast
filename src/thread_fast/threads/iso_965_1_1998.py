@@ -5,26 +5,28 @@ ISO general purpose metric screw threads — Tolerances
 Part 1: Principles and basic data
 
 Standards:
--ISO 68 ISO general purpose screw threads - Basic profile
--ISO 262
--ISO 5408
+
+- ISO 68 ISO general purpose screw threads - Basic profile
+- ISO 262
+- ISO 5408
 
 Symbols:
--d: basic major diameter of external thread
--d_2: basic pitch diameter of external thread
--d_3: minor diameter of external thread
--D: basic major diameter of internal thread
--D_1: basic minor diameter of internal thread
--D_2: basic pitch diameter of internal thread
--T_d: tolerance for d
--T_d2: tolerance for d2
--T_D2: tolerance for D2
--es: upper deviation
--ES: upper deviation
--ei: lower deviation
--EI: lower deviation
--R: root radius of external thread
--C: root truncation of external thread
+
+- d: basic major diameter of external thread
+- d_2: basic pitch diameter of external thread
+- d_3: minor diameter of external thread
+- D: basic major diameter of internal thread
+- D_1: basic minor diameter of internal thread
+- D_2: basic pitch diameter of internal thread
+- T_d: tolerance for d
+- T_d2: tolerance for d2
+- T_D2: tolerance for D2
+- es: upper deviation
+- ES: upper deviation
+- ei: lower deviation
+- EI: lower deviation
+- R: root radius of external thread
+- C: root truncation of external thread
 
 EI + T = ES
 
@@ -78,7 +80,9 @@ def eq_C_max(H: float, R_min: float, T_d2: float) -> float:
     ISO 965:1998, pg
     
     Args:
-    
+        H (float):
+        R_min (float):
+        T_d2 (float):
     Returns:
         float:
     """
@@ -92,7 +96,7 @@ def eq_C_min(P: float) -> float:
     ISO 965:1998, pg 
     
     Args:
-    
+        P (float):
     Returns:
         float:
     """

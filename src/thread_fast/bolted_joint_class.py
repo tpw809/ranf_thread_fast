@@ -31,6 +31,17 @@ import thread_fast.conversion_factors as cf
 
 
 class BoltedJoint:
+    """BoltedJoint class.
+    
+    Args:
+        name (str): Descriptive name of the bolted joint.
+        fastener (Fastener): Fastener in the bolted joint.
+        clamped_parts (List): List of clamped parts in the bolted joint.
+        nut (Nut): Nut used to thread onto the fastener.
+        mu_thread (float): Coefficient of friction between mating threads.
+        mu_abutment (float): Coefficient of friction between fastener head or nut against abutment (washer if present).
+        separation_safety_factor (float): Factor of Safety for joint separation.
+    """
     def __init__(
             self, 
             name: str,
@@ -112,12 +123,54 @@ class BoltedJoint:
         # [bool], is the nut or fastener head torqued?
         self.nut_torqued = nut_torqued
         
+        
+        ###############################
+        # Joint Length:
+        ###############################
+        
+        # Check length of clamped parts puts threads at the nut or insert...
+        
+        L_total_fast = self.fastener.length
+        print(f"L_total_fast = {L_total_fast} [mm]")
+        
+        L_total_clamped_parts = 0.0
+        for part in clamped_parts:
+            L_total_clamped_parts += part.length
+        
+        print(f"L_total_clamped_parts = {L_total_clamped_parts} [mm]")
+        
+        # TODO: include length of nut or insert
+        # must extent past by 1 full thread
+        # must engage 3 full threads
+        
+        if L_total_fast < L_total_clamped_parts:
+            raise Exception("clamped parts length exceeds fastener length")
+        
+        # TODO: check shank length < clamped parts length
+        # plus some margin...
+        
+        
         ###############################
         # Joint Stiffness:
         ###############################
         
+        # [N/mm], fastener (bolt) stiffness:
+        K_b = self.fastener.stiffness()
+        print(f"K_b = {K_b} [N/mm]")
         
+        # joint modulus:
+        #E_j = nasa_tm_106943.eq34()
+        E_j = clamped_parts[1].material.E_mpa
         
+        # [N/mm], estimated clamped parts (joint) stiffness:
+        K_j_106943 = nasa_tm_106943.eq33(
+            E_j=E_j,
+            D=self.fastener.thread.d,
+            L=L_total_clamped_parts,
+        )
+        print(f"K_j_106943 = {K_j_106943} [N/mm]")
+        
+        K_j = K_j_106943
         
         ###############################
         # Joint Stiffness Factor:
@@ -125,8 +178,8 @@ class BoltedJoint:
         
         # NASA-TM-106943 eq 29
         # NASA-STD-5020B eq 9
-        # phi = K_b / (K_b + K_j)
-        
+        phi = K_b / (K_b + K_j)
+        print(f"phi = {phi}")
         
         
         
@@ -239,9 +292,19 @@ class BoltedJoint:
         ###############################
         
         # eq 10
-        # P_th_min = ((K_b * K_j) / (K_b + K_j)) * L * delta_T_min * (alpha_j - alpha_b)
-        # P_th_max = ((K_b * K_j) / (K_b + K_j)) * L * delta_T_max * (alpha_j - alpha_b)
-        # P_th = np.min([P_th_min, P_th_max])
+        L = L_total_clamped_parts
+        alpha_b = self.fastener.material.cte_mm_mm_C
+        alpha_j = self.clamped_parts[1].material.cte_mm_mm_C
+        
+        #TODO: where is this from? just use that function...
+        P_th_min = ((K_b * K_j) / (K_b + K_j)) * L * self.delta_T_min * (alpha_j - alpha_b)
+        
+        #TODO: where is this from? just use that function...
+        P_th_max = ((K_b * K_j) / (K_b + K_j)) * L * self.delta_T_max * (alpha_j - alpha_b)
+        
+        # which is worst case? min or max?
+        P_th = np.min([P_th_min, P_th_max])
+        print(f"P_th = {P_th} [N]")
 
 
     def sep_margin_tm106943(self) -> float:
@@ -389,7 +452,7 @@ def main() -> None:
         material=a286,
         Do_head=10.0,
         Do_shank=6.0,
-        L_shank=10.0,
+        L_shank=20.0,
         L_thread=10.0,
     )
     

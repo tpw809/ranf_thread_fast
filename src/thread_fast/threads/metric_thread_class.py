@@ -443,10 +443,13 @@ class ExternalMetricThread:
             P=self.pitch,
         )
         
-        # tensile area (min cross section area of bolt):
+        # [mm^2], tensile area (min cross section area of bolt):
         # NASA-TM-106943, equation 4, pg 5
         self.A_t = (np.pi/4.0) * (self.d - 0.9743*self.pitch)**2
 
+        # [mm^2], mean area of threads:
+        # used for stiffness estimate
+        self.A_mean = np.pi * self.r_m**2
         
     @property
     def r_m(self) -> float:

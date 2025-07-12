@@ -79,16 +79,17 @@ def nut_factor(
     NSTS 08307 Rev A, pg 3-5 to 3-6
     
     Args:
-        R_t: Effective radius of thread forces (1/2 x E approximately)
-        R_e: Effective radius of torqued element-to-joint bearing forces = 1/2 x (Ro + Ri)
-        mu_t_typ: typical coefficient of friction at the external-to-internal thread interface
-        mu_b_typ: typical coefficient of friction at the nut-to-joint bearing interface
-        alpha: Thread lead angle (Tan^-1 [1/(n_0*pi*E)] for unified thread form)
-        beta: Thread half angle (30° for unified thread form)
-        D: Basic major diameter of external threads (bolt)
+        R_t (float): Effective radius of thread forces (1/2 x E approximately)
+        R_e (float): Effective radius of torqued element-to-joint bearing forces = 1/2 x (Ro + Ri)
+        mu_t_typ (float): typical coefficient of friction at the external-to-internal thread interface
+        mu_b_typ (float): typical coefficient of friction at the nut-to-joint bearing interface
+        alpha (float): Thread lead angle (Tan^-1 [1/(n_0*pi*E)] for unified thread form)
+        beta (float): Thread half angle (30° for unified thread form)
+        D (float): Basic major diameter of external threads (bolt)
     Returns:
         Tuple[float, float, float]: estimated nut factor
     """
+    assert D > 0.0
     K_typ = (R_t * (np.tan(alpha) + mu_t_typ / np.cos(beta)) + R_e * mu_b_typ) / D
     
     K_min = (R_t * (np.tan(alpha) + mu_t_min / np.cos(beta)) + R_e * mu_b_min) / D
@@ -112,12 +113,12 @@ def max_preload(
     NSTS 08307 Rev A, pg 3-5 & 3-6
     
     Args:
-        gamma: preload uncertainty factor
-        T_max: maximum applied (specified) torque to tighten fastener
-        K_typ: typical nut factor
-        D: nominal fastener diameter
-        P_thr_pos: thermally induced load that increases the preload
-        K_min: minimum expected nut factor
+        gamma (float): preload uncertainty factor
+        T_max (float): maximum applied (specified) torque to tighten fastener
+        K_typ (float): typical nut factor
+        D (float): nominal fastener diameter
+        P_thr_pos (float): thermally induced load that increases the preload
+        K_min (float): minimum expected nut factor
     Returns:
         float: maximum predicted preload
     """
@@ -153,14 +154,14 @@ def min_preload(
     NSTS 08307 Rev A, pg 3-5 & 3-6
     
     Args:
-        gamma: preload uncertainty factor
-        T_min: minimum applied (specified) torque to tighten fastener
-        K_typ: typical nut factor
-        T_p: prevailing torque
-        D: nominal fastener diameter
-        P_thr_neg: thermally induced load that decreases the preload
-        relaxation_ratio: assumed preload percentage loss due to relaxation
-        K_max: maximum expected nut factor
+        gamma (float): preload uncertainty factor
+        T_min (float): minimum applied (specified) torque to tighten fastener
+        K_typ (float): typical nut factor
+        T_p (float): prevailing torque
+        D (float): nominal fastener diameter
+        P_thr_neg (float): thermally induced load that decreases the preload
+        relaxation_ratio (float): assumed preload percentage loss due to relaxation
+        K_max (float): maximum expected nut factor
     Returns:
         float: minimum predicted preload
     """
@@ -226,11 +227,11 @@ def bolt_axial_load_for_strength(
     NSTS 08307 Rev A, pg 3-9
     
     Args:
-        PLD_max: maximum preload
-        phi: stiffness parameter
-        n: loading plane factor
-        SF: safety factor
-        P: External axial load applied to joint at bolt location due to application of limit load to the structure
+        PLD_max (float): maximum preload
+        phi (float): stiffness parameter
+        n (float): loading plane factor
+        SF (float): safety factor
+        P (float): External axial load applied to joint at bolt location due to application of limit load to the structure
     Returns:
         float: bolt axial load used for strength margins
     """
@@ -470,31 +471,31 @@ def bolt_bending_margin(
 # b. combined axial, shear, and/or bending load:
 
 
-def combined_load_margin2(
-        R_a: float, 
-        R_b: float, 
-        R_s: float,
-    ) -> float:
-    """Calculate combined load failure criterion.
-    
-    NSTS 08307 Rev A, pg ???
-    
-    Result must be > 1.0
-    
-    R_a**2 + R_b + R_s**3 <= 1.0
-    
-    Deprecated, see: 
-    
-    Args:
-        R_a: Ratio of axial load to axial load allowable
-        R_b: Ratio of bending load to bending load allowable
-        R_s: Ratio of shear load to shear load allowable
-        K: plastic bending factor
-    Returns:
-        float: combined load failure criterion
-    """
-    print("warning: this criteria for combined loading is deprecated")
-    return R_a**2 + R_b + R_s**3 
+# def combined_load_margin2(
+#         R_a: float, 
+#         R_b: float, 
+#         R_s: float,
+#     ) -> float:
+#     """Calculate combined load failure criterion.
+#     
+#     NSTS 08307 Rev A, pg ???
+#     
+#     Result must be > 1.0
+#     
+#     R_a**2 + R_b + R_s**3 <= 1.0
+#     
+#     Deprecated, see: 
+#     
+#     Args:
+#         R_a: Ratio of axial load to axial load allowable
+#         R_b: Ratio of bending load to bending load allowable
+#         R_s: Ratio of shear load to shear load allowable
+#         K: plastic bending factor
+#     Returns:
+#         float: combined load failure criterion
+#     """
+#     print("warning: this criteria for combined loading is deprecated")
+#     return R_a**2 + R_b + R_s**3 
 
 
 ########################################################

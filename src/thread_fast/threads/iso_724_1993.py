@@ -5,22 +5,24 @@ ISO general-purpose metric screw threads - Basic dimensions
 Dimensions in millimeters.
 
 Standards:
--ISO 68 - ISO general-purpose screw threads - basic profile
--ISO 261 - ISO general-purpose metric crew threads - general plan
--ISO 5408:1983 - Cylindrical screw threads - vocabulary
+
+- ISO 68 - ISO general-purpose screw threads - basic profile
+- ISO 261 - ISO general-purpose metric crew threads - general plan
+- ISO 5408:1983 - Cylindrical screw threads - vocabulary
 
 Symbols:
--D: basic major diameter of internal thread (nominal diameter)
--d: basic major diameter of external thread (nominal diameter)
--D_2: basic pitch diameter of internal thread
--d_2: basic pitch diameter of external thread
--D_1: basic minor diameter of internal thread
--d_1: basic minor diameter of external thread
--d_3: minor diameter of external thread on design profile
--H: height of fundamental triangle
--P: thread pitch
--H_1: thread height of internal thread on design profile
--h_3: thread height of external thread on the design profile
+
+- D: basic major diameter of internal thread (nominal diameter)
+- d: basic major diameter of external thread (nominal diameter)
+- D_2: basic pitch diameter of internal thread
+- d_2: basic pitch diameter of external thread
+- D_1: basic minor diameter of internal thread
+- d_1: basic minor diameter of external thread
+- d_3: minor diameter of external thread on design profile
+- H: height of fundamental triangle
+- P: thread pitch
+- H_1: thread height of internal thread on design profile
+- h_3: thread height of external thread on the design profile
 
 #TODO: add figure
 """
@@ -91,9 +93,9 @@ def eq_D_2(D: float, H: float, P: float=None) -> float:
     ISO 724:2023, pg 2
     
     Args:
-        D: basic major diameter of internal thread (nominal diameter)
-        H: height of fundamental triangle
-        P: thread pitch
+        D (float): basic major diameter of internal thread (nominal diameter)
+        H (float): height of fundamental triangle
+        P (float): thread pitch
     Returns:
         float: basic pitch diameter of internal thread
     """
@@ -114,9 +116,9 @@ def eq_d_2(d: float, H: float, P: float=None) -> float:
     ISO 724:2023, pg 2
     
     Args:
-        d: basic major diameter of external thread (nominal diameter)
-        H: height of fundamental triangle
-        P: thread pitch
+        d (float): basic major diameter of external thread (nominal diameter)
+        H (float): height of fundamental triangle
+        P (float): thread pitch
     Returns:
         float: basic pitch diameter of external thread
     """
@@ -137,9 +139,9 @@ def eq_D_1(D: float, H: float, P: float=None) -> float:
     ISO 724:2023, pg 2
     
     Args:
-        D: basic major diameter of internal thread (nominal diameter)
-        H: height of fundamental triangle
-        P: thread pitch
+        D (float): basic major diameter of internal thread (nominal diameter)
+        H (float): height of fundamental triangle
+        P (float): thread pitch
     Returns:
         float: basic minor diameter of internal thread
     """
@@ -158,9 +160,9 @@ def eq_d_1(d: float, H: float, P: float=None) -> float:
     ISO 724:1993, pg 2
     
     Args:
-        d: basic major diameter of external thread (nominal diameter)
-        H: height of fundamental triangle
-        P: thread pitch
+        d (float): basic major diameter of external thread (nominal diameter)
+        H (float): height of fundamental triangle
+        P (float): thread pitch
     Returns:
         float: basic minor diameter of external thread
     """
@@ -179,7 +181,7 @@ def eq_h_3(H: float) -> float:
     ISO 724:2023, pg 2
     
     Args:
-        H: height of fundamental triangle
+        H (float): height of fundamental triangle
     Returns:
         float: thread height of external thread on the design profile
     """
@@ -194,9 +196,9 @@ def eq_d_3(d: float, H: float, P: float=None) -> float:
     ISO 724:2023, pg 2
     
     Args:
-        d: basic major diameter of external thread (nominal diameter)
-        H: height of fundamental triangle
-        P: thread pitch
+        d (float): basic major diameter of external thread (nominal diameter)
+        H (float): height of fundamental triangle
+        P (float): thread pitch
     Returns:
         float: minor diameter of external thread on design profile
     """

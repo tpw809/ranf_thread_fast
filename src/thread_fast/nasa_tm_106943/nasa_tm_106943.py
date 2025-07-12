@@ -2,7 +2,7 @@
 
 Preloaded Joint Analysis Methodology for Space Flight Systems
 
-Jeffrey A. Chambers
+by: Jeffrey A. Chambers
 
 References:
 
@@ -50,8 +50,9 @@ F_su = 85.0
 # may be assumed to be 0.577 * F_ty
 F_sy = 0.577 * F_ty
 
-# bearing strength?
-# F_b = 1.5 * ???
+# [ksi], bearing yield strength:
+# max or mean hertzian stress?
+F_by = 1.5 * F_ty
 
 ########################################################
 # Determining Bolt Preload: pg 3
@@ -69,10 +70,10 @@ def eq1(
     NASA-TM-106943, equation 1, pg 4
     
     Args:
-        T: applied torque
-        D: nominal diameter
-        K: nut factor, factor applied to account for the effects of friction in the torquing elements (both in the threads and under the bolt head/nut)
-        u: preload uncertainty factor
+        T (float): applied torque
+        D (float): nominal diameter
+        K (float): nut factor, factor applied to account for the effects of friction in the torquing elements (both in the threads and under the bolt head/nut)
+        u (float): preload uncertainty factor
     Returns:
         float: nominal bolt preload
     """
@@ -101,12 +102,12 @@ def eq2(
     sec = 1/cos
     
     Args:
-        D_p: mean thread diameter
-        D: nominal fastener shank diameter
-        psi: thread helix (lead) angle, rad 
-        alpha: thread angle, rad (is this supposed to be the half-angle ???)
-        mu: coefficient of friction between threads
-        mu_c: coefficient of friction between bolt head or nut and abutment
+        D_p (float): mean thread diameter
+        D (float): nominal fastener shank diameter
+        psi (float): thread helix (lead) angle, rad 
+        alpha (float): thread angle, rad (is this supposed to be the half-angle ???)
+        mu (float): coefficient of friction between threads
+        mu_c (float): coefficient of friction between bolt head or nut and abutment
     Returns:
         float: estimated nut factor
     """
@@ -139,10 +140,10 @@ def eq3(
     T = 0.65 * F_ty * A_t * K * D
     
     Args:
-        D: nominal bolt diameter
-        K: nut factor
-        A_t: tensile area
-        F_ty: tensile yield strength
+        D (float): nominal bolt diameter
+        K (float): nut factor
+        A_t (float): tensile area
+        F_ty (float): tensile yield strength
     Returns:
         float: torque applied to achieve target stress in fastener
     """
@@ -160,8 +161,8 @@ def eq4(D: float, p: float) -> float:
     NASA-TM-106943, equation 4, pg 5
     
     Args:
-        D: nominal diameter
-        p: thread pitch
+        D (float): nominal diameter
+        p (float): thread pitch
     Returns:
         float: tensile area (min cross section area of bolt)
     """
@@ -189,11 +190,11 @@ def eq6(
     NASA-TM-106943, equation 6, pg 5
     
     Args:
-        alpha_b: bolt coefficient of thermal expansion
-        K_b: bolt stiffness
-        P_th: axial bolt load due to thermal effects
-        L: fastener grip length
-        delta_T: change in temperature
+        P_th (float): axial bolt load due to thermal effects
+        K_b (float): bolt stiffness
+        alpha_b (float): bolt coefficient of thermal expansion
+        L (float): fastener grip length
+        delta_T (float): change in temperature
     Returns:
         float: bolt deflection due to temperature change
     """
@@ -213,11 +214,11 @@ def eq7(
     NASA-TM-106943, equation 7, pg 5
     
     Args:
-        alpha_j: joint abutment coefficient of thermal expansion
-        K_j: joint stiffness
-        P_th: axial bolt load due to thermal effects
-        L: fastener grip length
-        delta_T: change in temperature
+        P_th (float): axial bolt load due to thermal effects
+        K_j (float): joint stiffness
+        alpha_j (float): joint abutment coefficient of thermal expansion
+        L (float): fastener grip length
+        delta_T (float): change in temperature
     Returns:
         float: abutment deflection due to temperature change
     """
@@ -245,12 +246,12 @@ def eq10(
     NASA-TM-106943, equation 10, pg 5
     
     Args:
-        K_b: bolt stiffness
-        K_j: joint stiffness
-        L: fastener grip length
-        delta_T: change in temperature
-        alpha_b: bolt coefficient of thermal expansion
-        alpha_j: joint abutment coefficient of thermal expansion
+        K_b (float): bolt stiffness
+        K_j (float): joint stiffness
+        L (float): fastener grip length
+        delta_T (float): change in temperature
+        alpha_b (float): bolt coefficient of thermal expansion
+        alpha_j (float): joint abutment coefficient of thermal expansion
     Returns:
         float: change in preload due to thermal effects
     """
@@ -288,11 +289,11 @@ def eq12(
     NASA-TM-106943, equation 12, pg 6
     
     Args:
-        T: applied torque
-        D: nominal diameter
-        K: nut factor
-        u: preload uncertainty factor
-        P_th: axial bolt load due to thermal effects
+        T (float): applied torque
+        D (float): nominal diameter
+        K (float): nut factor
+        u (float): preload uncertainty factor
+        P_th (float): axial bolt load due to thermal effects
     Returns:
         float: max expected preload in the joint
     """
@@ -315,12 +316,12 @@ def eq13(
     NASA-TM-106943, equation 13, pg 7
     
     Args:
-        T: applied torque
-        D: nominal diameter
-        K: nut factor
-        u: preload uncertainty factor
-        P_th: axial bolt load due to thermal effects
-        P_relax: loss of preload due to joint relaxation or settling
+        T (float): applied torque
+        D (float): nominal diameter
+        K (float): nut factor
+        u (float): preload uncertainty factor
+        P_th (float): axial bolt load due to thermal effects
+        P_relax (float): loss of preload due to joint relaxation or settling
     Returns:
         float: min expected preload in the joint
     """
@@ -340,15 +341,17 @@ def eq13mod(
     ) -> float:
     """Calculate min expected preload in the joint, P_0_min.
     
+    Includes relaxation_ratio variable.
+    
     NASA-TM-106943, equation 13, pg 7
     
     Args:
-        T: applied torque
-        D: nominal diameter
-        K: nut factor
-        u: preload uncertainty factor
-        P_th: axial bolt load due to thermal effects
-        relaxation_ratio: 
+        T (float): applied torque
+        D (float): nominal diameter
+        K (float): nut factor
+        u (float): preload uncertainty factor
+        P_th (float): axial bolt load due to thermal effects
+        relaxation_ratio (float): ratio of preload lost due to relaxation after preloading
     Returns:
         float: min expected preload in the joint
     """
@@ -356,7 +359,6 @@ def eq13mod(
     assert D > 0.0
     P_0_min = (T / (K*D) * (1.0 - u) - P_th) / (1.0 + relaxation_ratio)
     return P_0_min
-
 
 
 def eq14(
@@ -373,9 +375,9 @@ def eq14(
     assumes preload uncertainty = 0.25
     
     Args:
-        T: applied torque
-        D: nominal diameter
-        K: nut factor
+        T (float): applied torque
+        D (float): nominal diameter
+        K (float): nut factor
     Returns:
         float: max expected preload in the joint
     """
@@ -402,17 +404,17 @@ def eq15(
     assumed preload uncertainty = 0.25
     
     Args:
-        T: applied torque
-        D: nominal diameter
-        K: nut factor
+        T (float): applied torque
+        D (float): nominal diameter
+        K (float): nut factor
+        relaxation_ratio (float): 
     Returns:
         float: min expected preload in the joint
     """
     assert K > 0.0
     assert D > 0.0
-    # TODO: rearrange so this actually works...
-    P_0_min = T/(K*D) * 0.75 - 0.05 * P_0_min
-    
+    # rearrange so this actually works...
+    # P_0_min = T/(K*D) * 0.75 - 0.05 * P_0_min
     # P_0_min = T/(K*D) * 0.75 - relaxation_ratio * P_0_min
     P_0_min = (T/(K*D) * 0.75) / (1.0 + relaxation_ratio)
     return P_0_min
@@ -430,9 +432,9 @@ def eq16(T: float, K: float, D: float) -> float:
     assumed preload uncertainty = 0.25
     
     Args:
-        T: applied torque
-        D: nominal diameter
-        K: nut factor
+        T (float): applied torque
+        D (float): nominal diameter
+        K (float): nut factor
     Returns:
         float: min expected preload in the joint
     """
@@ -486,8 +488,8 @@ def eq19(delta_P_b: float, delta_P_j: float) -> float:
     NASA-TM-106943, equation 19, pg 10
     
     Args:
-        delta_P_b: change in axial bolt load
-        delta_P_j: change in joint load
+        delta_P_b (float): change in axial bolt load
+        delta_P_j (float): change in joint load
     Returns:
         float: external tensile loading
     """
@@ -507,11 +509,11 @@ def eq20(
     NASA-TM-106943, equation 20, pg 10
     
     Args:
-        P_0: nominal bolt preload
-        delta_b: bolt deflection
-        n: loading plane factor
-        delta_j: joint abutment deflection
-        delta: bolt deflection due to external load
+        P_0 (float): nominal bolt preload
+        delta_b (float): bolt deflection
+        n (float): loading plane factor
+        delta_j (float): joint abutment deflection
+        delta (float): bolt deflection due to external load
     Returns:
         float: change in axial bolt load
     """
@@ -531,10 +533,10 @@ def eq21(
     NASA-TM-106943, equation 21, pg 10
     
     Args:
-        P_0: nominal bolt preload
-        n: loading plane factor
-        delta_j: joint abutment deflection
-        delta: bolt deflection due to external load
+        P_0 (float): nominal bolt preload
+        n (float): loading plane factor
+        delta_j (float): joint abutment deflection
+        delta (float): bolt deflection due to external load
     Returns:
         float: change in joint load
     """
@@ -553,21 +555,26 @@ def eq21(
 
 
 def eq26(P_0: float, K_b: float) -> float:
-    """Calculate , delta_b.
+    """Calculate bolt deflection due to preload, delta_b.
     
     NASA-TM-106943, equation 26, pg 11
     
     Args:
-        P_0: 
-        K_b: bolt stiffness
+        P_0 (float): nominal bolt preload
+        K_b (float): bolt stiffness
     Returns:
-        float:
+        float: bolt deflection due to preload
     """
     delta_b = P_0 / K_b
     return delta_b
 
 
-# NASA-TM-106943, equation 27, pg 11
+def eq27(P_0: float, K_j: float) -> float:
+    """Calculate delta_j.
+    
+    NASA-TM-106943, equation 27, pg 11
+    """
+    delta_j = P_0 / K_j
 
 
 def eq28(
@@ -581,12 +588,12 @@ def eq28(
     NASA-TM-106943, equation 28, pg 11
     
     Args:
-        delta_P_b:
-        K_b: bolt stiffness
-        K_j: joint stiffness
-        n: loading plane factor
+        delta_P_b (float): change in axial bolt load
+        K_b (float): bolt stiffness
+        K_j (float): joint stiffness
+        n (float): loading plane factor
     Returns:
-        float:
+        float: total externally applied axial load
     """
     assert 0.0 >= n >= 1.0
     P_et = delta_P_b * ((K_b + K_j) / (n * K_b))
@@ -599,8 +606,8 @@ def eq29(K_b: float, K_j: float) -> float:
     NASA-TM-106943, equation 29, pg 11
     
     Args:
-        K_b: bolt stiffness
-        K_j: joint stiffness
+        K_b (float): bolt stiffness
+        K_j (float): joint stiffness
     Returns:
         float: stiffness factor 
     """
@@ -618,9 +625,9 @@ def eq30(
     NASA-TM-106943, equation 30, pg 11
     
     Args:
-        P_et: resultant external load directed at the joint
-        n: loading plane factor
-        phi: joint stiffness factor
+        P_et (float): resultant external load directed at the joint
+        n (float): loading plane factor
+        phi (float): joint stiffness factor
     Returns:
         float: change in axial bolt load
     """
@@ -636,21 +643,25 @@ def eq30(
 
 
 def eq31(l_1: float, l_2: float, l_n: float) -> float:
-    """Calculate length of clamped joint, L.
+    """Calculate total length of clamped joint, L.
     
     Configuration 1: through bolt with nut
     
     NASA-TM-106943, equation 31, pg 12
     
+    Reference figure 7, pg 12.
+    
     Args:
-        l_1: length from head to load point 1
-        l_2: length from load point 1 to load point 2
-        l_n: length from load point 2 to nut
+        l_1 (float): length from head to load point 1
+        l_2 (float): length from load point 1 to load point 2
+        l_n (float): length from load point 2 to nut
     Returns:
         float: total length of clamped joint
     """
-    # TODO: fix...
-    L = l_1 + l_2 + ... + l_n
+    assert l_1 >= 0.0
+    assert l_2 >= 0.0
+    assert l_n >= 0.0
+    L = l_1 + l_2 + l_n
     return L
 
 
@@ -660,9 +671,9 @@ def eq32(A: float, E_b: float, L: float) -> float:
     NASA-TM-106943, equation 32, pg 12
     
     Args:
-        A: nominal fastener cross-sectional area
-        E_b: bolt modulus of elasticity
-        L: fastener grip length
+        A (float): nominal fastener cross-sectional area
+        E_b (float): bolt modulus of elasticity
+        L (float): fastener grip length
     Returns:
         float: bolt stiffness
     """
@@ -673,8 +684,21 @@ def eq32(A: float, E_b: float, L: float) -> float:
     return K_b
 
 
-# NASA-TM-106943, equation 33, pg 12
-# joint stiffness:
+def eq33(E_j: float, D: float, L: float) -> float:
+    """Calculate estimated joint stiffness, K_j.
+    
+    NASA-TM-106943, equation 33, pg 12
+    
+    Args:
+        E_j (float): joint modulus of elasticity
+        D (float): nominal fastener diameter
+        L (float): total length of clamped joint
+    Returns:
+        float: estimated joint stiffness
+    """
+    assert D > 0.0
+    K_j = np.pi * E_j * D / (2.0 * np.log(5.0*((L + 0.5*D)/(L + 2.5*D))))
+    return K_j
 
 
 def eq34(
@@ -690,39 +714,58 @@ def eq34(
     
     NASA-TM-106943, equation 34, pg 12
     
+    Reference figure 7, pg 12
+    
     Args:
-        L: total clamped length
-        l_1:
-        E_1: modulus of elasticity of part 1
-        l_2:
-        E_2: modulus of elasticity of part 1
-        l_n:
-        E_n: modulus of elasticity of part n
+        L (float): total clamped length
+        l_1 (float): length from fastener head to plane 1
+        E_1 (float): modulus of elasticity of part 1
+        l_2 (float): length from plane 1 to plane 2
+        E_2 (float): modulus of elasticity of part 1
+        l_n (float): length from plane 2 to nut
+        E_n (float): modulus of elasticity of part n
     Return:
         float: joint composite modulus
     """
-    # TODO: fix...
-    E_j = L / ((l_1 / E_1) + (l_2 / E_2) + ... + (l_n / E_n))
+    assert l_1 >= 0.0
+    assert l_2 >= 0.0
+    assert l_n >= 0.0
+    assert L > np.max([l_1, l_2, L_n])
+    assert E_1 > 0.0
+    assert E_2 > 0.0
+    assert E_n > 0.0
+    E_j = L / ((l_1 / E_1) + (l_2 / E_2) + (l_n / E_n))
     return E_j
 
 
+# TODO: need a modified eq34...
+
+
 def eq35(l_1: float, l_2: float, l_n: float) -> float:
-    """NASA-TM-106943, equation 35, pg 12
+    """Calculate loading plane factor, n.
     
-    Calculate loading plane factor, n.
+    NASA-TM-106943, equation 35, pg 12
     
     Also called load introduction factor.
     
+    Reference figure 7, pg 12
+    
     Args:
-        l_1:
-        l_2:
-        l_n:
+        l_1 (float): length from fastener head to plane 1
+        l_2 (float): length from plane 1 to plane 2
+        l_n (float): length from plane 2 to nut
     Returns:
         float: loading plane factor
     """
-    # TODO: fix...
-    n = (l_1 / 2.0 + l_2 + ... + l_n / 2.0) + l_1 + l_2 + ... + l_n
+    assert l_1 >= 0.0
+    assert l_2 >= 0.0
+    assert l_n >= 0.0
+    n = (l_1 / 2.0 + l_2 + l_n / 2.0) / (l_1 + l_2 + l_n)
     return n
+
+
+#TODO: need a modified eq35...
+
 
 
 ########################################################
@@ -739,9 +782,9 @@ def eq37(A: float, E_b: float, L: float) -> float:
     Calculate bolt stiffness, K_b.
     
     Args:
-        A: nominal fastener cross-sectional area
-        E_b: bolt modulus of elasticity
-        L: fastener grip length
+        A (float): nominal fastener cross-sectional area
+        E_b (float): bolt modulus of elasticity
+        L (float): fastener grip length
     Returns:
         float: bolt stiffness
     """

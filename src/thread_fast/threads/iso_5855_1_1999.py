@@ -7,6 +7,7 @@ Part 1: General requirements
 Tolerances in accordance with ISO 965-1 or as defined by part designer.
 
 Symbols:
+
 - d: basic major diameter of external thread
 - d_2: basic pitch diameter of external thread
 - d_3: minor diameter of external thread
@@ -46,8 +47,8 @@ def eq_d_max(d: float, es: float) -> float:
     es in accordance with ISO 965-1
     
     Args:
-        d: basic major diameter (external thread)
-        es: upper deviation (allowance)
+        d (float): basic major diameter (external thread)
+        es (float): upper deviation (allowance)
     Returns:
         float: external thread maximum major diameter
     """
@@ -65,8 +66,8 @@ def eq_d_min(d_max: float, T_d: float) -> float:
     T_d in accordance with ISO 965-1
     
     Args:
-        d_max: max major diameter (external thread)
-        T_d: tolerance for d
+        d_max (float): max major diameter (external thread)
+        T_d (float): tolerance for d
     Returns:
         float: external thread minimum major diameter
     """
@@ -82,8 +83,8 @@ def eq_d2_max(d_max: float, P: float) -> float:
     ISO 5855-1:1999, pg 9
     
     Args:
-        d_max: max major diameter (external diameter)
-        P: thread pitch
+        d_max (float): max major diameter (external diameter)
+        P (float): thread pitch
     Returns:
         float: maximum external thread pitch diameter
     """
@@ -101,8 +102,8 @@ def eq_d2_min(d2_max: float, T_d2: float) -> float:
     T_d2 in accordance with ISO 965-1
     
     Args:
-        d2_max: max pitch diameter (external thread)
-        T_d2: tolerance for pitch diameter
+        d2_max (float): max pitch diameter (external thread)
+        T_d2 (float): tolerance for pitch diameter
     Returns:
         float: minimum external thread pitch diameter
     """
@@ -119,10 +120,12 @@ def eq_d3_max(
     ) -> float:
     """Calculate maximum diameter to root of external thread, d3_max.
     
+    ISO 5855-1:1999, pg 
+    
     Args:
-        d2_max: max pitch diameter
-        P: thread pitch
-        d3: basic diameter to thread root
+        d2_max (float): max pitch diameter
+        P (float): thread pitch
+        d3 (float): basic diameter to thread root
     Returns:
         float: maximum diameter to root of external thread
     """
@@ -141,9 +144,11 @@ def eq_d3_min(
     ) -> float:
     """Calculate minimum diameter to root of external thread, d3_max.
     
+    ISO 5855-1:1999, pg 
+    
     Args:
-        d2_max: max pitch diameter
-        P: thread pitch
+        d2_min (float): max pitch diameter
+        P (float): thread pitch
     Returns:
         float: minimum diameter to root of external thread
     """
@@ -166,9 +171,9 @@ def eq_D1_min(D: float, P: float, EI: float) -> float:
     EI: in accordance with ISO 965-1
     
     Args:
-        D: basic major diameter (internal thread)
-        P: thread pitch
-        EI: lower deviation (allowance)
+        D (float): basic major diameter (internal thread)
+        P (float): thread pitch
+        EI (float): lower deviation (allowance)
     Returns:
         float: internal thread minimum minor diameter
     """
@@ -191,10 +196,10 @@ def eq_D1_max(
     T_D1: in accordance with ISO 965-1 or as defined by part designer
     
     Args:
-        D: basic major diameter (internal thread)
-        P: thread pitch
-        EI: lower deviation (allowance)
-        T_D1: tolerance on minor diameter (internal thread)
+        D (float): basic major diameter (internal thread)
+        P (float): thread pitch
+        EI (float): lower deviation (allowance)
+        T_D1 (float): tolerance on minor diameter (internal thread)
     Returns:
         float: internal thread maximum minor diameter
     """
@@ -215,9 +220,9 @@ def eq_D2_min(
     ISO 5855-1:1999, pg 10
     
     Args:
-        D: basic major diameter (internal thread)
-        P: thread pitch
-        EI: lower deviation (allowance)
+        D (float): basic major diameter (internal thread)
+        P (float): thread pitch
+        EI (float): lower deviation (allowance)
     Returns:
         float: minimum pitch diameter of internal thread
     """
@@ -236,10 +241,10 @@ def eq_D2_max(
     """Calculate maximum pitch diameter of internal thread, D2_max.
     
     Args:
-        D: basic major diameter (internal thread)
-        P: thread pitch
-        EI: lower deviation (allowance)
-        T_D2: tolerance on pitch diameter (internal thread)
+        D (float): basic major diameter (internal thread)
+        P (float): thread pitch
+        EI (float): lower deviation (allowance)
+        T_D2 (float): tolerance on pitch diameter (internal thread)
     Returns:
         float: maximum pitch diameter of internal thread
     """
@@ -259,10 +264,10 @@ def eq_D3_max(
     """Calculate maximum diameter to root of internal thread, D3_max.
     
     Args:
-        D: basic major diameter (internal thread)
-        P: thread pitch
-        EI: lower deviation (allowance)
-        T_D2: tolerance on pitch diameter (internal thread)
+        D (float): basic major diameter (internal thread)
+        P (float): thread pitch
+        EI (float): lower deviation (allowance)
+        T_D2 (float): tolerance on pitch diameter (internal thread)
     Returns:
         float: maximum diameter to root of internal thread
     """
