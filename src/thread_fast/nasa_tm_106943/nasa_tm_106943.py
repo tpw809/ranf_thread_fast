@@ -477,9 +477,27 @@ def eq17(
     return P_b
 
 
-# NASA-TM-106943, equation 18, pg 10
-# n = distance between loading planes / total thickness of joint
-# For update, see NASA TM 108377
+def eq18(d: float, t: float) -> float:
+    """Calculate loading plane factor, distance between loading planes / total thickness of joint, n.
+    
+    NASA-TM-106943, equation 18, pg 10
+    
+    Basic assumption: loading occurs in the middle of the loaded clamped parts.
+    
+    See Figure 7, pg 12
+    
+    For update, see NASA TM 108377
+    
+    Args:
+        d (float): distance between loading planes.
+        t (float): total length (thickness) of clamped joint.
+    Returns:
+        float: loading plane factor (geometric)
+    """
+    assert t > 0.0
+    assert d < t
+    n = d / t
+    return n
 
 
 def eq19(delta_P_b: float, delta_P_j: float) -> float:
@@ -738,7 +756,35 @@ def eq34(
     return E_j
 
 
-# TODO: need a modified eq34...
+def eq34mod(
+        L_list,
+        E_list,
+    ) -> float:
+    """Calculate joint composite modulus, E_j.
+    
+    NASA-TM-106943, equation 34 (modified), pg 12
+    
+    Reference figure 7, pg 12
+    
+    Args:
+        L_list: list of clamped component lengths
+        E_list: list of lamped component modulus of elasticity
+    Return:
+        float: joint composite modulus
+    """
+    
+    # get total length:
+    L = 0.0
+    denominator = 0.0
+    for i, length in enumerate(L_list):
+        assert length >= 0.0
+        L += length
+        modulus = E_list[i]
+        assert modulus > 0.0
+        denominator += length / modulus
+    
+    E_j = L / denominator
+    return E_j
 
 
 def eq35(l_1: float, l_2: float, l_n: float) -> float:

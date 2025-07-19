@@ -471,6 +471,13 @@ class ExternalMetricThread:
         psi = np.arctan(self.pitch / (2.0 * np.pi * self.r_m))
         return psi
 
+    def to_dict(self) -> dict:
+        return {
+            "type": 'ExternalThread',
+            "pitch": self.pitch,
+            "basic_major_diameter": self.d,
+        }
+
     def __str__(self):
         return "\n".join([
             "\nThread:",
@@ -627,6 +634,12 @@ class InternalMetricThread:
         """
         psi = np.arctan(self.pitch / (2.0 * np.pi * self.r_m))
         return psi
+
+    def to_dict(self) -> dict:
+        return {
+            "type": 'InternalThread',
+            "pitch": self.pitch,
+        }
 
     def __str__(self):
         return "\n".join([

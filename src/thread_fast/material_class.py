@@ -88,6 +88,7 @@ class Material:
     def to_dict(self) -> dict:
         """Create dictionary with material data."""
         return {
+            'type': 'Material',
             'name': self.name,
             'E_mpa': self.E_mpa,
             'nu': self.nu,

@@ -1,4 +1,4 @@
-"""Fastener Class Definition
+"""Nut Class Definition
 
 Timothy P Woodard, June 21, 2025
 
@@ -16,23 +16,44 @@ import thread_fast.conversion_factors as cf
 
 
 class Nut:
+    """Nut class.
+    
+    Contains internal threads to mate with a fastener.
+    
+    Args:
+        Do (float): outer bearing (abutment) diameter.
+        length (float): nut length.
+        thread (InternalMetricThread): nut thread.
+        material (Material): nut material.
+    """
     def __init__(
             self, 
             Do: float, 
             length: float,
-            thread, 
-            material,
+            thread: InternalMetricThread, 
+            material: Material,
         ):
         
         # outer bearing diameter (on abutment):
+        assert Do > 0.0
         self.Do = Do
         
+        assert length > 0.0
         self.length = length
         
         self.thread = thread
         
         self.material = material
-        
+    
+    def to_dict(self) -> dict:
+        return {
+            "type": 'Nut',
+            "Do": self.Do,
+            "length": self.length,
+            "thread": self.thread.to_dict(),
+            "material": self.material.to_dict(),
+        }
+    
     def __str__(self):
         return "\n".join([
             "\nNut:",
@@ -77,6 +98,10 @@ def main() -> None:
         material=a286,
     )
     print(nut1)
+    
+    # to dictionary:
+    nut1_dict = nut1.to_dict()
+    print(nut1_dict)
 
 
 

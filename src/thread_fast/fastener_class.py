@@ -146,6 +146,17 @@ class Fastener:
         # TODO: which stiffness is worst case? Kmax or Kmin?
         return k_total
 
+    def to_dict(self) -> dict:
+        return {
+            "type": 'Fastener',
+            "name": self.name,
+            "material": self.material.to_dict(),
+            "thread": self.thread.to_dict(),
+            "Do_head": self.Do_head,
+            "Do_shank": self.Do_shank,
+            "L_shank": self.L_shank,
+        }
+
     def __str__(self):
         return "\n".join([
             "\nFastener:",
@@ -197,6 +208,10 @@ def main() -> None:
         L_thread=10.0,
     )
     print(fast1)
+    
+    # to dictionary:
+    fast1_dict = fast1.to_dict()
+    print(fast1_dict)
 
 
 if __name__ == "__main__":
