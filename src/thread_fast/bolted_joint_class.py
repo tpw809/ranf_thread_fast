@@ -14,7 +14,10 @@ BoltedJoint contains:
 - Design
 - Coefficients of Friction
 """
+import json
 import numpy as np
+from pathlib import Path
+
 import thread_fast.nsts_08307a as nsts_08307a
 import thread_fast.nasa_tm_106943 as nasa_tm_106943
 import thread_fast.nasa_std_5020 as nasa_std_5020
@@ -50,9 +53,9 @@ class BoltedJoint:
         ambient_temperature (float): ambient temperature
         max_temperature (float): maximum temeprature
         min_temperature (float): minimum temperature
-        loaded_part_index (list): list of indices indicating which clamped parts are loaded in the clmaped_parts list
+        loaded_part_index (list[int]): list of indices indicating which clamped parts are loaded in the clmaped_parts list
         nut_torqued (bool): is the nut torqued? (else the fastener head is torqued), determines what geometry is used for nut factor estimation
-        override_nut_factor (float): nut factor, this value is used if it is provided, else it is estimated
+        override_nut_factor (list[float]): nut factor, this value is used if it is provided, else it is estimated
         override_applied_torque (float): applied torque to create preload, this value is used if provided, else the preload stress ratio and nut factor are used to calculate a preload torque.
         distance_between_load_planes (float): Distance between load planes in the loaded clamped parts, used for load introduction factor.
     """
@@ -61,7 +64,8 @@ class BoltedJoint:
             name: str,
             fastener: Fastener,
             clamped_parts,
-            nut: Nut,
+            nut: Nut=None,
+            insert=None,
             mu_thread: float=0.15,
             mu_abutment: float=0.15,
             separation_safety_factor: float=1.2,
@@ -74,9 +78,9 @@ class BoltedJoint:
             ambient_temperature: float=20.0,
             max_temperature: float=20.0,
             min_temperature: float=20.0,
-            loaded_part_index: list=[1,2],
+            loaded_part_index: list[int]=[1,2],
             nut_torqued: bool=False, # is nut or head torqued?
-            override_nut_factor: float=None, # [K_min, K_max]
+            override_nut_factor: list=None, # [K_min, K_nom, K_max]
             override_applied_torque: float=None,
             distance_between_load_planes: float=None,
         ):
@@ -89,34 +93,36 @@ class BoltedJoint:
         
         self.nut = nut
         
+        self.insert = insert
+        
         self.override_nut_factor = override_nut_factor
         
         self.override_applied_torque = override_applied_torque
         
         # coefficient of friction at threads:
-        assert mu_thread >= 0.0
+        assert mu_thread >= 0.0, "coefficient of friction must be >= 0.0"
         self.mu_thread = mu_thread
         
         # coefficient of friction under head or nut:
-        assert mu_abutment >= 0.0
+        assert mu_abutment >= 0.0, "coefficient of friction must be >= 0.0"
         self.mu_abutment = mu_abutment
         
         # Safety Factors:
-        assert yield_safety_factor >= 1.0
+        assert yield_safety_factor >= 1.0, "factors of safety must be >= 1.0"
         self.SF_y = yield_safety_factor
         
-        assert ultimate_safety_factor >= 1.0
+        assert ultimate_safety_factor >= 1.0, "factors of safety must be >= 1.0"
         self.SF_u = ultimate_safety_factor
         
-        assert separation_safety_factor >= 1.0
+        assert separation_safety_factor >= 1.0, "factors of safety must be >= 1.0"
         self.SF_sep = separation_safety_factor
         
         # Fitting Factor:
-        assert fitting_factor >= 1.0
+        assert fitting_factor >= 1.0, "fitting factor must be >= 1.0"
         self.FF = fitting_factor
         
         # Temperatures:
-        assert max_temperature >= min_temperature
+        assert max_temperature >= min_temperature, "max temperature must be > min temperature"
         #TODO: should these be argments to functions?
         self.T_amb_C = ambient_temperature
         self.T_min_C = min_temperature
@@ -126,14 +132,14 @@ class BoltedJoint:
         self.delta_T_min = self.T_min_C - self.T_amb_C
         self.delta_T_max = self.T_max_C - self.T_amb_C
         
-        assert len(loaded_part_index) >= 2
+        assert len(loaded_part_index) >= 2, "there must be at least 2 loaded parts (equal and opposite reaction)"
         self.loaded_part_index = loaded_part_index
         
         # Preloading:
         #TODO: should these be argments to functions?
         self.preload_stress_ratio = preload_stress_ratio
         
-        assert relaxation_ratio >= 0.0
+        assert relaxation_ratio >= 0.0, "relaxation ratio must be >= 0.0"
         self.relaxation_ratio = relaxation_ratio
         
         assert preload_uncertainty_factor >= 0.0
@@ -166,7 +172,11 @@ class BoltedJoint:
         
         # TODO: check shank length < clamped parts length
         # plus some margin...
+        # what margin? 2 threads?
+        if self.fastener.L_shank + 2.0*self.fastener.thread.pitch > self.L_total_clamped_parts:
+            raise Exception("fastener shank longer than clamped parts")
         
+        # TODO: check later that bolt stretch is < 2 threads...
         
         ###############################
         # Joint Stiffness:
@@ -174,7 +184,7 @@ class BoltedJoint:
         
         # [N/mm], fastener (bolt) stiffness:
         self.K_b = self.fastener.stiffness()
-        print(f"K_b = {self.K_b} [N/mm]")
+        print(f"K_b, bolt stiffness = {self.K_b} [N/mm]")
         
         L_list = []
         E_list = []
@@ -197,6 +207,7 @@ class BoltedJoint:
         )
         print(f"K_j_106943 = {K_j_106943} [N/mm]")
         
+        # joint stiffness:
         self.K_j = K_j_106943
         
         ###############################
@@ -223,34 +234,42 @@ class BoltedJoint:
             assert distance_between_load_planes <= self.L_total_clamped_parts
             self.distance_between_load_planes = distance_between_load_planes
         else:
-            # used loaded_part_index...
+            # use loaded_part_index...
             # assumes load is applied at middle of the loaded part
             self.distance_between_load_planes = 0.0
             
-            for i, part in enumerate(clamped_parts):
-                if i == self.loaded_part_index[0]:
-                    self.distance_between_load_planes += clamped_parts[i].length / 2.0
-                
-                if self.loaded_part_index[0] < i < self.loaded_part_index[1]:
-                    self.distance_between_load_planes += clamped_parts[i].length
-                
-                if i == self.loaded_part_index[1]:
-                    self.distance_between_load_planes += clamped_parts[i].length / 2.0
+            if nut is not None:
+                # configuration 1:
+                for i, part in enumerate(clamped_parts):
+                    if i == self.loaded_part_index[0]:
+                        self.distance_between_load_planes += clamped_parts[i].length / 2.0
+                    
+                    if self.loaded_part_index[0] < i < self.loaded_part_index[1]:
+                        self.distance_between_load_planes += clamped_parts[i].length
+                    
+                    if i == self.loaded_part_index[1]:
+                        self.distance_between_load_planes += clamped_parts[i].length / 2.0
         
+                # NASA-TM-106943 eq 18, pg 10:
+                self.n = nasa_tm_106943.eq18(
+                    d=self.distance_between_load_planes, 
+                    t=self.L_total_clamped_parts,
+                )
+        
+            if insert is not None:
+                # configuration 3:
+                raise Exception("insert not implemented yet...")
+        
+            # configuration 2 & 4 = flat head screws
         
         # NASA-STD-5020B, eq 37, pg 52:
         # NASA-STD-5020B, eq 48, pg 56:
         # NASA-STD-5020B, eq 52, pg 56:
         # NASA-STD-5020B, eq 57, pg 57:
         
-        # NASA-TM-106943 eq 18, pg 10:
         # NASA-TM-106943 eq 35, pg 12:
         # NASA-TM-106943 eq 46, pg 12:
         
-        self.n = nasa_tm_106943.eq18(
-            d=self.distance_between_load_planes, 
-            t=self.L_total_clamped_parts,
-        )
         print(f"n = {self.n}")
         
         
@@ -258,69 +277,83 @@ class BoltedJoint:
         # Nut Factor, K:
         ###############################
         
-        # what is mean thread diameter for K?
-        #TODO: update to be average of ext and int:
-        self.mean_thread_diameter = self.fastener.thread.d2
+        if override_nut_factor is None:
         
-        # head mean diameter for friction:
-        #TODO: refine with hole diameter, not thread major d:
-        self.mean_head_diameter = (self.fastener.Do_head + self.fastener.thread.d) / 2.0
+            # what is mean thread diameter for K?
+            #TODO: update to be average of ext and int:
+            self.mean_thread_diameter = self.fastener.thread.d2
+            
+            # TODO: change based on nut_torqued:
+            
+            # head mean diameter for friction:
+            #TODO: refine with hole diameter, not thread major d:
+            self.mean_head_diameter = (self.fastener.Do_head + self.fastener.thread.d) / 2.0
+            
+            self.K_kb = kubler_bulten_nut_factor(
+                P=self.fastener.thread.pitch, 
+                d_2=self.mean_thread_diameter, 
+                mu_t=self.mu_thread, 
+                mu_b=self.mu_abutment, 
+                d_w=self.mean_head_diameter, 
+                d=self.fastener.thread.d,
+            )
+            
+            self.K_08307 = nsts_08307a.nut_factor(
+                R_t=self.mean_thread_diameter/2.0,  # mean radius of thread
+                R_e=self.mean_head_diameter/2.0,  # mean head or nut radius
+                mu_t_min=self.mu_thread,
+                mu_t_typ=self.mu_thread, 
+                mu_t_max=self.mu_thread,
+                mu_b_min=self.mu_abutment,
+                mu_b_typ=self.mu_abutment, 
+                mu_b_max=self.mu_abutment,
+                alpha=self.fastener.thread.psi, 
+                beta=self.fastener.thread.beta, 
+                D=self.fastener.thread.d,
+            )[1]
+            
+            # nut factor: NASA-TM-106943 eq 2:
+            self.K_106943 = nasa_tm_106943.eq2(
+                D_p=self.mean_thread_diameter, 
+                D=self.fastener.thread.d, 
+                psi=self.fastener.thread.psi, 
+                alpha=self.fastener.thread.beta, 
+                mu=self.mu_thread, 
+                mu_c=self.mu_abutment,
+            )
+            
+            print(f"K_kb = {self.K_kb}")
+            print(f"K_08307 = {self.K_08307}")
+            print(f"K_106943 = {self.K_106943}")
+            
+            self.K_min = np.min([
+                self.K_kb, 
+                self.K_08307, 
+                self.K_106943,
+            ])
+            
+            self.K_max = np.max([
+                self.K_kb, 
+                self.K_08307, 
+                self.K_106943,
+            ])
+            
+            self.K_nom = (self.K_min + self.K_max)/2.0
         
-        self.K_kb = kubler_bulten_nut_factor(
-            P=self.fastener.thread.pitch, 
-            d_2=self.mean_thread_diameter, 
-            mu_t=self.mu_thread, 
-            mu_b=self.mu_abutment, 
-            d_w=self.mean_head_diameter, 
-            d=self.fastener.thread.d,
-        )
-        
-        self.K_08307 = nsts_08307a.nut_factor(
-            R_t=self.mean_thread_diameter/2.0,  # mean radius of thread
-            R_e=self.mean_head_diameter/2.0,  # mean head or nut radius
-            mu_t_min=self.mu_thread,
-            mu_t_typ=self.mu_thread, 
-            mu_t_max=self.mu_thread,
-            mu_b_min=self.mu_abutment,
-            mu_b_typ=self.mu_abutment, 
-            mu_b_max=self.mu_abutment,
-            alpha=self.fastener.thread.psi, 
-            beta=self.fastener.thread.beta, 
-            D=self.fastener.thread.d,
-        )[1]
-        
-        # nut factor: NASA-TM-106943 eq 2:
-        self.K_106943 = nasa_tm_106943.eq2(
-            D_p=self.mean_thread_diameter, 
-            D=self.fastener.thread.d, 
-            psi=self.fastener.thread.psi, 
-            alpha=self.fastener.thread.beta, 
-            mu=self.mu_thread, 
-            mu_c=self.mu_abutment,
-        )
-        
-        print(f"K_kb = {self.K_kb}")
-        print(f"K_08307 = {self.K_08307}")
-        print(f"K_106943 = {self.K_106943}")
-        
-        self.K_min = np.min([
-            self.K_kb, 
-            self.K_08307, 
-            self.K_106943,
-        ])
-        
-        self.K_max = np.max([
-            self.K_kb, 
-            self.K_08307, 
-            self.K_106943,
-        ])
+        else:
+            self.K_min = np.min(override_nut_factor)
+            self.K_max = np.max(override_nut_factor)
+            self.K_nom = override_nut_factor[1]
         
         print(f"K_min = {self.K_min}")
+        print(f"K_nom = {self.K_nom}")
         print(f"K_max = {self.K_max}")
         
         ###############################
         # Applied Installation Torque:
         ###############################
+        
+        # TODO: change based on torque_override:
         
         # target 0.65 tensile yield stress / strength 
         # NASA-TM-106943 eq 3:
@@ -342,6 +375,16 @@ class BoltedJoint:
         )
         print(f"T_applied_max = {self.T_applied_max}")
     
+        ###############################
+        # Preload: 
+        ###############################
+        
+        # P0 = 
+        
+        # delta_b = 
+        
+        # delta_j = 
+        
     
         ###############################
         # axial bolt load due to thermal effects: 
@@ -354,15 +397,15 @@ class BoltedJoint:
         
         #TODO: where is this from? just use that function...
         #
-        P_th_min = ((self.K_b * self.K_j) / (self.K_b + self.K_j)) * L * self.delta_T_min * (alpha_j - alpha_b)
+        self.P_th_min = ((self.K_b * self.K_j) / (self.K_b + self.K_j)) * L * self.delta_T_min * (alpha_j - alpha_b)
         
         #TODO: where is this from? just use that function...
         #
-        P_th_max = ((self.K_b * self.K_j) / (self.K_b + self.K_j)) * L * self.delta_T_max * (alpha_j - alpha_b)
+        self.P_th_max = ((self.K_b * self.K_j) / (self.K_b + self.K_j)) * L * self.delta_T_max * (alpha_j - alpha_b)
         
         # which is worst case? min or max?
-        P_th = np.min([P_th_min, P_th_max])
-        print(f"P_th = {P_th} [N]")
+        self.P_th = np.min([self.P_th_min, self.P_th_max])
+        print(f"P_th = {self.P_th} [N]")
 
 
     def sep_margin_tm106943(self) -> float:
@@ -425,8 +468,22 @@ class BoltedJoint:
             "preload_uncertainty_factor": self.preload_uncertainty_factor,
             "override_nut_factor": self.override_nut_factor,
             "override_applied_torque": self.override_applied_torque,
+            "K_nut_factor_min": self.K_min,
+            "K_nut_factor_nom": self.K_nom,
+            "K_nut_factor_max": self.K_max,
             "L_total_clamped_parts": self.L_total_clamped_parts,
+            "thermal_preload_min": self.P_th_min,
+            "thermal_preload_max": self.P_th_max,
         }
+    
+    def to_json(self):
+        """Returns json object from dictionary."""
+        return json.dumps(self.to_dict())
+    
+    def write_to_json(self, filename: str or Path):
+        """Save json data to a file."""
+        with open(filename, "w") as f:
+            f.write(self.to_json())
     
     def __str__(self):
         return "\n".join([
@@ -646,6 +703,7 @@ def main() -> None:
             washer2,
         ],
         nut=nut,
+        insert=None,
         mu_thread=0.2,
         mu_abutment=0.2,
         separation_safety_factor=SF_sep,
@@ -660,11 +718,15 @@ def main() -> None:
         min_temperature=20.0,
         loaded_part_index=[1,2],
         nut_torqued=False, # is nut or head torqued?
+        #override_nut_factor=[0.1, 0.15, 0.2],
     )
     
     # export to dictionary:
     bj1_dict = bj1.to_dict()
     print(bj1_dict)
+    
+    # test to_json:
+    
 
 
 if __name__ == "__main__":
