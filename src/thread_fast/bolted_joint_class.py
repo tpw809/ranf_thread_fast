@@ -20,7 +20,7 @@ from pathlib import Path
 
 import thread_fast.nsts_08307a as nsts_08307a
 import thread_fast.nasa_tm_106943 as nasa_tm_106943
-import thread_fast.nasa_std_5020 as nasa_std_5020
+import thread_fast.nasa_std_5020.nasa_std_5020b as nasa_std_5020b
 from thread_fast.kubler_bulten_nut_factor import kubler_bulten_nut_factor
 from thread_fast.nut_class import Nut
 from thread_fast.material_class import Material
@@ -74,6 +74,8 @@ class BoltedJoint:
             fitting_factor: float=1.15,
             preload_stress_ratio: float=0.65,
             preload_uncertainty_factor: float=0.25,
+            upper_preload_tolerance_factor: float=1.1,
+            lower_preload_tolerance_factor: float=0.9,
             relaxation_ratio: float=0.05,
             ambient_temperature: float=20.0,
             max_temperature: float=20.0,
@@ -83,6 +85,7 @@ class BoltedJoint:
             override_nut_factor: list=None, # [K_min, K_nom, K_max]
             override_applied_torque: float=None,
             distance_between_load_planes: float=None,
+            preload_loss_due_to_material_creep: float=0.0,
         ):
         
         self.name = name
@@ -144,9 +147,19 @@ class BoltedJoint:
         
         assert preload_uncertainty_factor >= 0.0
         self.preload_uncertainty_factor = preload_uncertainty_factor
+        
+        # TODO: validity check:
+        self.lower_preload_tolerance_factor = lower_preload_tolerance_factor
+        
+        # TODO: validity check:
+        self.upper_preload_tolerance_factor = upper_preload_tolerance_factor
     
         # [bool], is the nut or fastener head torqued?
+        # TODO: validity check:
         self.nut_torqued = nut_torqued
+        
+        assert preload_loss_due_to_material_creep >= 0.0
+        self.preload_loss_due_to_material_creep = preload_loss_due_to_material_creep
         
         ###############################
         # Joint Length:
@@ -215,8 +228,11 @@ class BoltedJoint:
         ###############################
         
         # NASA-TM-106943 eq 29
-        # NASA-STD-5020B eq 9
-        self.phi = self.K_b / (self.K_b + self.K_j)
+        # NASA-STD-5020B eq 9:
+        self.phi = nasa_std_5020b.eq9(
+            k_b=self.K_b,
+            k_c=self.K_j,
+        )
         print(f"phi = {self.phi}")
         
         ###############################
@@ -270,7 +286,7 @@ class BoltedJoint:
         # NASA-TM-106943 eq 35, pg 12:
         # NASA-TM-106943 eq 46, pg 12:
         
-        print(f"n = {self.n}")
+        print(f"load introduction factor, n = {self.n}")
         
         
         ###############################
@@ -357,6 +373,16 @@ class BoltedJoint:
         
         # target 0.65 tensile yield stress / strength 
         # NASA-TM-106943 eq 3:
+        # TODO: is there a 5020 equation?
+        self.T_applied_nom = nasa_tm_106943.eq3(
+            D=self.fastener.thread.d,  # major diameter
+            K=self.K_nom,  # nut factor
+            A_t=self.fastener.thread.A_t,  # A_t = tensile area
+            F_ty=self.fastener.material.Sy_mpa,  # F_ty = material tensile yield strength
+            preload_stress_ratio=self.preload_stress_ratio,
+        )
+        print(f"T_applied_nom = {self.T_applied_nom}")
+        
         self.T_applied_min = nasa_tm_106943.eq3(
             D=self.fastener.thread.d,  # major diameter
             K=self.K_min,  # nut factor
@@ -374,12 +400,35 @@ class BoltedJoint:
             preload_stress_ratio=self.preload_stress_ratio,
         )
         print(f"T_applied_max = {self.T_applied_max}")
+        
+        
     
         ###############################
-        # Preload: 
+        # Predicted Initial Preload: 
         ###############################
         
-        # P0 = 
+        # P0 = initial predicted nominal preload:
+        # NASA-STD-5020B, eq 24:
+        self.P_i_nom = nasa_std_5020b.eq24(
+            T=self.T_applied_nom,
+            K_nom=self.K_nom,
+            D=self.fastener.thread.d,
+        )
+        print(f"P_i_nom = {self.P_i_nom}")
+        
+        self.P_i_min = nasa_std_5020b.eq4(
+            c_min=lower_preload_tolerance_factor,
+            gamma=self.preload_uncertainty_factor,
+            P_pi_nom=self.P_i_nom,
+        )
+        print(f"P_i_min = {self.P_i_min}")
+        
+        self.P_i_max = nasa_std_5020b.eq3(
+            c_max=upper_preload_tolerance_factor,
+            gamma=self.preload_uncertainty_factor,
+            P_pi_nom=self.P_i_nom,
+        )
+        print(f"P_i_max = {self.P_i_max}")
         
         # delta_b = 
         
@@ -392,20 +441,128 @@ class BoltedJoint:
         
         # eq 10
         L = self.L_total_clamped_parts
-        alpha_b = self.fastener.material.cte_mm_mm_C
-        alpha_j = self.clamped_parts[1].material.cte_mm_mm_C
+
+        # TODO: fix joint coefficient of thermal expansion !!!
+        # need a combined joint CTE !!!
+        # alpha_j = self.clamped_parts[1].material.cte_mm_mm_C
         
-        #TODO: where is this from? just use that function...
-        #
-        self.P_th_min = ((self.K_b * self.K_j) / (self.K_b + self.K_j)) * L * self.delta_T_min * (alpha_j - alpha_b)
+        # NASA-TM-106943 eq10:
+        self.P_th_min = nasa_tm_106943.eq10(
+            K_b=self.K_b, 
+            K_j=self.K_j, 
+            L=self.L_total_clamped_parts, 
+            delta_T=self.delta_T_min, 
+            alpha_j=self.clamped_parts[1].material.cte_mm_mm_C, 
+            alpha_b=self.fastener.material.cte_mm_mm_C,
+        )
         
-        #TODO: where is this from? just use that function...
-        #
-        self.P_th_max = ((self.K_b * self.K_j) / (self.K_b + self.K_j)) * L * self.delta_T_max * (alpha_j - alpha_b)
+        # NASA-TM-106943 eq10:
+        self.P_th_max = nasa_tm_106943.eq10(
+            K_b=self.K_b, 
+            K_j=self.K_j, 
+            L=self.L_total_clamped_parts, 
+            delta_T=self.delta_T_max, 
+            alpha_j=self.clamped_parts[1].material.cte_mm_mm_C, 
+            alpha_b=self.fastener.material.cte_mm_mm_C,
+        )
         
         # which is worst case? min or max?
-        self.P_th = np.min([self.P_th_min, self.P_th_max])
-        print(f"P_th = {self.P_th} [N]")
+        # self.P_th = np.min([self.P_th_min, self.P_th_max])
+        # print(f"P_th = {self.P_th} [N]")
+        
+        P_th_min_temp = np.min([self.P_th_min, self.P_th_max])
+        self.P_th_max = np.max([self.P_th_min, self.P_th_max])
+        self.P_th_min = P_th_min_temp
+        
+        print(f"P_th_min = {self.P_th_min} [N]")
+        print(f"P_th_max = {self.P_th_max} [N]")
+        
+        
+        #################################
+        # Final Predicted Preload
+        #################################
+        
+        # includes changes due to thermal conditions
+        
+        # NASA-STD-5020B eq1:
+        self.P_max = nasa_std_5020b.eq1(
+            P_pi_max=self.P_i_max,
+            P_deltat_max=self.P_th_max,
+        )
+        
+        # NASA-STD-5020B eq2mod:
+        # self.P_min = self.P_i_min - self.preload_loss_due_to_material_creep
+        self.P_min = nasa_std_5020b.eq2mod(
+            P_pi_min=self.P_i_min,
+            P_deltat_min=self.P_th_min,
+            P_pc=self.preload_loss_due_to_material_creep,
+            relaxation_ratio=self.relaxation_ratio,
+        )
+        
+        print(f"P_min = {self.P_min}")
+        print(f"P_max = {self.P_max}")
+
+
+        ######################################
+        # Margins
+        ######################################
+        
+        # Tension only fastener strength:
+        # ultimate tensile load: NASA-STD-5020B eq6:
+        # ultimate tensile load: NASA-STD-5020B eq7:
+        # yield axial load: NASA-STD-5020B eq15:
+        # yield axial load: NASA-STD-5020B eq16:
+        # NSTS08307A: bolt_tensile_margin
+        
+        # Shear only fastener strength:
+        # ultimate shear load: nasa_std_5020b eq14:
+        # NASA-TM-106943 eq54:
+        # NSTS08307A shear_margin:
+        
+        # Bending Only Margin:
+        # NSTS08307A bending_margin:
+        # NSTS08307A bolt_bending_margin:
+        
+        # Tension and shear fastener strength:
+        # NASA-TM-106943 eq59:
+        
+        # Tension, shear, bending fastener strength:
+        # ultimate combined load: NASA-STD-5020B eq20mod:
+        # ultimate combined load: NASA-STD-5020B eq21mod:
+        # ultimate combined load: NASA-STD-5020B eq22mod:
+        # ultimate combined load: NASA-STD-5020B eq23mod:
+        # NASA-TM-106943 eq62:
+        # NSTS08307A combined_load_margin:
+        
+        # Joint Separation:
+        # NASA-STD-5020B eq19:
+        # NASA-TM-106943 eq68:
+        # NSTS08307A joint_separation_margin_of_safety:
+        
+        
+        # Joint slip:
+        
+        # Shear Pull Out of Threads:
+        # NSTS08307A: thread_shear_pull_out_margin
+        
+        
+        # Bolt Thread Shear:
+        # NASA-TM-106943 eq65:
+        
+        # Shear Tear Out:
+        # NASA-TM-106943 eq71:
+        
+        # Bolt Bearing (Shank Shear):
+        # NASA-TM-106943 eq74:
+        
+        # Bearing uner Bolt Head or Nut:
+        # NASA-TM-106943 eq75:
+        
+        # Threaded Insert Thread:
+        # NASA-TM-106943 eq77:
+        
+        # Nut Strength:
+        # NASA-TM-106943 eq81:
 
 
     def sep_margin_tm106943(self) -> float:
@@ -714,8 +871,8 @@ def main() -> None:
         preload_uncertainty_factor=0.25,
         relaxation_ratio=0.05,
         ambient_temperature=20.0,
-        max_temperature=20.0,
-        min_temperature=20.0,
+        max_temperature=25.0,
+        min_temperature=15.0,
         loaded_part_index=[1,2],
         nut_torqued=False, # is nut or head torqued?
         #override_nut_factor=[0.1, 0.15, 0.2],

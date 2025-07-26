@@ -73,6 +73,13 @@ metric_coarse_thread_list = [
 
 
 class MetricThread:
+    """MetricThread class.
+    
+    Args:
+        name (str): Descriptive name.
+        basic_major_diameter (float): Basic (nominal) major diameter.
+        pitch (float): thread pitch.
+    """
     def __init__(
             self, 
             name: str,
@@ -465,6 +472,7 @@ class ExternalMetricThread:
         """thread lead angle, rad.
         
         alternative for english threads:
+        
         alpha = np.arctan(1.0 / (n_0 * np.pi * E_in))
         
         """
@@ -476,11 +484,15 @@ class ExternalMetricThread:
             "type": 'ExternalThread',
             "pitch": self.pitch,
             "basic_major_diameter": self.d,
+            "mean_thread_radius": self.r_m,
+            "thread_half_angle_rad": self.beta,
+            "thread_lead_angle_rad": self.psi,
+            "fundamental_triangle_height": self.H,
         }
 
     def __str__(self):
         return "\n".join([
-            "\nThread:",
+            "\nExternalThread:",
             f"name = {self.name}",
             f"basic_major_diameter = {self.d}",
             f"pitch = {self.pitch}",
@@ -629,6 +641,7 @@ class InternalMetricThread:
         """thread lead angle, rad.
         
         alternative for english threads:
+        
         alpha = np.arctan(1.0 / (n_0 * np.pi * E_in))
         
         """
@@ -643,7 +656,7 @@ class InternalMetricThread:
 
     def __str__(self):
         return "\n".join([
-            "\nThread:",
+            "\nInternalThread:",
             f"name = {self.name}",
             f"basic_major_diameter = {self.D}",
             f"pitch = {self.pitch}",

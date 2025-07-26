@@ -117,9 +117,9 @@ class Fastener:
         
         Springs in series:
         
-        Do we need a length argument?
+        Do we need a length argument? -> probably yes...
         """
-        #TODO: finish this!
+        #TODO: finish this! add length argument...
         # need area
         # need to combine shank and threaded length
         A_shank = np.pi * self.Ro_shank**2
@@ -133,15 +133,15 @@ class Fastener:
         k_total = 1.0 / (1.0 / k_shank + 1.0 / k_thread)
         print(f"k_b_total = {k_total} [N/mm]")
         
-        # TODO: compare against: NASA-TM-106943, equation 32, pg 12
+        # compare against: NASA-TM-106943, equation 32, pg 12
         A_nom = np.pi * (self.thread.d / 2.0)**2
         
-        K_106943 = nasa_tm_106943.eq32(
+        K_b_106943 = nasa_tm_106943.eq32(
             A=A_nom,
             E_b=self.material.E_mpa,
             L=self.length,
         )
-        print(f"K_106943 = {K_106943} [N/mm]")
+        print(f"K_b_106943 = {K_b_106943} [N/mm]")
         
         # TODO: which stiffness is worst case? Kmax or Kmin?
         return k_total

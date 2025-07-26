@@ -6,28 +6,28 @@ Symbols:
 
 a. External/Internal Loads:
 
-- P = External axial load applied to joint at bolt location due to application of limit load to the structure
-- Pb = Bolt axial load resulting from yield, ultimate or joint separation load
-- V = Bolt shear load resulting from limit load
-- M = Bolt bending moment resulting from limit load
+- P: External axial load applied to joint at bolt location due to application of limit load to the structure
+- Pb: Bolt axial load resulting from yield, ultimate or joint separation load
+- V: Bolt shear load resulting from limit load
+- M: Bolt bending moment resulting from limit load
 
 b. Factors of Safety:
 
-- SF = Bolt strength factor of safety
-- SFsep = Joint separation factor of safety
+- SF: Bolt strength factor of safety
+- SFsep: Joint separation factor of safety
 
 c. Allowables/Strengths:
 
-- PAt = Axial load allowable of bolt due to tension
-- PAs = Axial load allowable of bolt or nut due to thread shear
-- VA = Shear load allowable of bolt
-- MA = Bending load allowable of bolt
+- PAt: Axial load allowable of bolt due to tension
+- PAs: Axial load allowable of bolt or nut due to thread shear
+- VA: Shear load allowable of bolt
+- MA: Bending load allowable of bolt
 
 Nut Factors:
 
-- K_typ = typical nut factor
-- K_min = minimum nut factor
-- K_max = maximum nut factor
+- K_typ: typical nut factor
+- K_min: minimum nut factor
+- K_max: maximum nut factor
 
 """
 import numpy as np
@@ -165,12 +165,14 @@ def min_preload(
     Returns:
         float: minimum predicted preload
     """
-    assert gamma >= 0.0
-    assert D > 0.0
-    assert K_typ > 0.0
+    assert gamma >= 0.0, "gamma (preload uncertainty factor) must be >= 0.0"
+    assert D > 0.0, "D (nominal fastener diameter) must be > 0.0"
+    assert K_typ > 0.0, "K (nut factor) must be > 0.0"
     assert P_thr_neg <= 0.0, "error, P_thr_neg must decrease the preload"
     assert relaxation_ratio >= 0.0
     # TODO: finish...  PLD input & TOL
+    
+    # TODO: does relaxation affect thermal changes?
     
     # 1. Typical Coefficient Method:
     if P_loss is not None:
@@ -251,15 +253,15 @@ def bolt_tensile_margin(
         P: float, 
         P_b: float,
     ):
-    """Calculate margin of safety for bolt tensile failure.
+    """Calculate margin of safety for bolt tensile failure, MS_crit.
     
     NSTS 08307 Rev A, pg 3-9
     
     Args:
-        PA_t: bolt tensile load allowable
-        SF: safety factor
-        P: External axial load applied to joint at bolt location due to application of limit load to the structure
-        P_b: Bolt axial load resulting from yield, ultimate or joint separation load
+        PA_t (float): bolt tensile load allowable
+        SF (float): safety factor
+        P (float): External axial load applied to joint at bolt location due to application of limit load to the structure
+        P_b (float): Bolt axial load resulting from yield, ultimate or joint separation load
     Returns:
         float: margin of safety for bolt tensile failure
     """
@@ -285,10 +287,10 @@ def thread_shear_pull_out_margin(
     Only checked at ultimate load.
     
     Args:
-        PA_s: thread shear load allowable
-        SF: safety factor
-        P: External axial load applied to joint at bolt location due to application of limit load to the structure
-        P_b: Bolt axial load resulting from yield, ultimate or joint separation load
+        PA_s (float): thread shear load allowable
+        SF (float): safety factor
+        P (float): External axial load applied to joint at bolt location due to application of limit load to the structure
+        P_b (float): Bolt axial load resulting from yield, ultimate or joint separation load
     Returns:
         float: margin of safety for thread shear pullout failure
     """
@@ -307,9 +309,9 @@ def shear_margin(VA: float, SF: float, V: float) -> float:
     NSTS 08307 Rev A, pg 3-10
     
     Args:
-        VA: shear load allowable of bolt
-        SF: safety factor
-        V: Bolt shear load resulting from limit load
+        VA (float): shear load allowable of bolt
+        SF (float): safety factor
+        V (float): Bolt shear load resulting from limit load
     Returns:
         float: margin of safety for shear
     """
@@ -327,9 +329,9 @@ def bending_margin(MA: float, SF: float, M: float) -> float:
     NSTS 08307 Rev A, pg 3-10
     
     Args:
-        MA: bending load allowable of bolt
-        SF: safety factor
-        M: Bolt bending load resulting from limit load
+        MA (float): bending load allowable of bolt
+        SF (float): safety factor
+        M (float): Bolt bending load resulting from limit load
     Returns:
         float: margin of safety for bending
     """
@@ -353,11 +355,11 @@ def axial_load_ratio(
     NSTS 08307 Rev A, pg 3-10
     
     Args:
-        SF:
-        P:
-        PA_t:
-        P_b:
-        PLD_max:
+        SF (float):
+        P (float):
+        PA_t (float):
+        P_b (float):
+        PLD_max (float):
     Returns:
         float: Ratio of axial load to axial load allowable
     """
@@ -381,10 +383,10 @@ def bending_load_ratio(
     Used in combined loading criteria.
     
     Args:
-        SF: factor of safety
-        M: Bolt bending moment resulting from limit load
-        MA: Bending load allowable of bolt
-        K_p: plastic bending factor
+        SF (float): factor of safety
+        M (float): Bolt bending moment resulting from limit load
+        MA (float): Bending load allowable of bolt
+        K_p (float): plastic bending factor
     Returns: 
         float: Ratio of bending load to bending allowable
     """
@@ -399,9 +401,9 @@ def shear_load_ratio(SF: float, V: float, VA: float) -> float:
     NSTS 08307 Rev A, pg ???
     
     Args:
-        SF: safety factor
-        V: Bolt shear load resulting from limit load
-        VA: Shear load allowable of bolt
+        SF (float): safety factor
+        V (float): Bolt shear load resulting from limit load
+        VA (float): Shear load allowable of bolt
     Returns:
         float: Ratio of shear load to shear load allowable
     """
@@ -425,10 +427,10 @@ def combined_load_margin(
     Deprecated, see: 
     
     Args:
-        R_a: Ratio of axial load to axial load allowable
-        R_b: Ratio of bending load to bending load allowable
-        R_s: Ratio of shear load to shear load allowable
-        K: plastic bending factor
+        R_a (float): Ratio of axial load to axial load allowable
+        R_b (float): Ratio of bending load to bending load allowable
+        R_s (float): Ratio of shear load to shear load allowable
+        K (float): plastic bending factor
     Returns:
         float: combined load failure criterion
     """
@@ -456,10 +458,10 @@ def bolt_bending_margin(
     For bending load only and ductile material.
     
     Args:
-        MA: Bending load allowable of bolt
-        K_p: plastic bending factor
-        SF: factor of safety
-        M: Bolt bending moment resulting from limit load
+        MA (float): Bending load allowable of bolt
+        K_p (float): plastic bending factor
+        SF (float): factor of safety
+        M (float): Bolt bending moment resulting from limit load
     Returns:
         float: margin of safety for bolt bending failure
     """
@@ -516,10 +518,10 @@ def bolt_axial_load_for_separation(
     NSTS 08307 Rev A, pg 3-12
     
     Args:
-        phi: stiffness parameter
-        n: loading plane factor
-        P_sep: 
-        PLD_min: minimum preload
+        phi (float): stiffness parameter
+        n (float): loading plane factor
+        P_sep (float): 
+        PLD_min (float): minimum preload
     Returns:
         float: bolt axial load (used for joint separation margin)
     """
@@ -534,8 +536,8 @@ def joint_separation_load(P: float, SF_sep: float) -> float:
     NSTS 08307 Rev A, pg 3-12
     
     Args:
-        P: External axial load applied to joint at bolt location due to application of limit load to the structure
-        SF_sep: factor of safety for joint separation
+        P (float): External axial load applied to joint at bolt location due to application of limit load to the structure
+        SF_sep (float): factor of safety for joint separation
     Returns:
         float: joint separation load
     """
@@ -556,9 +558,9 @@ def joint_separation_margin_of_safety(
     Only for P_b < tensile yield allowable of the bolt.
     
     Args:
-        PLD_min: minimum preload
-        n: loading plane factor 
-        phi: stiffness factor
+        PLD_min (float): minimum preload
+        n (float): loading plane factor 
+        phi (float): stiffness factor
     Returns:
         float: margin of safety for joint separation
     """
@@ -604,8 +606,8 @@ def tensile_axial_load_allowable_yield(
     NSTS 08307 Rev A, pg A-4
     
     Args:
-        F_ty: Minimum tensile yield strength of bolt
-        F_tu: Minimum tensile ultimate strength of bolt
+        F_ty (float): Minimum tensile yield strength of bolt
+        F_tu (float): Minimum tensile ultimate strength of bolt
     Returns:
         float: allowable yield tensile load
     """
@@ -621,7 +623,7 @@ def tensile_axial_load_allowable_ultimate(
     NSTS 08307 Rev A, pg A-4
     
     Args:
-        minimum_ultimate_tensile_load:
+        minimum_ultimate_tensile_load (float):
     Returns:
         float: tensile axial ultimate load allowable
     """
@@ -641,8 +643,8 @@ def tensile_axial_load_allowable_yield(
     NSTS 08307 Rev A, pg A-4
     
     Args:
-        A_t: tensile stress area of the bolt
-        F_ty: Minimum tensile yield strength of bolt
+        A_t (float): tensile stress area of the bolt
+        F_ty (float): Minimum tensile yield strength of bolt
     Returns:
         float: allowable yield tensile load
     """
@@ -660,8 +662,8 @@ def tensile_axial_load_allowable_ultimate(
     NSTS 08307 Rev A, pg A-4
     
     Args:
-        A_t: tensile stress area of the bolt
-        F_tu: Minimum tensile ultimate strength of bolt
+        A_t (float): tensile stress area of the bolt
+        F_tu (float): Minimum tensile ultimate strength of bolt
     Returns:
         float: tensile allowable load against ultimate failure
     """
@@ -682,9 +684,9 @@ def bolt_tensile_stress_area(
     To convert thread pitch to threads per inch (TPI), divide 25.4 (millimeters per inch) by the thread pitch in millimeters. 
     
     Args:
-        D_e_bsc: basic (nominal) major diameter of external threads
-        n_0: threads per inch (tpi)
-        pitch: thread pitch, mm
+        D_e_bsc (float): basic (nominal) major diameter of external threads
+        n_0 (float): threads per inch (tpi)
+        pitch (float): thread pitch, mm
     Returns:
         float: tensile stress area of the bolt
     """
@@ -711,8 +713,8 @@ def external_thread_shear_load_allowable(
     NSTS 08307 Rev A, pg A-4
     
     Args:
-        A_se: external thread shear area
-        F_su_bolt: Minimum shear ultimate strength of bolt
+        A_se (float): external thread shear area
+        F_su_bolt (float): Minimum shear ultimate strength of bolt
     Returns:
         float: external thread shear load allowable
     """
@@ -730,8 +732,8 @@ def internal_thread_shear_load_allowable(
     NSTS 08307 Rev A, pg A-4
     
     Args:
-        A_si: internal thread shear area
-        F_su_nut: Minimum shear ultimate strength of nut
+        A_si (float): internal thread shear area
+        F_su_nut (float): Minimum shear ultimate strength of nut
     Returns:
         float: internal thread shear load allowable
     """
@@ -761,13 +763,13 @@ def external_thread_shear_area(
     To convert thread pitch to threads per inch (TPI), divide 25.4 (millimeters per inch) by the thread pitch in millimeters.
     
     Args:
-        L_e: Length of thread engagement
-        K_i_max: maximum minor diameter of internal threads
-        n_0: threads per inch (tpi)
-        TK_i: Tolerance on minor diameter of internal threads
-        TE_e: Tolerance on pitch diameter of external threads
-        G_e: Allowance on external threads
-        pitch: thread pitch, mm
+        L_e (float): Length of thread engagement
+        K_i_max (float): maximum minor diameter of internal threads
+        n_0 (float): threads per inch (tpi)
+        TK_i (float): Tolerance on minor diameter of internal threads
+        TE_e (float): Tolerance on pitch diameter of external threads
+        G_e (float): Allowance on external threads
+        pitch (float): thread pitch, mm
     Returns:
         float: external thread shear area
     """
@@ -798,13 +800,13 @@ def internal_thread_shear_area(
     To convert thread pitch to threads per inch (TPI), divide 25.4 (millimeters per inch) by the thread pitch in millimeters.
     
     Args:
-        L_e: Length of thread engagement
-        D_e_min: minimum major diameter of external threads
-        n_0: threads per inch (tpi)
-        TD_e: Tolerance on major diameter of external threads
-        TE_i: Tolerance on pitch diameter of internal threads
-        G_e: Allowance on external threads
-        pitch: thread pitch, mm
+        L_e (float): Length of thread engagement
+        D_e_min (float): minimum major diameter of external threads
+        n_0 (float): threads per inch (tpi)
+        TD_e (float): Tolerance on major diameter of external threads
+        TE_i (float): Tolerance on pitch diameter of internal threads
+        G_e (float): Allowance on external threads
+        pitch (float): thread pitch, mm
     Returns:
         float: internal thread shear area
     """

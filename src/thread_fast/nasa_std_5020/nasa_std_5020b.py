@@ -20,15 +20,16 @@ def eq1(
     ) -> float:
     """Calculate maximum predicted preload, P_p_max.
     
-    nasa-std-5020b, equation 1, pg 21
+    NASA-STD-5020B, equation 1, pg 21
     
     Args:
-        P_pi_max: maximum initial preload
-        P_deltat_max: maximum increase in preload due to temperature
+        P_pi_max (float): Maximum initial predicted preload.
+        P_deltat_max (float): Maximum increase in preload due to temperature.
     Returns:
-        float: max predicted preload
+        float: Maximum predicted preload.
     """
     assert P_deltat_max >= 0.0
+    # TODO: allow reduction in preload?
     P_p_max = P_pi_max + P_deltat_max
     return P_p_max
 
@@ -41,20 +42,49 @@ def eq2(
     ) -> float:
     """Calculate minimum predicted preload, P_p_min.
     
-    nasa-std-5020b, equation 2, pg 21
+    NASA-STD-5020B, equation 2, pg 21
     
     Args:
-        P_pi_min: minimum initial preload
-        P_pr: short term relaxation of preload
-        P_deltat_min: maximum decrease in preload due to temperature
-        P_pc: loss of preload from material creep
+        P_pi_min (float): Minimum initial predicted preload.
+        P_pr (float): Short term relaxation of preload.
+        P_deltat_min (float): Maximum decrease in preload due to temperature (positive value).
+        P_pc (float): Loss of preload from material creep.
     Returns:
-        float: min predicted preload
+        float: Minimum predicted preload.
     """
     assert P_deltat_min >= 0.0
+    # TODO: allow increase in preload?
     assert P_pr >= 0.0
     assert P_pc >= 0.0
     P_p_min = P_pi_min - P_pr - P_pc - P_deltat_min
+    return P_p_min
+
+
+def eq2mod(
+        P_pi_min: float,  
+        P_deltat_min: float,
+        P_pc: float=0.0, 
+        relaxation_ratio: float=0.05,
+    ) -> float:
+    """Calculate minimum predicted preload, P_p_min.
+    
+    NASA-STD-5020B, equation 2, pg 21
+    
+    Args:
+        P_pi_min (float): Minimum initial predicted preload.
+        P_deltat_min (float): Maximum decrease in preload due to temperature (negative value).
+        P_pc (float): Loss of preload from material creep.
+        relaxation_ratio (float): ratio of preload lost due to settling
+    Returns:
+        float: Minimum predicted preload.
+    """
+    assert P_deltat_min <= 0.0, "P_deltat_min must be <= 0.0"
+    # TODO: allow increase in preload?
+    assert relaxation_ratio >= 0.0, "relaxation ratio must be >= 0.0"
+    assert P_pc >= 0.0, "preload loss due to creep must be >= 0.0"
+    # TODO: rearrange to use preload_relaxation_ratio
+    # TODO: does relaxation affect thermal changes?
+    P_p_min = (P_pi_min - P_pc + P_deltat_min) / (1.0 + relaxation_ratio)
     return P_p_min
 
 
@@ -63,17 +93,20 @@ def eq3(
         gamma: float, 
         P_pi_nom: float,
     ) -> float:
-    """Calculate max initial preload, P_pi_max.
+    """Calculate maximum initial predicted preload, P_pi_max.
     
-    nasa-std-5020b, equation 3, pg 22
+    NASA-STD-5020B, equation 3, pg 22
     
     Args:
-        c_max: factor that accounts for max value of controlled installation parameter, as allowed by specified tolerance
-        gamma: preload variation
-        P_pi_nom: nominal installation preload
+        c_max (float): factor that accounts for max value of controlled installation parameter, as allowed by specified tolerance
+        gamma (float): preload variation
+        P_pi_nom (float): nominal installation preload
     Returns:
-        float: max initial preload
+        float: Maximum initial predicted preload.
     """
+    assert c_max >= 1.0
+    assert gamma >= 0.0
+    assert P_pi_nom >= 0.0
     P_pi_max = c_max * (1.0 + gamma) * P_pi_nom
     return P_pi_max
     
@@ -83,17 +116,20 @@ def eq4(
         gamma: float, 
         P_pi_nom: float,
     ) -> float:
-    """Calculate min initial preload, P_pi_min.
+    """Calculate minimum initial preload, P_pi_min.
     
-    nasa-std-5020b, equation 4, pg 22
+    NASA-STD-5020B, equation 4, pg 22
     
     Args:
-        c_min: factor that accounts for min value of controlled installation parameter, as allowed by specified tolerance
-        gamma: preload variation
-        P_pi_nom: nominal installation preload
+        c_min (float): factor that accounts for min value of controlled installation parameter, as allowed by specified tolerance
+        gamma (float): preload variation
+        P_pi_nom (float): nominal installation preload
     Returns:
-        float: min initial preload
+        float: minimum initial preload
     """
+    assert 0.0 <= c_min <= 1.0
+    assert gamma >= 0.0
+    assert P_pi_nom >= 0.0
     P_pi_min = c_min * (1.0 - gamma) * P_pi_nom
     return P_pi_min
 
@@ -103,19 +139,19 @@ def eq5(c_min: float,
         P_pi_nom: float,
         n_f: int,
     ) -> float:
-    """Calculate min initial preload, P_pi_min.
+    """Calculate minimum initial preload, P_pi_min.
     
-    nasa-std-5020b, equation 5, pg 23
+    NASA-STD-5020B, equation 5, pg 23
     
     For use in joint slip and non-separation critical joint separation analysis.
     
     Args:
-        c_min: factor that accounts for min value of controlled installation parameter, as allowed by specified tolerance
-        gamma: preload variation
-        P_pi_nom: nominal installation preload
-        n_f: number of fastener in the joint.
+        c_min (float): factor that accounts for min value of controlled installation parameter, as allowed by specified tolerance
+        gamma (float): preload variation
+        P_pi_nom (float): nominal installation preload
+        n_f (int): number of fastener in the joint.
     Returns:
-        float: min initial preload
+        float: minimum initial preload
     """
     P_pi_min = c_min * (1.0 - gamma / np.sqrt(n_f)) * P_pi_nom
     return P_pi_min
@@ -135,15 +171,15 @@ def eq6(
     ) -> float:
     """Calculate margin of safety for ultimate load, MS_u.
     
-    nasa-std-5020b, equation 6, pg 27
+    NASA-STD-5020B, equation 6, pg 27
     
     For when separation occurs before rupture.
     
     Args:
-        P_tu_allow: allowable ultimate load
-        FS_u: ultimate factor of safety
-        P_tL: limit tensile load
-        FF: fitting factor
+        P_tu_allow (float): allowable ultimate load
+        FS_u (float): ultimate factor of safety
+        P_tL (float): limit tensile load
+        FF (float): fitting factor
     Returns:
         float: margin of safety for ultimate tensile load
     """
@@ -161,15 +197,15 @@ def eq7(
     ) -> float:
     """Calculate margin of safety for ultimate load, MS_u.
     
-    nasa-std-5020b, equation 7, pg 27
+    NASA-STD-5020B, equation 7, pg 27
     
     For when rupture occurs before separation.
     
     Args:
-        P_prime_tu: applied tensile load that causes the fastener load to exceed the allowable ultimate tensile load
-        FS_u: ultimate factor of safety
-        P_tL: limit tensile load
-        FF: fitting factor
+        P_prime_tu (float): applied tensile load that causes the fastener load to exceed the allowable ultimate tensile load
+        FS_u (float): ultimate factor of safety
+        P_tL (float): limit tensile load
+        FF (float): fitting factor
     Returns:
         float: margin of safety for ultimate tensile load
     """
@@ -199,13 +235,13 @@ def eq8(
     ) -> float:
     """Calculate the tensile load in a preloaded bolt, P_tb.
     
-    nasa-std-5020b, equation 8, pg 28
+    NASA-STD-5020B, equation 8, pg 28
     
     Args:
-        P_p: preload
-        n: load introduction factor
-        phi: stiffness factor
-        P_t: applied tensile load
+        P_p (float): preload
+        n (float): load introduction factor
+        phi (float): stiffness factor
+        P_t (float): applied tensile load
     Returns:
         float: tensile load in the bolt
     """
@@ -217,11 +253,11 @@ def eq8(
 def eq9(k_b: float, k_c: float) -> float:
     """Calculate the stiffness factor, phi.
     
-    nasa-std-5020b, equation 9, pg 28
+    NASA-STD-5020B, equation 9, pg 28
     
     Args:
-        k_b: stiffness of the bolt
-        k_c: stiffness of the clamped parts
+        k_b (float): stiffness of the bolt
+        k_c (float): stiffness of the clamped parts
     Returns:
         float: stiffness factor
     """
@@ -239,13 +275,13 @@ def eq10(
     ) -> float:
     """Calculate applied tensile load that causes the bolt load to exceed the allowable ultimate tensile load for the fastening system, P_prime_tu.
     
-    nasa-std-5020b, equation 10, pg 28
+    NASA-STD-5020B, equation 10, pg 28
     
     Args:
-        n: load introduction factor
-        phi: stiffness factor
-        P_tu_allow: allowable ultimate load
-        P_p_max: maximum preload
+        n (float): load introduction factor
+        phi (float): stiffness factor
+        P_tu_allow (float): allowable ultimate load
+        P_p_max (float): maximum preload
     Returns:
         float: applied tensile load that causes the bolt load to exceed the allowable ultimate tensile load
     """
@@ -257,7 +293,7 @@ def eq10(
 def eq11(P_p_max: float, n: float, phi: float) -> float:
     """Calculate the linearly projected load that causes separation when at maximum preload, P_prime_sep.
     
-    nasa-std-5020b, equation 11, pg 28
+    NASA-STD-5020B, equation 11, pg 28
     
     Args:
         P_p_max: maximum preload
@@ -274,7 +310,7 @@ def eq11(P_p_max: float, n: float, phi: float) -> float:
 def eq12(D: float, F_su: float) -> float:
     """Calculate allowable ultimate shear load for a fastener, P_su_allow.
     
-    nasa-std-5020b, equation 12, pg 28
+    NASA-STD-5020B, equation 12, pg 28
     
     For threads not in the shear plane.
     
@@ -291,7 +327,7 @@ def eq12(D: float, F_su: float) -> float:
 def eq13(F_su: float, A_m: float) -> float:
     """Calculate allowable ultimate shear load for a fastener, P_su_allow.
     
-    nasa-std-5020b, equation 13, pg 28
+    NASA-STD-5020B, equation 13, pg 28
     
     For threads in the shear plane.
     
@@ -313,13 +349,13 @@ def eq14(
     ) -> float:
     """Calculate ultimate margin of safety for shear loading of a fastener, MS_u.
     
-    nasa-std-5020b, equation 14, pg 29
+    NASA-STD-5020B, equation 14, pg 29
     
     Args:
-        P_su_allow: allowable ultimate shear load for a fastener
-        FS_u: ultimate factor of safety
-        P_sL: limit shear load acting on the shear plane
-        FF: fitting factor
+        P_su_allow (float): allowable ultimate shear load for a fastener
+        FS_u (float): ultimate factor of safety
+        P_sL (float): limit shear load acting on the shear plane
+        FF (float): fitting factor
     Returns:
         float: ultimate margin of safety for shear loading of a fastener
     """
@@ -342,17 +378,17 @@ def eq15(
         P_tL: float, 
         FF: float=1.15,
     ) -> float:
-    """nasa-std-5020b, equation 15, pg 30
+    """NASA-STD-5020B, equation 15, pg 30
     
     Calculate margin of safety for yield under axial load, MS_y.
     
     For when separation occurs before yield.
     
     Args:
-        P_ty_allow: allowable tensile load of the material
-        FS_y:
-        P_tL:
-        FF: fitting factor
+        P_ty_allow (float): allowable tensile load of the material
+        FS_y (float):
+        P_tL (float):
+        FF (float): fitting factor
     """
     assert FS_y >= 1.0, "error, safety factor, FS_y, must be >= 1.0"
     assert FF >= 1.0, "error, fitting factor, FF, must be >= 1.0"
@@ -368,13 +404,17 @@ def eq16(
         P_tL: float, 
         FF: float=1.15, 
     ) -> float:
-    """nasa-std-5020b, equation 16, pg 30
+    """Calculate MS_y.
+    
+    NASA-STD-5020B, equation 16, pg 30
     
     Args:
-        P_prime_ty: applied tensile load that causes the fastener load to exceed the fastening system’s allowable yield tensile load
-        FS_y:
-        P_tL: limit tensile load
-        FF: fitting factor
+        P_prime_ty (float): applied tensile load that causes the fastener load to exceed the fastening system’s allowable yield tensile load
+        FS_y (float):
+        P_tL (float): limit tensile load
+        FF (float): fitting factor
+    Returns:
+        float: 
     """
     assert FS_y >= 1.0, "error, safety factor, FS_y, must be >= 1.0"
     assert FF >= 1.0, "error, fitting factor, FF, must be >= 1.0"
@@ -390,15 +430,17 @@ def eq17(
         P_ty_allow: float, 
         P_p_max: float,
     ) -> float:
-    """nasa-std-5020b, equation 17, pg 30
+    """Calculate applied tensile load that causes the fastener load to exceed the fastening system’s allowable yield tensile load if yielding occurs before separation, P_prime_ty.
     
-    Calculate applied tensile load that causes the fastener load to exceed the fastening system’s allowable yield tensile load if yielding occurs before separation, P_prime_ty.
+    NASA-STD-5020B, equation 17, pg 30
     
     Args:
-        n: load introduction factor
-        phi: stiffness factor
-        P_ty_allow: allowable tensile load of the material
-        P_p_max: maximum initial preload
+        n (float): load introduction factor
+        phi (float): stiffness factor
+        P_ty_allow (float): allowable tensile load of the material
+        P_p_max (float): maximum initial preload
+    Return:
+        float: Yield tensile load.
     """
     assert 0.0 <= n <= 1.0
     P_prime_ty = (1.0 / (n * phi)) * (P_ty_allow - P_p_max)
@@ -412,12 +454,12 @@ def eq18(
     ) -> float:
     """Estimate allowable yield tensile load, when value is not available.
     
-    nasa-std-5020b, equation 18, pg 30
+    NASA-STD-5020B, equation 18, pg 30
     
     Args:
-        F_ty: yield strength
-        F_tu: ultimate strength
-        P_tu_allow: allowable ultimate load of the fastener in tension
+        F_ty (float): yield strength
+        F_tu (float): ultimate strength
+        P_tu_allow (float): allowable ultimate load of the fastener in tension
     Returns:
         float: allowable yield tensile load
     """
@@ -438,15 +480,15 @@ def eq19(
     ) -> float:
     """Calculate margin of safety for separation, MS_sep.
     
-    nasa-std-5020b, equation 19, pg 32
+    NASA-STD-5020B, equation 19, pg 32
     
     Axial loading only.
     
     Args:
-        P_p_min:
-        SF_sep: separation factor of safety
-        P_tL: 
-        FF: fitting factor
+        P_p_min (float): Minimum predicted preload.
+        SF_sep (float): Factor of safety for joint separation.
+        P_tL (float): 
+        FF (float): Fitting factor.
     Returns:
         float: margin of safety for separation
     """
@@ -478,19 +520,19 @@ def eq20mod(
     ) -> float:
     """Calculate ultimate margin of safety for combined loading, MS_comb.
     
-    nasa-std-5020b, modified equation 20, pg 33
+    NASA-STD-5020B, modified equation 20, pg 33
     
     For when the full diameter body is in the shear plane.
     
     For when not accounting for plastic bending.
     
     Args:
-        P_su:
-        P_su_allow:
-        P_tu:
-        P_tu_allow:
-        f_bu:
-        F_tu: 
+        P_su (float):
+        P_su_allow (float):
+        P_tu (float):
+        P_tu_allow (float):
+        f_bu (float):
+        F_tu (float): 
     Returns:
         float: ultimate margin of safety for combined loading
     """
@@ -509,19 +551,19 @@ def eq21mod(
     ) -> float:
     """Calculate ultimate margin of safety for combined loading, MS_comb.
     
-    nasa-std-5020b, modified equation 21, pg 33
+    NASA-STD-5020B, modified equation 21, pg 33
     
     For when the full diameter body is in the shear plane.
     
     For when accounting for plastic bending.
     
     Args:
-        P_su:
-        P_su_allow:
-        P_tu:
-        P_tu_allow:
-        f_bu:
-        F_bu:
+        P_su (float):
+        P_su_allow (float):
+        P_tu (float):
+        P_tu_allow (float):
+        f_bu (float):
+        F_bu (float):
     Returns:
         float: ultimate margin of safety for combined loading
     """
@@ -540,19 +582,21 @@ def eq22mod(
     ) -> float:
     """Calculate ultimate margin of safety for combined loading, MS_comb.
     
-    nasa-std-5020b, modified equation 22, pg 33
+    NASA-STD-5020B, modified equation 22, pg 33
     
     For when the full diameter body is in the shear plane.
     
     For when not accounting for plastic bending.
     
     Args:
-        P_su:
-        P_su_allow:
-        P_tu:
-        P_tu_allow:
-        f_bu:
-        F_tu:
+        P_su (float):
+        P_su_allow (float):
+        P_tu (float):
+        P_tu_allow (float):
+        f_bu (float):
+        F_tu (float):
+    Returns:
+        float: Margin of safety against ultimate failure, combined loading.
     """
     eq22 = (P_su / P_su_allow)**1.2 + (P_tu / P_tu_allow + f_bu / F_tu)**2
     MS_comb = 1.0 / eq22 - 1.0
@@ -569,15 +613,17 @@ def eq23mod(
     ) -> float:
     """Calculate ultimate margin of safety for combined loading, MS_comb.
     
-    nasa-std-5020b, modified equation 23, pg 34
+    NASA-STD-5020B, modified equation 23, pg 34
     
     For when the full diameter body is in the shear plane.
     
     For when accounting for plastic bending.
     
     Args:
-    
-    
+        P_su (float):
+        P_su_allow (float):
+    Returns:
+        float: Margin of safety for combined loading.
     """
     eq23 = (P_su / P_su_allow)**1.2 + (P_tu / P_tu_allow)**2 + f_bu / F_bu
     MS_comb = 1.0 / eq23 - 1.0
@@ -592,12 +638,12 @@ def eq23mod(
 def eq24(T: float, K_nom: float, D: float) -> float:
     """Calculate initial nominal preload, P_pi_nom.
     
-    nasa-std-5020b, equation 24, pg 46
+    NASA-STD-5020B, equation 24, pg 46
     
     Args:
-        T: nominal effective torque
-        K_nom: nominal nut factor
-        D: nominal bolt diameter
+        T (float): nominal effective torque
+        K_nom (float): nominal nut factor
+        D (float): nominal bolt diameter
     Returns:
         float: initial nominal preload
     """
@@ -615,13 +661,13 @@ def eq25(
     ) -> float:
     """Calculate maximum initial preload, P_pi_max.
     
-    nasa-std-5020b, equation 25, pg 46
+    NASA-STD-5020B, equation 25, pg 46
     
     Args:
-        gamma: preload variation
-        T_max: maximum effective torque
-        K_nom: nominal nut factor
-        D: nominal bolt diameter
+        gamma (float): preload variation
+        T_max (float): maximum effective torque
+        K_nom (float): nominal nut factor
+        D (float): nominal bolt diameter
     Returns:
         float: max initial preload
     """
@@ -640,15 +686,15 @@ def eq26a(
     ) -> float:
     """Calculate minimum initial preload, P_pi_min.
     
-    nasa-std-5020b, equation 26a, pg 46
+    NASA-STD-5020B, equation 26a, pg 46
     
     For use in separation analysis of separation-critical joints.
     
     Args:
-        gamma: preload variation
-        T_min: minimum effective torque
-        K_nom: nominal nut factor
-        D: nominal bolt diameter
+        gamma (float): preload variation
+        T_min (float): minimum effective torque
+        K_nom (float): nominal nut factor
+        D (float): nominal bolt diameter
     Returns:
         float: min initial preload
     """
@@ -668,16 +714,16 @@ def eq26b(
     ) -> float:
     """Calculate minimum initial preload, P_pi_min.
     
-    nasa-std-5020b, equation 26b, pg 47
+    NASA-STD-5020B, equation 26b, pg 47
     
     For use in separation analysis of joints that are not separation-critical and joint-slip analysis.
     
     Args:
-        gamma: preload variation
-        n_f: number of fasteners in the joint
-        T_min: minimum effective torque
-        K_nom: nominal nut factor
-        D: nominal bolt diameter
+        gamma (float): preload variation
+        n_f (float): number of fasteners in the joint
+        T_min (float): minimum effective torque
+        K_nom (float): nominal nut factor
+        D (float): nominal bolt diameter
     Returns:
         float: min initial preload
     """
@@ -701,14 +747,14 @@ def eq32(
         D: float, 
         P_pi_nom: float,
     ) -> float: 
-    """Calculate nominal nut factor, K_nom
+    """Calculate nominal nut factor, K_nom.
     
-    nasa-std-5020b, equation 32, pg 48
+    NASA-STD-5020B, equation 32, pg 48
     
     Args:
-        T:
-        D: nominal bolt diameter
-        P_pi_nom:
+        T (float): applied torque.
+        D (float): nominal bolt diameter.
+        P_pi_nom (float): nominal predicted initial preload.
     Returns:
         float: nominal nut factor
     """
@@ -726,13 +772,13 @@ def eq32(
 def eq37(L_lp: float, L: float) -> float:
     """Calculate geometric load introduction factor, n.
     
-    nasa-std-5020b, equation 37, pg 52
+    NASA-STD-5020B, equation 37, pg 52
     
     See: The Mechanism of Bolt Loading, NASA-TM-108377
     
     Args:
-        L_lp: length between loading planes
-        L: total thickness of the joint
+        L_lp (float): Length between loading planes.
+        L (float): Total thickness of the joint.
     Returns:
         float: geometric load introduction factor
     """
@@ -751,7 +797,7 @@ def eq37(L_lp: float, L: float) -> float:
 
 
 def eq38() -> float:
-    """nasa-std-5020b, equation 38, pg 
+    """NASA-STD-5020B, equation 38, pg 
     
     See: The Mechanism of Bolt Loading, NASA-TM-108377
     
@@ -779,15 +825,15 @@ def eq47(
     ) -> float:
     """Calculate tensile load in a preloaded bolt, P_tb.
     
-    nasa-std-5020b, equation 47, pg 56
+    NASA-STD-5020B, equation 47, pg 56
     
     See: The Mechanism of Bolt Loading, NASA-TM-108377
     
     Args:
-        P_p: preload
-        n: load introduction factor
-        phi: stiffness factor
-        P_t: external applied tensile load
+        P_p (float): preload
+        n (float): load introduction factor
+        phi (float): stiffness factor
+        P_t (float): external applied tensile load
     Returns:
         float: tensile load in preloaded bolt
     """
@@ -798,15 +844,15 @@ def eq47(
 def eq48(B: float, C: float) -> float:
     """Calculate stiffness based load introduction factor, n.
     
-    nasa-std-5020b, equation 48, pg 56
+    NASA-STD-5020B, equation 48, pg 56
     
     Expressed in terms of the clamped members being relieved.
     
     See: The Mechanism of Bolt Loading, NASA-TM-108377
     
     Args:
-        B: stiffness coefficient
-        C: stiffness coefficient
+        B (float): stiffness coefficient
+        C (float): stiffness coefficient
     Returns:
         float: stiffness based load introduction factor
     """
@@ -822,15 +868,15 @@ def eq48(B: float, C: float) -> float:
 def eq52(A: float, D: float) -> float:
     """Calculate stiffness based load introduction factor, n.
     
-    nasa-std-5020b, equation 52, pg 56
+    NASA-STD-5020B, equation 52, pg 56
     
     Expressed in terms of the clamped members being compressed.
     
     See: The Mechanism of Bolt Loading, NASA-TM-108377
     
     Args:
-        A: stiffness coefficient
-        D: stiffness coefficient
+        A (float): stiffness coefficient
+        D (float): stiffness coefficient
     Returns:
         float: stiffness based load introduction factor
     """
@@ -851,16 +897,17 @@ def eq52(A: float, D: float) -> float:
 def eq57(l4: float, l2: float, L: float) -> float:
     """Calculate geometric load introduction factor, n_G.
     
-    nasa-std-5020b, equation 57, pg 57
+    NASA-STD-5020B, equation 57, pg 57
     
     See: 
-    -NSTS 08307
-    -The Mechanism of Bolt Loading, NASA-TM-108377
+    
+    - NSTS 08307
+    - The Mechanism of Bolt Loading, NASA-TM-108377
     
     Args:
-        l4: length to second loading plane
-        l2: length to first loading plane
-        L: total thickness of the joint
+        l4 (float): length to second loading plane
+        l2 (float): length to first loading plane
+        L (float): total thickness of the joint
     Returns:
         float: geometric load introduction factor
     """
@@ -921,13 +968,13 @@ def eq57(l4: float, l2: float, L: float) -> float:
 def eq87(n_i: list[float], N_i: list[float]) -> float:
     """Calculate cumulative damage according to Miner's rule.
     
-    nasa-std-5020b, equation 87, pg 99
+    NASA-STD-5020B, equation 87, pg 99
     
     D must be <= 1.0 to predict survival.
     
     Args:
-        n_i: number of loading cycles at a given stress level
-        N_i: the number of cycles to failure at that stress level
+        n_i (list[float]): number of loading cycles at a given stress level
+        N_i (list[float]): the number of cycles to failure at that stress level
     Returns:
         float: cumulative damage
     """

@@ -161,7 +161,7 @@ def eq4(D: float, p: float) -> float:
     NASA-TM-106943, equation 4, pg 5
     
     Args:
-        D (float): nominal diameter
+        D (float): nominal fastener diameter
         p (float): thread pitch
     Returns:
         float: tensile area (min cross section area of bolt)
@@ -209,7 +209,7 @@ def eq7(
         L: float, 
         delta_T: float,
     ) -> float:
-    """Calculate abutment deflection due to temperature change, delta_j.
+    """Calculate abutment (joint) deflection due to temperature change, delta_j.
     
     NASA-TM-106943, equation 7, pg 5
     
@@ -268,8 +268,8 @@ def eq11(
     NASA-TM-106943, equation 11, pg 6
     
     Args:
-        P_0_min: minimum expected bolt preload
-        relaxation_ratio: expected percentage preload loss
+        P_0_min (float): minimum expected bolt preload
+        relaxation_ratio (float): expected percentage preload loss
     Returns:
         float: preload loss due to embedment relaxation
     """
@@ -591,6 +591,12 @@ def eq27(P_0: float, K_j: float) -> float:
     """Calculate delta_j.
     
     NASA-TM-106943, equation 27, pg 11
+    
+    Args:
+        P_0:
+        K_j: joint stiffness
+    Returns:
+        float: joint deflection due to preload
     """
     delta_j = P_0 / K_j
 
@@ -757,8 +763,8 @@ def eq34(
 
 
 def eq34mod(
-        L_list,
-        E_list,
+        L_list: list[float],
+        E_list: list[float],
     ) -> float:
     """Calculate joint composite modulus, E_j.
     
@@ -767,8 +773,8 @@ def eq34mod(
     Reference figure 7, pg 12
     
     Args:
-        L_list: list of clamped component lengths
-        E_list: list of lamped component modulus of elasticity
+        L_list (list[float]): list of clamped component lengths
+        E_list (list[float]): list of lamped component modulus of elasticity
     Return:
         float: joint composite modulus
     """
@@ -823,9 +829,9 @@ def eq35(l_1: float, l_2: float, l_n: float) -> float:
 
 
 def eq37(A: float, E_b: float, L: float) -> float:
-    """NASA-TM-106943, equation 37, pg 
+    """Calculate bolt stiffness, K_b.
     
-    Calculate bolt stiffness, K_b.
+    NASA-TM-106943, equation 37, pg 
     
     Args:
         A (float): nominal fastener cross-sectional area
@@ -856,13 +862,20 @@ def eq37(A: float, E_b: float, L: float) -> float:
 ########################################################
 
 
-def eq42(l_1, l_2, l_n, L_i) -> float:
+def eq42(
+        l_1: float, 
+        l_2: float, 
+        l_n: float, 
+        L_i: float,
+    ) -> float:
     """Calculate total length of clamped components, L.
     
     NASA-TM-106943, equation 42, pg
     
     Args:
-    
+        l_1 (float):
+        l_2 (float):
+        l_n (float):
     Returns:
         float: total length of clamped components
     """
@@ -877,12 +890,14 @@ def eq42(l_1, l_2, l_n, L_i) -> float:
 
 
 def eq44(E_j: float, D: float, L: float) -> float:
-    """NASA-TM-106943, equation 44, pg
+    """Calculate K_j.
+    
+    NASA-TM-106943, equation 44, pg
     
     Args:
-        E_j:
-        D:
-        L:
+        E_j (float):
+        D (float):
+        L (float):
     """
     K_j = np.pi * E_j * D / (np.log(5.0*((2.0*L + 0.5*D)/(2.0*L + 2.5*D))))
     return K_j
@@ -903,15 +918,16 @@ def eq45(L, l1, l2, E_2, l_n, L_i) -> float:
     return E_j
 
 
-def eq46() -> float:
-    """Calculate , n.
+def eq46(l_1: float, l_2: float) -> float:
+    """Calculate load introduction factor, n.
     
     NASA-TM-106943, equation 46, pg 
     
     Args:
-    
+        l_1 (float):
+        l_2 (float):
     Returns:
-        float: 
+        float: load introduction factor
     """
     # TODO: fix...
     n = (l_1/2 + l_2 + ... + (l_n - L_i/2)) / (l_1 + l_2 + ... + l_n)
@@ -936,8 +952,8 @@ def eq47(
     NASA-TM-106943, equation 47, pg 
     
     Args:
-        l_1:
-        l_h:
+        l_1 (float):
+        l_h (float):
     Returns:
         float:
     """
@@ -952,9 +968,9 @@ def eq48(A: float, E_b: float, L: float) -> float:
     NASA-TM-106943, equation 48, pg 
     
     Args:
-        A: nominal fastener cross-sectional area
-        E_b: bolt modulus of elasticity
-        L: fastener grip length
+        A (float): nominal fastener cross-sectional area
+        E_b (float): bolt modulus of elasticity
+        L (float): fastener grip length
     Returns:
         float: bolt stiffness
     """
@@ -978,10 +994,10 @@ def eq49(
     For configuration 4: 
     
     Args:
-        E_j: joint modulus of elasticity
-        D: nominal fastener diameter
-        L: fastener grip length
-        d_w: effective countersunk head diameter
+        E_j (float): joint modulus of elasticity
+        D (float): nominal fastener diameter
+        L (float): fastener grip length
+        d_w (float): effective countersunk head diameter
     Returns:
         float: joint stiffness
     """
@@ -1019,12 +1035,17 @@ def eq51(L: float, l_2: float, E_2: float) -> float:
         float:
     """
     # TODO: fix...
-    E_j = L / (() + l_2/E_2 + ... + ())
+    E_j = L / (() + l_2/E_2 + ())
     return E_j
 
 
-def eq52(l_1, l_h, l_2, l_n: float) -> float:
-    """Calculate n.
+def eq52(
+        l_1: float, 
+        l_h: float, 
+        l_2: float, 
+        l_n: float,
+    ) -> float:
+    """Calculate load introduction factor, n.
     
     NASA-TM-106943, equation 52, pg 15
     
@@ -1034,7 +1055,7 @@ def eq52(l_1, l_h, l_2, l_n: float) -> float:
         float:
     """
     # TODO: fix...
-    n = ((l_1 - l_h / 2.0) + l_2 + ... + (l_n - L_i/2.0)) / (l_1 + l_2 + ... + l_n)
+    n = ((l_1 - l_h / 2.0) + l_2 + ... + (l_n - L_i/2.0)) / (l_1 + l_2 + l_n)
     return n
 
 
@@ -1048,15 +1069,15 @@ def eq52(l_1, l_h, l_2, l_n: float) -> float:
 
 
 def eq53(tensile_allowable: float, P_b: float) -> float:
-    """Calculate margin of safety
+    """Calculate margin of safety for ???, MS.
     
     NASA-TM-106943, equation 53, pg 15
     
     Args:
-        tensile_allowable:
-        P_b:
+        tensile_allowable (float):
+        P_b (float):
     Returns:
-        float: margin of safety
+        float: margin of safety for ???
     """
     MS = (tensile_allowable / P_b) - 1.0
     return MS
@@ -1072,16 +1093,16 @@ def eq54(
         shear_allowable: float, 
         SF: float,
     ) -> float:
-    """Calculate margin of safety against fastener shear failure.
+    """Calculate margin of safety against fastener shear failure, MS.
     
     NASA-TM-106943, equation 54, pg 16
     
     utimate or yield?
     
     Args:
-        V: externally applied shear load
-        shear_allowable:
-        SF: safety factor
+        V (float): externally applied shear load
+        shear_allowable (float):
+        SF (float): safety factor
     Returns:
         float: margin of safety against fastener shear failure
     """
@@ -1097,8 +1118,8 @@ def eq55(F_su: float, A_s: float) -> float:
     Compare to NASA-STD-5020B eq 13.
     
     Args:
-        F_su: material ultimate shear strength
-        A_s: shear area
+        F_su (float): material ultimate shear strength
+        A_s (float): shear area
     Returns:
         float: fastener shear allowable
     """
@@ -1124,8 +1145,8 @@ def eq57(
     Calculate axial (tension) load ratio, 
     
     Args:
-        P_b:
-        bending_allowable:
+        P_b (float):
+        bending_allowable (float):
     Returns:
         float: axial (tension) load ratio
     """
@@ -1139,9 +1160,9 @@ def eq58(SF: float, V: float, shear_allowable: float) -> float:
     Calculate shear load ratio, R_s.
     
     Args:
-        SF: safety factor
-        V: applied shear load
-        shear_allowable:
+        SF (float): safety factor
+        V (float): applied shear load
+        shear_allowable (float):
     Returns:
         float: shear load ratio
     """
@@ -1151,15 +1172,15 @@ def eq58(SF: float, V: float, shear_allowable: float) -> float:
 
 
 def eq59(R_t: float, R_s: float) -> float:
-    """NASA-TM-106943, equation 59, pg 16
+    """Calculate margin of safety for combined tension and shear.
     
-    Calculate margin of safety for combined tension and shear.
+    NASA-TM-106943, equation 59, pg 16
     
     See update in NASA-STD-5020 based on NASA-TM-2012-217454.
     
     Args:
-        R_t: axial load ratio
-        R_s: shear load ratio
+        R_t (float): axial load ratio
+        R_s (float): shear load ratio
     Returns:
         float: margin of safety for combined tension and shear
     """
@@ -1183,14 +1204,14 @@ def eq61(
         M: float, 
         bending_allowable: float,
     ) -> float:
-    """NASA-TM-106943, equation 61, pg 17
+    """Calculate bending load ratio, R_b.
     
-    Calculate bending load ratio, R_b
+    NASA-TM-106943, equation 61, pg 17
     
     Args:
-        SF:
-        M:
-        bending_allowable:
+        SF (float):
+        M (float):
+        bending_allowable (float):
     """
     assert SF >= 1.0, "SF must be >= 1.0"
     R_b = SF * M / bending_allowable
@@ -1198,16 +1219,16 @@ def eq61(
 
 
 def eq62(R_t: float, R_b: float, R_s: float) -> float:
-    """NASA-TM-106943, equation 62, pg 17
+    """Calculate margin of safety for combined loading.
     
-    Calculate margin of safety for combined loading.
+    NASA-TM-106943, equation 62, pg 17
     
     See update in NASA-STD-5020 based on NASA-TM-2012-217454.
     
     Args:
-        R_t:
-        R_b: bending load ratio
-        R_s: shear load ratio
+        R_t (float): tensile load ratio
+        R_b (float): bending load ratio
+        R_s (float): shear load ratio
     """
     print("warning: deprecated, see updated criteria based on NASA-TM-2012-217454...")
     MS = (1.0 / np.sqrt((R_t + R_b)**2 + R_s**3)) - 1.0
@@ -1225,8 +1246,8 @@ def eq63(L_e: float, D_minor_int: float) -> float:
     Calculate shear area of the bolt thread, A_s.
     
     Args:
-        L_e: engaged length of bolt thread
-        D_minor_int: minor pitch diameter, internal threads
+        L_e (float): engaged length of bolt thread
+        D_minor_int (float): minor pitch diameter, internal threads
     Returns:
         float: shear area of the bolt thread
     """
@@ -1237,13 +1258,13 @@ def eq63(L_e: float, D_minor_int: float) -> float:
 
 
 def eq64(F_su: float, A_s: float) -> float:
-    """NASA-TM-106943, equation 64, pg 18
+    """Calculate ultimate load, P_ult.
     
-    Calculate ultimate load, P_ult.
+    NASA-TM-106943, equation 64, pg 18
     
     Args:
-        F_su: material ultimate shear strength
-        A_s: fastener shear cross-sectional area
+        F_su (float): material ultimate shear strength
+        A_s (float): fastener shear cross-sectional area
     Returns:
         float: ultimate load
     """
@@ -1252,13 +1273,13 @@ def eq64(F_su: float, A_s: float) -> float:
 
 
 def eq65(P_ult: float, P_b: float) -> float:
-    """NASA-TM-106943, equation 65, pg 18
+    """Calculate margin of safety against bolt thread shear.
     
-    Calculate margin of safety against bolt thread shear.
+    NASA-TM-106943, equation 65, pg 18
     
     Args:
-        P_ult: ultimate tensile load
-        P_b: total axial bolt load
+        P_ult (float): ultimate tensile load
+        P_b (float): total axial bolt load
     Returns:
         float: margin of safety against bolt thread shear
     """
@@ -1295,9 +1316,9 @@ def eq67(
     Compare to NASA-STD-5020B eq 11, pg 28.
     
     Args:
-        n: loading plane factor
-        phi: joint stiffness factor
-        P_et: total externally applied axial load
+        n (float): loading plane factor
+        phi (float): joint stiffness factor
+        P_et (float): total externally applied axial load
     Returns:
         float: load causing separation
     """
@@ -1321,9 +1342,9 @@ def eq68(
     Compare to NASA-STD-5020B eq 19, pg 32.
     
     Args:
-        P_0_min: minimum expected bolt preload
-        P_sep: load trying to separate the joint
-        SF: safety factor againt joint separation
+        P_0_min (float): minimum expected bolt preload
+        P_sep (float): load trying to separate the joint
+        SF (float): safety factor againt joint separation
     Return:
         float: margin of safety against joint separation
     """
@@ -1344,8 +1365,8 @@ def eq69(F_su: float, A_s: float) -> float:
     Calculate , P_ult.
     
     Args:
-        F_su: material ultimate shear strength
-        A_s: fastener shear cross-sectional area
+        F_su (float): material ultimate shear strength
+        A_s (float): fastener shear cross-sectional area
     Returns:
         float:
     """
@@ -1359,9 +1380,9 @@ def eq70(t: float, e: float, D: float) -> float:
     Calculate shear area, A_s.
     
     Args:
-        t: thickness of sheet or lug
-        e: perpendicular distance from hole center to free egde of the sheet
-        D: nominal fastener diameter
+        t (float): thickness of sheet or lug
+        e (float): perpendicular distance from hole center to free egde of the sheet
+        D (float): nominal fastener diameter
     
     Returns:
         float: shear area
@@ -1379,9 +1400,9 @@ def eq71(P_ult: float, SF: float, V: float) -> float:
     Calculate margin of safety to ???
     
     Args:
-        P_ult:
-        SF: safety factor
-        V: applied shear load
+        P_ult (float):
+        SF (float): safety factor
+        V (float): applied shear load
     Returns:
         float: margin of safety to ???
     """
@@ -1397,13 +1418,13 @@ def eq71(P_ult: float, SF: float, V: float) -> float:
 
 
 def eq72(F_br: float, A_br: float) -> float:
-    """NASA-TM-106943, equation 72, pg 20
+    """Calculate bearing load capability, P_br.
     
-    Calculate bearing load capability, P_br.
+    NASA-TM-106943, equation 72, pg 20
     
     Args:
-        F_br: material bearing (yield or ultimate) strength
-        A_br: bearing area
+        F_br (float): material bearing (yield or ultimate) strength
+        A_br (float): bearing area
     Returns:
         float: bearing load capability
     """
@@ -1414,13 +1435,13 @@ def eq72(F_br: float, A_br: float) -> float:
 
 
 def eq73(D: float, t: float) -> float:
-    """NASA-TM-106943, equation 73, pg 20
+    """Calculate bearing area, A_br.
     
-    Calculate bearing area, A_br.
+    NASA-TM-106943, equation 73, pg 20
     
     Args:
-        D: through hole diameter ?
-        t: thickness
+        D (float): through hole diameter ?
+        t (float): thickness
     Returns:
         float: bearing area
     """
@@ -1431,14 +1452,14 @@ def eq73(D: float, t: float) -> float:
 
 
 def eq74(P_br: float, SF: float, V: float) -> float:
-    """NASA-TM-106943, equation 74, pg 20
+    """Calculate margin of safety for ???
     
-    Calculate margin of safety for ???
+    NASA-TM-106943, equation 74, pg 20
     
     Args:
-        P_br: bearing load capability
-        SF: safety factor
-        V: applied shear load
+        P_br (float): bearing load capability
+        SF (float): safety factor
+        V (float): applied shear load
     Returns:
         float: margin of safety to bolt bearing failure
     """
@@ -1454,13 +1475,13 @@ def eq74(P_br: float, SF: float, V: float) -> float:
 
 
 def eq75(d_h: float, d_t: float) -> float:
-    """NASA-TM-106943, equation 75, pg 21
+    """Calculate A_br = bearing area
     
-    Calculate A_br = bearing area
+    NASA-TM-106943, equation 75, pg 21
     
     Args:
-        d_h: minimum contact diameter of the bolt head or washer
-        d_t: maximum diameter of the through hole
+        d_h (float): minimum contact diameter of the bolt head or washer
+        d_t (float): maximum diameter of the through hole
     Returns:
         float: bearing area
     """
@@ -1476,13 +1497,13 @@ def eq75(d_h: float, d_t: float) -> float:
 
 
 def eq76(L_e: float, D_major_ext: float) -> float:
-    """NASA-TM-106943, equation 76, pg 21
+    """Calculate thread shear area available to resist axial loading of the bolt, A_s.
     
-    A_s = thread shear area available to resist axial loading of the bolt
+    NASA-TM-106943, equation 76, pg 21
     
     Args:
-        L_e: thread engagement length or nut thickness
-        D_major_ext: major pitch diameter, external threads
+        L_e (float): thread engagement length or nut thickness
+        D_major_ext (float): major pitch diameter, external threads
     Returns:
         float: thread shear area available to resist axial loading of the bolt
     """
@@ -1498,13 +1519,13 @@ def eq76(L_e: float, D_major_ext: float) -> float:
 
 
 def eq77(F_su: float, A_s: float) -> float:
-    """NASA-TM-106943, equation 77, pg 21
+    """Calculate insert ultimate allowable pull-out strength, P_ult.
     
-    P_ult = insert ultimate allowable pull-out strength
+    NASA-TM-106943, equation 77, pg 21
     
     Args:
-        F_su: material ultimate shear strength
-        A_s: fastener shear cross sectional area
+        F_su (float): material ultimate shear strength
+        A_s (float): fastener shear cross sectional area
     Returns:
         float: insert ultimate allowable pull-out strength
     """
@@ -1520,13 +1541,13 @@ def eq77(F_su: float, A_s: float) -> float:
 
 
 def eq78(F_su: float, A_s: float) -> float:
-    """NASA-TM-106943, equation 78, pg 22
+    """Calculate insert external thread pull-out strength, P_ult.
     
-    P_ult = insert external thread pull-out strength
+    NASA-TM-106943, equation 78, pg 22
     
     Args:
-        F_su: material ultimate shear strength
-        A_s: fastener shear cross sectional area
+        F_su (float): material ultimate shear strength
+        A_s (float): fastener shear cross sectional area
     Returns:
         float: insert external thread pull-out strength
     """
@@ -1542,9 +1563,9 @@ def eq78(F_su: float, A_s: float) -> float:
 
 
 def eq79(F_su: float, A_s: float) -> float:
-    """NASA-TM-106943, equation 79, pg 23
+    """Calculate insert parent material pull out strength, P_ult.
     
-    P_ult = insert parent material pull out strength
+    NASA-TM-106943, equation 79, pg 23
     
     Args:
         F_su (float): material ultimate shear strength
@@ -1564,15 +1585,15 @@ def eq79(F_su: float, A_s: float) -> float:
 
 
 def eq80(P_ult: float, P_b: float) -> float:
-    """NASA-TM-106943, equation 80, pg 24
+    """Calculate margin of safety, MS.
     
-    MS = margin of safety
+    NASA-TM-106943, equation 80, pg 24
     
     Args:
         P_ult (float): strength
         P_b (float): total axial bolt load
     Returns:
-        float: margin of safey to ???
+        float: margin of safety to ???
     """
     MS = (P_ult / P_b) - 1.0
     return MS
@@ -1584,9 +1605,9 @@ def eq80(P_ult: float, P_b: float) -> float:
 
 
 def eq81(A_t: float) -> float:
-    """NASA-TM-106943, equation 81, pg 25
+    """Calculate nut strength of standard MS class II nuts, P_ult.
     
-    P_ult = nut strength of standard MS class II nuts
+    NASA-TM-106943, equation 81, pg 25
     
     Args:
         A_t (float): tensile area
