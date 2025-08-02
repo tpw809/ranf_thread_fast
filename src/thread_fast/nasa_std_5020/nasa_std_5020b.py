@@ -1,9 +1,26 @@
 """Equations from NASA-STD-5020B
 
-REQUIREMENTS FOR THREADED FASTENING
-SYSTEMS IN SPACEFLIGHT HARDWARE
+REQUIREMENTS FOR THREADED FASTENING SYSTEMS IN SPACEFLIGHT HARDWARE
 
 2021
+
+Symbols:
+
+-PtL: limit tensile load
+-Ptu: ultimate design tensile load
+-Ptu-allow: allowable ultimate tensile load
+-Pty-allow: allowable yield tensile load
+-PΔt-max: maximum increase in preload due to temperature
+-PΔt-min: maximum decrease in preload due to temperature
+-Q: applied shear force
+-Qp: fully plastic shear force
+-t: half-thickness of the clamped members (minus any washers)
+-Tbr-min: minimum breakaway torque specified for the locking feature
+-TL-max: maximum locking torque (running torque) specified for the locking feature
+-Tmax: maximum effective torque
+-Tmin: minimum effective torque
+-Ts-max: maximum specified torque
+-Ts-min: minimum specified torque
 """
 import numpy as np
 from typing import List
@@ -28,8 +45,9 @@ def eq1(
     Returns:
         float: Maximum predicted preload.
     """
+    assert P_pi_max >= 0.0, "initial preload must be >= 0"
     assert P_deltat_max >= 0.0
-    # TODO: allow reduction in preload?
+    # TODO: allow reduction in preload due to thermal effects?
     P_p_max = P_pi_max + P_deltat_max
     return P_p_max
 
@@ -52,10 +70,11 @@ def eq2(
     Returns:
         float: Minimum predicted preload.
     """
+    assert P_pi_min >= 0.0
+    assert P_pr >= 0.0, "preload relaxation must be >= 0"
     assert P_deltat_min >= 0.0
-    # TODO: allow increase in preload?
-    assert P_pr >= 0.0
-    assert P_pc >= 0.0
+    # TODO: allow increase in preload due to thermal effects?
+    assert P_pc >= 0.0, "preload loss due to creep must be >= 0"
     P_p_min = P_pi_min - P_pr - P_pc - P_deltat_min
     return P_p_min
 
@@ -70,6 +89,8 @@ def eq2mod(
     
     NASA-STD-5020B, equation 2, pg 21
     
+    Rearranged to use preload_relaxation_ratio.
+    
     Args:
         P_pi_min (float): Minimum initial predicted preload.
         P_deltat_min (float): Maximum decrease in preload due to temperature (negative value).
@@ -78,11 +99,11 @@ def eq2mod(
     Returns:
         float: Minimum predicted preload.
     """
+    assert P_pi_min >= 0.0, "initial preload must be >= 0"
     assert P_deltat_min <= 0.0, "P_deltat_min must be <= 0.0"
-    # TODO: allow increase in preload?
+    # TODO: allow increase in preload due to thermal effects?
     assert relaxation_ratio >= 0.0, "relaxation ratio must be >= 0.0"
     assert P_pc >= 0.0, "preload loss due to creep must be >= 0.0"
-    # TODO: rearrange to use preload_relaxation_ratio
     # TODO: does relaxation affect thermal changes?
     P_p_min = (P_pi_min - P_pc + P_deltat_min) / (1.0 + relaxation_ratio)
     return P_p_min
@@ -105,7 +126,7 @@ def eq3(
         float: Maximum initial predicted preload.
     """
     assert c_max >= 1.0
-    assert gamma >= 0.0
+    assert 0.0 <= gamma < 1.0
     assert P_pi_nom >= 0.0
     P_pi_max = c_max * (1.0 + gamma) * P_pi_nom
     return P_pi_max
@@ -128,7 +149,7 @@ def eq4(
         float: minimum initial preload
     """
     assert 0.0 <= c_min <= 1.0
-    assert gamma >= 0.0
+    assert 0.0 <= gamma < 1.0
     assert P_pi_nom >= 0.0
     P_pi_min = c_min * (1.0 - gamma) * P_pi_nom
     return P_pi_min
@@ -153,6 +174,10 @@ def eq5(c_min: float,
     Returns:
         float: minimum initial preload
     """
+    assert 0.0 <= c_min <= 1.0
+    assert 0.0 <= gamma < 1.0
+    assert P_pi_nom >= 0.0
+    assert n_f >= 1
     P_pi_min = c_min * (1.0 - gamma / np.sqrt(n_f)) * P_pi_nom
     return P_pi_min
 
@@ -183,8 +208,10 @@ def eq6(
     Returns:
         float: margin of safety for ultimate tensile load
     """
-    assert FF >= 1.0
+    assert P_tu_allow >= 0.0
     assert FS_u >= 1.0
+    assert P_tL >= 0.0
+    assert FF >= 1.0, "error: fitting factor must be >= 1.0"
     MS_u = P_tu_allow / (FF * FS_u * P_tL) - 1.0
     return MS_u
     
@@ -209,8 +236,9 @@ def eq7(
     Returns:
         float: margin of safety for ultimate tensile load
     """
-    assert FF >= 1.0
+    assert P_prime_tu >= 0.0
     assert FS_u >= 1.0
+    assert FF >= 1.0, "error: fitting factor must be >= 1.0"
     MS_u = P_prime_tu / (FF * FS_u * P_tL) - 1.0
     return MS_u
 
@@ -286,6 +314,10 @@ def eq10(
         float: applied tensile load that causes the bolt load to exceed the allowable ultimate tensile load
     """
     assert 0.0 <= n <= 1.0
+    assert phi >= 0.0
+    assert P_tu_allow >= 0.0
+    assert P_p_max >= 0.0
+    assert P_tu_allow >= P_p_max, "allowable ultimate tensile load must be > max preload"
     P_prime_tu = 1.0 / (n * phi) * (P_tu_allow - P_p_max)
     return P_prime_tu
 
@@ -296,13 +328,15 @@ def eq11(P_p_max: float, n: float, phi: float) -> float:
     NASA-STD-5020B, equation 11, pg 28
     
     Args:
-        P_p_max: maximum preload
-        n: load introduction factor
-        phi: stiffness factor
+        P_p_max (float): maximum preload
+        n (float): load introduction factor
+        phi (float): stiffness factor
     Returns:
         float: linearly projected load that causes separation when at maximum preload
     """
+    assert P_p_max >= 0.0
     assert 0.0 <= n <= 1.0
+    assert phi >= 0.0
     P_prime_sep = P_p_max / (1.0 - n * phi)
     return P_prime_sep
 
@@ -315,11 +349,13 @@ def eq12(D: float, F_su: float) -> float:
     For threads not in the shear plane.
     
     Args:
-        D: nominal diameter
-        F_su: allowable ultimate shear strength for the fastener material
+        D (float): nominal diameter
+        F_su (float): allowable ultimate shear strength for the fastener material
     Returns:
         float: allowable ultimate shear load for a fastener
     """
+    assert D >= 0.0, "fastener diameter must be >= 0.0"
+    assert F_su >= 0.0, "fastener material shear strength must be >= 0.0"
     P_su_allow = np.pi * D**2 * F_su / 4.0
     return P_su_allow
 
@@ -332,11 +368,13 @@ def eq13(F_su: float, A_m: float) -> float:
     For threads in the shear plane.
     
     Args:
-        F_su: allowable ultimate shear strength for the fastener material
-        A_m: minimum minor diameter area for the fastener threads
+        F_su (float): allowable ultimate shear strength for the fastener material
+        A_m (float): minimum minor diameter area for the fastener threads
     Returns:
         float: allowable ultimate shear load for a fastener
     """
+    assert F_su >= 0.0
+    assert A_m >= 0.0
     P_su_allow = F_su * A_m
     return P_su_allow
 
@@ -359,7 +397,9 @@ def eq14(
     Returns:
         float: ultimate margin of safety for shear loading of a fastener
     """
+    assert P_su_allow >= 0.0
     assert FS_u >= 1.0, "error, safety factor, FS_u, must be >= 1.0"
+    assert P_sL >= 0.0
     assert FF >= 1.0, "error, fitting factor, FF, must be >= 1.0"
     if P_sL == 0.0:
         return np.inf
@@ -386,11 +426,13 @@ def eq15(
     
     Args:
         P_ty_allow (float): allowable tensile load of the material
-        FS_y (float):
-        P_tL (float):
+        FS_y (float): yield factor of safety
+        P_tL (float): applied limit tensile load
         FF (float): fitting factor
     """
+    assert P_ty_allow >= 0.0
     assert FS_y >= 1.0, "error, safety factor, FS_y, must be >= 1.0"
+    assert P_tL >= 0.0, "applied limit tensile load must be >= 0.0"
     assert FF >= 1.0, "error, fitting factor, FF, must be >= 1.0"
     if P_tL == 0.0:
         return np.inf
@@ -416,6 +458,7 @@ def eq16(
     Returns:
         float: 
     """
+    assert P_prime_ty >= 0.0
     assert FS_y >= 1.0, "error, safety factor, FS_y, must be >= 1.0"
     assert FF >= 1.0, "error, fitting factor, FF, must be >= 1.0"
     if P_tL == 0.0:
@@ -443,6 +486,9 @@ def eq17(
         float: Yield tensile load.
     """
     assert 0.0 <= n <= 1.0
+    assert phi >= 0.0
+    assert P_ty_allow >= 0.0
+    assert P_p_max >= 0.0
     P_prime_ty = (1.0 / (n * phi)) * (P_ty_allow - P_p_max)
     return P_prime_ty
 
@@ -463,6 +509,9 @@ def eq18(
     Returns:
         float: allowable yield tensile load
     """
+    assert F_ty >= 0.0
+    assert F_tu >= 0.0
+    assert P_tu_allow >= 0.0
     P_ty_allow = (F_ty / F_tu) * P_tu_allow
     return P_ty_allow
     
@@ -487,13 +536,14 @@ def eq19(
     Args:
         P_p_min (float): Minimum predicted preload.
         SF_sep (float): Factor of safety for joint separation.
-        P_tL (float): 
+        P_tL (float): applied limit tensile load
         FF (float): Fitting factor.
     Returns:
         float: margin of safety for separation
     """
+    assert SF_sep >= 1.0, "error, safety factor must be >= 1.0"
     assert FF >= 1.0, "error, fitting factor, FF, must be >= 1.0"
-    MS_sep = P_p_min / (FF * FS_sep * P_tL) - 1.0
+    MS_sep = P_p_min / (FF * SF_sep * P_tL) - 1.0
     return MS_sep
 
 
@@ -622,6 +672,10 @@ def eq23mod(
     Args:
         P_su (float):
         P_su_allow (float):
+        P_tu (float):
+        P_tu_allow (float):
+        f_bu (float):
+        F_bu (float):
     Returns:
         float: Margin of safety for combined loading.
     """
@@ -885,7 +939,7 @@ def eq52(A: float, D: float) -> float:
 
 
 ############################################
-# A.4.2Limitation of the Geometry Based Load Introduction Factor, pg 57
+# A.4.2 Limitation of the Geometry Based Load Introduction Factor, pg 57
 ############################################
 
 # eq53: 1 / K_23_34 = n / k_c
@@ -953,12 +1007,19 @@ def eq57(l4: float, l2: float, L: float) -> float:
 
 
 # eq81: P_f = mu * (n_f * P_p_nom - P_t_joint)
-# eq82: mu*(n_f*P_p_min - a*FS*P_tL_joint) / (a*FS*P_sL_joint) - 1.0
-# eq83: a = mu*n_f*P_p_min / (FS*(P_sl_joint + mu*P_tL_joint))
-# eq84:
-# eq85:
-# eq86: MS_slip = mu*P_p_min / (FF*FS*(P_sL + mu*P_tL)) - 1.0
 
+# eq82: mu*(n_f*P_p_min - a*FS*P_tL_joint) / (a*FS*P_sL_joint) - 1.0
+
+# eq83: a = mu*n_f*P_p_min / (FS*(P_sl_joint + mu*P_tL_joint))
+
+# eq84: MS_slip = a - 1
+
+# eq85: MS_slip = (mu * n_f * P_p_min) / (FS * P_sL_joint) - 1.0
+
+# eq86: MS_slip = (mu*P_p_min) / (FF*FS*(P_sL + mu*P_tL)) - 1.0
+
+# P_sL: limit shear load
+# P_tL: limit tensile load
 
 ############################################
 # Appendix C Justification for Fatigue Failure, pg 97

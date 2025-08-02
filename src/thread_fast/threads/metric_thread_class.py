@@ -374,6 +374,7 @@ class ExternalMetricThread:
         # basic major diameter:
         self.d = basic_major_diameter
         
+        # 
         self.es = asme_m_thread.eq_es(
             P=self.pitch, 
             allowance_class=allowance_class,
@@ -452,6 +453,7 @@ class ExternalMetricThread:
         
         # [mm^2], tensile area (min cross section area of bolt):
         # NASA-TM-106943, equation 4, pg 5
+        # TODO: doubel check this...
         self.A_t = (np.pi/4.0) * (self.d - 0.9743*self.pitch)**2
 
         # [mm^2], mean area of threads:

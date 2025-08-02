@@ -54,6 +54,9 @@ print(f"pitch = {pitch}")
 
 # Loads:
 
+# [N], limit tensile load:
+P_tL = 100.0
+
 # [N], limit shear load acting on the shear plane:
 P_sL = 100.0
 
@@ -96,6 +99,15 @@ print(f"P_su_allow = {P_su_allow}")
 
 # ultimate, axial load only:
 # NASA-STD-5020B eq 6 & 7
+
+
+MS_tu_5020b = thread_fast.nasa_std_5020b.eq6(
+    P_tu_allow=P_tu_allow, 
+    FS_u=SF_u, 
+    P_tL=P_tL,
+    FF=fitting_factor,
+)
+print(f"MS_tu_5020b = {MS_tu_5020b}")
 
 
 # ultimate, shear loading only:

@@ -53,6 +53,8 @@ class BoltedJoint:
         ambient_temperature (float): ambient temperature
         max_temperature (float): maximum temeprature
         min_temperature (float): minimum temperature
+        limit_tensile_load (float): applied limit tensile load (external)
+        limit_shear_load (float): applied limit shear load (external)
         loaded_part_index (list[int]): list of indices indicating which clamped parts are loaded in the clmaped_parts list
         nut_torqued (bool): is the nut torqued? (else the fastener head is torqued), determines what geometry is used for nut factor estimation
         override_nut_factor (list[float]): nut factor, this value is used if it is provided, else it is estimated
@@ -80,6 +82,8 @@ class BoltedJoint:
             ambient_temperature: float=20.0,
             max_temperature: float=20.0,
             min_temperature: float=20.0,
+            limit_tensile_load: float=0.0,
+            limit_shear_load: float=0.0,
             loaded_part_index: list[int]=[1,2],
             nut_torqued: bool=False, # is nut or head torqued?
             override_nut_factor: list=None, # [K_min, K_nom, K_max]
@@ -514,10 +518,60 @@ class BoltedJoint:
         # yield axial load: NASA-STD-5020B eq16:
         # NSTS08307A: bolt_tensile_margin
         
+        # TODO: fix:
+        # may come from fastener data sheet...
+        P_tu_allow = 12000.0
+        
+        # applied tensile load that causes the bolt load to exceed the allowable ultimate tensile load
+        P_prime_tu = nasa_std_5020b.eq10(
+            n=self.n, 
+            phi=self.phi, 
+            P_tu_allow=P_tu_allow, 
+            P_p_max=self.P_max,
+        )
+        print(f"P_prime_tu = {P_prime_tu}")
+        
+        P_prime_sep = nasa_std_5020b.eq11(
+            P_p_max=self.P_max, 
+            n=self.n, 
+            phi=self.phi,
+        )
+        print(f"P_prime_sep = {P_prime_sep}")
+        
+        
+        MS_tu_5020b = nasa_std_5020b.eq6(
+            P_tu_allow=P_tu_allow, 
+            FS_u=self.SF_u, 
+            P_tL=limit_tensile_load,
+            FF=self.FF,
+        )
+        print(f"MS_tu_5020b = {MS_tu_5020b}")
+        
+        MS_tu_5020b = nasa_std_5020b.eq7(
+            P_prime_tu=P_prime_tu, 
+            FS_u=self.SF_u, 
+            P_tL=limit_tensile_load,
+            FF=self.FF,
+        )
+        print(f"MS_tu_5020b = {MS_tu_5020b}")
+        
         # Shear only fastener strength:
         # ultimate shear load: nasa_std_5020b eq14:
         # NASA-TM-106943 eq54:
         # NSTS08307A shear_margin:
+        
+        # NASA-TM-106943, pg 16, F_sy = 0.577 * F_ty
+        
+        # TODO: fix:
+        P_su_allow = 1.0
+        
+        MS_su_5020b = nasa_std_5020b.eq14(
+            P_su_allow=P_su_allow, 
+            FS_u=self.SF_u, 
+            P_sL=limit_shear_load, 
+            FF=self.FF,
+        )
+        print(f"MS_su_5020b = {MS_su_5020b}")
         
         # Bending Only Margin:
         # NSTS08307A bending_margin:
@@ -534,13 +588,23 @@ class BoltedJoint:
         # NASA-TM-106943 eq62:
         # NSTS08307A combined_load_margin:
         
-        # Joint Separation:
+        # Joint Separation Margin:
         # NASA-STD-5020B eq19:
         # NASA-TM-106943 eq68:
         # NSTS08307A joint_separation_margin_of_safety:
         
+        MS_sep_5020b = nasa_std_5020b.eq19(
+            P_p_min=self.P_min, 
+            SF_sep=self.SF_sep, 
+            P_tL=limit_tensile_load,
+            FF=self.FF, 
+        )
+        print(f"MS_sep_5020b = {MS_sep_5020b}")
+        
+        
         
         # Joint slip:
+        # NASA-STD-5020B eq86:
         
         # Shear Pull Out of Threads:
         # NSTS08307A: thread_shear_pull_out_margin
@@ -563,6 +627,7 @@ class BoltedJoint:
         
         # Nut Strength:
         # NASA-TM-106943 eq81:
+        
 
 
     def sep_margin_tm106943(self) -> float:
@@ -873,6 +938,8 @@ def main() -> None:
         ambient_temperature=20.0,
         max_temperature=25.0,
         min_temperature=15.0,
+        limit_tensile_load=100.0,
+        limit_shear_load=100.0,
         loaded_part_index=[1,2],
         nut_torqued=False, # is nut or head torqued?
         #override_nut_factor=[0.1, 0.15, 0.2],

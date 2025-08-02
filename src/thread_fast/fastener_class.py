@@ -85,6 +85,11 @@ class Fastener:
         )
         print(f"A_m = {self.A_m}")
         print(f"A_t = {self.thread.A_t}")
+        print(f"A_mean = {self.thread.A_mean}")
+        
+        # [N], allowable ultimate tensile load:
+        # TODO fix:
+        P_tu_allow = 1.0
         
         # [N], allowable ultimate shear load:
         # NASA-STD-5020B eq 12 & 13
@@ -92,20 +97,26 @@ class Fastener:
         # NASA-STD-5020B eq 12:
         # F_su = allowable ultimate shear strength for the fastener material
         F_su = self.material.Ssu_mpa
+        # For shank (not threads):
+        A_bolt = np.pi  * self.thread.d**2 / 4.0
+        print(f"A_bolt = {A_bolt}")
         P_su_allow = np.pi * self.thread.d**2 * F_su / 4.0
+        # TODO: just use the eq in nasa_std_5020b:
         print(f"P_su_allow = {P_su_allow}")
         
         # NASA-STD-5020B eq 13:
         P_su_allow = F_su * self.A_m
+        # TODO: just use the eq in nasa_std_5020b:
         print(f"P_su_allow = {P_su_allow}")
         
     @property
     def Ro_shank(self) -> float:
+        """Outer radius of fastener shank."""
         return self.Do_shank / 2.0
         
     @property
     def length(self) -> float:
-        """length, mm."""
+        """fastener total length, mm."""
         return self.L_shank + self.L_thread
     
     def stiffness(self) -> float:
@@ -155,6 +166,13 @@ class Fastener:
             "Do_head": self.Do_head,
             "Do_shank": self.Do_shank,
             "L_shank": self.L_shank,
+            "L_thread": self.L_thread,
+            "L_overall": self.length,
+            'stiffness': self.stiffness(),
+            # P_tu_allow
+            # P_su_allow
+            # P_ty_allow
+            # P_sy_allow
         }
 
     def __str__(self):
@@ -167,6 +185,7 @@ class Fastener:
             f"L_shank = {self.L_shank}",
             f"L_thread = {self.L_thread}",
             f"L_overall = {self.length}",
+            f"stiffness = {self.stiffness()}",
             f"\n{self.material}",
             "",
         ])
