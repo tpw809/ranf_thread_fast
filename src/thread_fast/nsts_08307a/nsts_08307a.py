@@ -122,9 +122,9 @@ def max_preload(
     Returns:
         float: maximum predicted preload
     """
-    assert gamma >= 0.0
-    assert D > 0.0
-    assert K_typ > 0.0
+    assert gamma >= 0.0, "gamma must be >= 0.0"
+    assert D > 0.0, "diameter must be > 0.0"
+    assert K_typ > 0.0, "nut factor must be > 0.0"
     assert P_thr_pos >= 0.0, "error, P_thr_pos must increase the preload"
     # TODO: finish... PLD input & TOL
     
@@ -266,6 +266,8 @@ def bolt_tensile_margin(
         float: margin of safety for bolt tensile failure
     """
     assert SF >= 1.0, "error: SF must be >= 1.0"
+    assert P >= 0.0, "externally applied tensile load must be >= 0.0"
+    assert P_b >= 0.0, "bolt load must be >= 0.0"
     MS_crit1 = PA_t / (SF * P) - 1.0
     MS_crit2 = PA_t / P_b - 1.0
     return MS_crit1, MS_crit2
@@ -355,15 +357,16 @@ def axial_load_ratio(
     NSTS 08307 Rev A, pg 3-10
     
     Args:
-        SF (float):
+        SF (float): safety factor
         P (float):
-        PA_t (float):
-        P_b (float):
-        PLD_max (float):
+        PA_t (float): bolt tensile load allowable
+        P_b (float): bolt tension
+        PLD_max (float): maximum preload
     Returns:
         float: Ratio of axial load to axial load allowable
     """
     assert SF >= 1.0, "error: SF must be >= 1.0"
+    assert PLD_max >= 0.0, "maximum preload must be >= 0.0"
     R_a1 = (SF * P) / PA_t
     R_a2 = P_b / PA_t
     R_a3 = PLD_max / PA_t
@@ -396,18 +399,20 @@ def bending_load_ratio(
 
 
 def shear_load_ratio(SF: float, V: float, VA: float) -> float:
-    """Calculate ratio of shear load to shear load allowable.
+    """Calculate ratio of shear load to shear load allowable, R_s.
     
-    NSTS 08307 Rev A, pg ???
+    NSTS 08307 Rev A, pg 3-10
     
     Args:
-        SF (float): safety factor
+        SF (float): Safety factor
         V (float): Bolt shear load resulting from limit load
         VA (float): Shear load allowable of bolt
     Returns:
         float: Ratio of shear load to shear load allowable
     """
     assert SF >= 1.0, "error: SF must be >= 1.0"
+    assert V >= 0.0, "shear load must be >= 0.0"
+    assert VA >= 0.0, "shear allowable must be >= 0.0"
     R_s = (SF * V) / VA
     return R_s
 
@@ -420,11 +425,11 @@ def combined_load_margin(
     ) -> float:
     """Calculate combined load failure criterion.
     
-    NSTS 08307 Rev A, pg ???
+    NSTS 08307 Rev A, pg 3-10
     
     Result must be > 1.0
     
-    Deprecated, see: 
+    Deprecated, see: NASA-STD-5020B
     
     Args:
         R_a (float): Ratio of axial load to axial load allowable
@@ -541,6 +546,7 @@ def joint_separation_load(P: float, SF_sep: float) -> float:
     Returns:
         float: joint separation load
     """
+    assert P >= 0.0, "applied tensile load must be >= 0.0"
     assert SF_sep >= 1.0, "error: SF_sep must be >= 1.0"
     P_sep = P * SF_sep
     return P_sep
@@ -564,7 +570,9 @@ def joint_separation_margin_of_safety(
     Returns:
         float: margin of safety for joint separation
     """
+    assert PLD_min >= 0.0, "minimum preload must be >= 0.0"
     assert 0.0 <= n <= 1.0
+    assert phi >= 0.0, "stiffness factor must be >= 0.0"
     MS_sep = PLD_min / (1.0 - n * phi) - 1.0
     return MS_sep
 
@@ -611,6 +619,8 @@ def tensile_axial_load_allowable_yield(
     Returns:
         float: allowable yield tensile load
     """
+    assert F_ty >= 0.0
+    assert F_tu >= 0.0
     PA_t_yield = (F_ty / F_tu) * minimum_ultimate_tensile_load
     return PA_t_yield
 
@@ -649,6 +659,7 @@ def tensile_axial_load_allowable_yield(
         float: allowable yield tensile load
     """
     assert A_t > 0.0
+    assert F_ty >= 0.0
     PA_t_yield = A_t * F_ty
     return PA_t_yield
 
@@ -668,6 +679,7 @@ def tensile_axial_load_allowable_ultimate(
         float: tensile allowable load against ultimate failure
     """
     assert A_t > 0.0
+    assert F_tu >= 0.0
     PA_t_ultimate = A_t * F_tu
     return PA_t_ultimate
 
@@ -690,10 +702,16 @@ def bolt_tensile_stress_area(
     Returns:
         float: tensile stress area of the bolt
     """
+    assert D_e_bsc > 0.0
     if n_0 is None:
         assert pitch is not None
-        n_0 = 25.4 / pitch 
-    A_t = 0.7854 * (D_e_bsc - 0.9743 / n_0)**2
+        assert pitch > 0.0
+        A_t = (np.pi / 4.0) * (D_e_bsc - 0.9743 * pitch)**2
+        # n_0 = 25.4 / pitch 
+    else:
+        assert n_0 > 0.0
+        # A_t = 0.7854 * (D_e_bsc - 0.9743 / n_0)**2
+        A_t = (np.pi / 4.0) * (D_e_bsc - 0.9743 / n_0)**2
     return A_t
 
 
@@ -719,6 +737,7 @@ def external_thread_shear_load_allowable(
         float: external thread shear load allowable
     """
     assert A_se > 0.0
+    assert F_su_bolt > 0.0
     P_se = A_se * F_su_bolt
     return P_se
 
@@ -738,6 +757,7 @@ def internal_thread_shear_load_allowable(
         float: internal thread shear load allowable
     """
     assert A_si > 0.0
+    assert F_su_nut > 0.0
     P_si = A_si * F_su_nut
     return P_si
 
@@ -773,11 +793,15 @@ def external_thread_shear_area(
     Returns:
         float: external thread shear area
     """
+    assert L_e > 0.0
     if n_0 is None:
         assert pitch is not None
+        assert pitch > 0.0
         n_0 = 25.4 / pitch 
-    assert L_e > 0.0
+    else:
+        assert n_0 > 0.0
     assert K_i_max > 0.0
+    # TODO: fix pitch versus tpi unit conversion...
     A_se = np.pi * L_e * K_i_max * (0.750 - 0.57735 * n_0 * (TK_i + TE_e + G_e))
     return A_se
 
@@ -812,7 +836,10 @@ def internal_thread_shear_area(
     """
     if n_0 is None:
         assert pitch is not None
+        assert pitch > 0.0
         n_0 = 25.4 / pitch 
+    else:
+        assert n_0 > 0.0
     assert L_e > 0.0
     assert D_e_min > 0.0
     A_si = np.pi * L_e * D_e_min * (0.875 - 0.57735 * n_0 * (TD_e + TE_i + G_e))

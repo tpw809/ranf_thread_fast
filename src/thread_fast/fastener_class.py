@@ -76,20 +76,21 @@ class Fastener:
         
         # [mm^2], minimum minor diameter area for the fastener threads:
         # NSTS 08307A, bolt_tensile_stress_area
-        
-        # TODO: this might not be the right area... need shear area...
-        self.A_m = nsts_08307a.bolt_tensile_stress_area(
+        self.A_t = nsts_08307a.bolt_tensile_stress_area(
             D_e_bsc=self.thread.d, 
-            n_0=None,
+            n_0=None,  # tpi
             pitch=self.thread.pitch,
         )
-        print(f"A_m = {self.A_m}")
+        print(f"A_t_nsts08307a = {self.A_t}")
         print(f"A_t = {self.thread.A_t}")
         print(f"A_mean = {self.thread.A_mean}")
         
         # [N], allowable ultimate tensile load:
-        # TODO fix:
-        P_tu_allow = 1.0
+        # NSTS 08307A page A-4, ultimate tensile load:
+        self.P_tu_allow = self.A_t * self.material.Su_mpa
+        self.P_ty_allow = self.A_t * self.material.Sy_mpa
+        print(f"P_tu_allow = {self.P_tu_allow} [N]")
+        print(f"P_ty_allow = {self.P_ty_allow} [N]")
         
         # [N], allowable ultimate shear load:
         # NASA-STD-5020B eq 12 & 13
@@ -105,7 +106,7 @@ class Fastener:
         print(f"P_su_allow = {P_su_allow}")
         
         # NASA-STD-5020B eq 13:
-        P_su_allow = F_su * self.A_m
+        P_su_allow = F_su * self.A_t
         # TODO: just use the eq in nasa_std_5020b:
         print(f"P_su_allow = {P_su_allow}")
         
@@ -169,10 +170,13 @@ class Fastener:
             "L_thread": self.L_thread,
             "L_overall": self.length,
             'stiffness': self.stiffness(),
-            # P_tu_allow
-            # P_su_allow
-            # P_ty_allow
-            # P_sy_allow
+            # tensile and shear area
+            # thread shear area
+            "P_tu_allow": self.P_tu_allow,
+            # P_su_allow (PA_su)
+            "P_ty_allow": self.P_ty_allow,
+            # P_sy_allow (PA_sy)
+            # thread shear allowable
         }
 
     def __str__(self):

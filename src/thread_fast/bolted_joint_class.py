@@ -114,7 +114,9 @@ class BoltedJoint:
         assert mu_abutment >= 0.0, "coefficient of friction must be >= 0.0"
         self.mu_abutment = mu_abutment
         
+        #################################
         # Safety Factors:
+        #################################
         assert yield_safety_factor >= 1.0, "factors of safety must be >= 1.0"
         self.SF_y = yield_safety_factor
         
@@ -128,7 +130,9 @@ class BoltedJoint:
         assert fitting_factor >= 1.0, "fitting factor must be >= 1.0"
         self.FF = fitting_factor
         
+        #################################
         # Temperatures:
+        #################################
         assert max_temperature >= min_temperature, "max temperature must be > min temperature"
         #TODO: should these be argments to functions?
         self.T_amb_C = ambient_temperature
@@ -139,10 +143,19 @@ class BoltedJoint:
         self.delta_T_min = self.T_min_C - self.T_amb_C
         self.delta_T_max = self.T_max_C - self.T_amb_C
         
+        #################################
+        # Check Externally Applied Loads:
+        #################################
+        assert limit_tensile_load >= 0.0, "externally applied limit tensile load must be >= 0.0"
+        assert limit_shear_load >= 0.0, "externally applied limit shear load must be >= 0.0"
+        
+        
         assert len(loaded_part_index) >= 2, "there must be at least 2 loaded parts (equal and opposite reaction)"
         self.loaded_part_index = loaded_part_index
         
+        #################################
         # Preloading:
+        #################################
         #TODO: should these be argments to functions?
         self.preload_stress_ratio = preload_stress_ratio
         
@@ -411,7 +424,7 @@ class BoltedJoint:
         # Predicted Initial Preload: 
         ###############################
         
-        # P0 = initial predicted nominal preload:
+        # P_i: initial predicted nominal preload:
         # NASA-STD-5020B, eq 24:
         self.P_i_nom = nasa_std_5020b.eq24(
             T=self.T_applied_nom,
@@ -503,8 +516,10 @@ class BoltedJoint:
             relaxation_ratio=self.relaxation_ratio,
         )
         
-        print(f"P_min = {self.P_min}")
-        print(f"P_max = {self.P_max}")
+        assert self.P_min <= self.P_max, "error in final preload prediction"
+        
+        print(f"P_min = {self.P_min} [N]")
+        print(f"P_max = {self.P_max} [N]")
 
 
         ######################################
@@ -518,15 +533,13 @@ class BoltedJoint:
         # yield axial load: NASA-STD-5020B eq16:
         # NSTS08307A: bolt_tensile_margin
         
-        # TODO: fix:
-        # may come from fastener data sheet...
-        P_tu_allow = 12000.0
+        # TODO: override for P_tu_allow, P_ty_allow
         
         # applied tensile load that causes the bolt load to exceed the allowable ultimate tensile load
         P_prime_tu = nasa_std_5020b.eq10(
             n=self.n, 
             phi=self.phi, 
-            P_tu_allow=P_tu_allow, 
+            P_tu_allow=self.fastener.P_tu_allow, 
             P_p_max=self.P_max,
         )
         print(f"P_prime_tu = {P_prime_tu}")
@@ -540,7 +553,7 @@ class BoltedJoint:
         
         
         MS_tu_5020b = nasa_std_5020b.eq6(
-            P_tu_allow=P_tu_allow, 
+            P_tu_allow=self.fastener.P_tu_allow, 
             FS_u=self.SF_u, 
             P_tL=limit_tensile_load,
             FF=self.FF,
@@ -600,6 +613,7 @@ class BoltedJoint:
             FF=self.FF, 
         )
         print(f"MS_sep_5020b = {MS_sep_5020b}")
+        
         
         
         
@@ -938,7 +952,7 @@ def main() -> None:
         ambient_temperature=20.0,
         max_temperature=25.0,
         min_temperature=15.0,
-        limit_tensile_load=100.0,
+        limit_tensile_load=1000.0,
         limit_shear_load=100.0,
         loaded_part_index=[1,2],
         nut_torqued=False, # is nut or head torqued?

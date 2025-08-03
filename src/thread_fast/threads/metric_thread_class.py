@@ -453,11 +453,11 @@ class ExternalMetricThread:
         
         # [mm^2], tensile area (min cross section area of bolt):
         # NASA-TM-106943, equation 4, pg 5
-        # TODO: doubel check this...
+        # used for fastener strength
         self.A_t = (np.pi/4.0) * (self.d - 0.9743*self.pitch)**2
 
         # [mm^2], mean area of threads:
-        # used for stiffness estimate
+        # used for fastener stiffness estimate
         self.A_mean = np.pi * self.r_m**2
         
     @property
@@ -629,6 +629,8 @@ class InternalMetricThread:
             T_D2=self.TD2,
         )
         
+        # TODO: thread shear area
+        
     @property
     def r_m(self) -> float:
         """mean radius of screw thread, mm.
@@ -654,6 +656,11 @@ class InternalMetricThread:
         return {
             "type": 'InternalThread',
             "pitch": self.pitch,
+            "basic_major_diameter": self.D,
+            "mean_thread_radius": self.r_m,
+            "thread_half_angle_rad": self.beta,
+            "thread_lead_angle_rad": self.psi,
+            "fundamental_triangle_height": self.H,
         }
 
     def __str__(self):
