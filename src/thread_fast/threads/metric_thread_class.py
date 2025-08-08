@@ -204,7 +204,7 @@ class MetricThread:
                 d3=self.d3,
             )
             
-            # min root diameter:
+            # minimum root diameter:
             self.d3_min = iso_5855_1_1999.eq_d3_min(
                 d2_min=self.d2_min,
                 P=self.pitch,
@@ -221,7 +221,7 @@ class MetricThread:
                 allowance_class=allowance_class,
             )
         
-            # min major diameter:
+            # minimum major diameter:
             self.D_min = self.D + self.EI
         
             # basic pitch diameter:
@@ -251,7 +251,7 @@ class MetricThread:
                 tolerance_grade=self.tolerance_grade,
             )
             
-            # max diameter to root:
+            # maximum diameter to root:
             self.D3_max = iso_5855_1_1999.eq_D3_max(
                 D=self.D,
                 P=self.pitch,
@@ -259,14 +259,14 @@ class MetricThread:
                 T_D2=self.TD2,
             )
             
-            # min minor diameter:
+            # minimum minor diameter:
             self.D1_min = iso_5855_1_1999.eq_D1_min(
                 D=self.D,
                 P=self.pitch,
                 EI=self.EI,
             )
             
-            # max minor diameter:
+            # maximum minor diameter:
             self.D1_max = iso_5855_1_1999.eq_D1_max(
                 D=self.D,
                 P=self.pitch,
@@ -274,12 +274,14 @@ class MetricThread:
                 T_D1=self.TD1,
             )
             
+            # minimum pitch diameter:
             self.D2_min = iso_5855_1_1999.eq_D2_min(
                 D=self.D,
                 P=self.pitch,
                 EI=self.EI,
             )
             
+            # maximum pitch diameter:
             self.D2_max = iso_5855_1_1999.eq_D2_max(
                 D=self.D,
                 P=self.pitch,
@@ -287,12 +289,12 @@ class MetricThread:
                 T_D2=self.TD2,
             )
             
-            self.D3_max = iso_5855_1_1999.eq_D3_max(
-                D=self.D,
-                P=self.pitch,
-                EI=self.EI,
-                T_D2=self.TD2,
-            )
+            # self.D3_max = iso_5855_1_1999.eq_D3_max(
+            #     D=self.D,
+            #     P=self.pitch,
+            #     EI=self.EI,
+            #     T_D2=self.TD2,
+            # )
         
     @property
     def r_m(self) -> float:
@@ -414,38 +416,38 @@ class ExternalMetricThread:
             tolerance_grade=self.tolerance_grade,
         )
         
-        # max major diameter:
+        # maximum major diameter:
         self.d_max = iso_5855_1_1999.eq_d_max(
             d=self.d,
             es=self.es,
         )
         
-        # min major diameter:
+        # minimum major diameter:
         self.d_min = iso_5855_1_1999.eq_d_min(
             d_max=self.d_max,
             T_d=self.Td,
         )
         
-        # max pitch diameter:
+        # maximum pitch diameter:
         self.d2_max = iso_5855_1_1999.eq_d2_max(
             d_max=self.d_max,
             P=self.pitch,
         )
         
-        # min pitch diameter:
+        # minimum pitch diameter:
         self.d2_min = iso_5855_1_1999.eq_d2_min(
             d2_max=self.d2_max,
             T_d2=self.Td2,
         )
         
-        # max root diameter:
+        # maximum root diameter:
         self.d3_max = iso_5855_1_1999.eq_d3_max(
             d2_max=self.d2_max,
             P=self.pitch,
             d3=self.d3,
         )
         
-        # min root diameter:
+        # minimum root diameter:
         self.d3_min = iso_5855_1_1999.eq_d3_min(
             d2_min=self.d2_min,
             P=self.pitch,
@@ -556,7 +558,7 @@ class InternalMetricThread:
             allowance_class=allowance_class,
         )
         
-        # min major diameter:
+        # minimum major diameter:
         self.D_min = self.D + self.EI
         
         # basic pitch diameter:
@@ -586,7 +588,7 @@ class InternalMetricThread:
             tolerance_grade=self.tolerance_grade,
         )
         
-        # max diameter to root:
+        # maximum diameter to root:
         self.D3_max = iso_5855_1_1999.eq_D3_max(
             D=self.D,
             P=self.pitch,
@@ -594,14 +596,14 @@ class InternalMetricThread:
             T_D2=self.TD2,
         )
         
-        # min minor diameter:
+        # minimum minor diameter:
         self.D1_min = iso_5855_1_1999.eq_D1_min(
             D=self.D,
             P=self.pitch,
             EI=self.EI,
         )
         
-        # max minor diameter:
+        # maximum minor diameter:
         self.D1_max = iso_5855_1_1999.eq_D1_max(
             D=self.D,
             P=self.pitch,
@@ -609,12 +611,14 @@ class InternalMetricThread:
             T_D1=self.TD1,
         )
         
+        # minimum pitch diameter:
         self.D2_min = iso_5855_1_1999.eq_D2_min(
             D=self.D,
             P=self.pitch,
             EI=self.EI,
         )
         
+        # maximum pitch diameter:
         self.D2_max = iso_5855_1_1999.eq_D2_max(
             D=self.D,
             P=self.pitch,
@@ -622,15 +626,18 @@ class InternalMetricThread:
             T_D2=self.TD2,
         )
         
-        self.D3_max = iso_5855_1_1999.eq_D3_max(
-            D=self.D,
-            P=self.pitch,
-            EI=self.EI,
-            T_D2=self.TD2,
-        )
+        # self.D3_max = iso_5855_1_1999.eq_D3_max(
+        #     D=self.D,
+        #     P=self.pitch,
+        #     EI=self.EI,
+        #     T_D2=self.TD2,
+        # )
         
         # TODO: thread shear area
-        
+    
+    # pull out shear area is a bolted joint level attribute:
+    # requires knowledge of both threads     
+    
     @property
     def r_m(self) -> float:
         """mean radius of screw thread, mm.

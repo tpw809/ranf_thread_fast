@@ -18,6 +18,11 @@ Shank definition:
     [Do, L]
 ]
 
+Symbols:
+
+- P_su_allow_1: allowable ultimate shear load, threads NOT in shear plane
+- P_su_allow_2: allowable ultimate shear load, threads in shear plane
+
 """
 import numpy as np
 import thread_fast.nsts_08307a as nsts_08307a
@@ -101,15 +106,41 @@ class Fastener:
         # For shank (not threads):
         A_bolt = np.pi  * self.thread.d**2 / 4.0
         print(f"A_bolt = {A_bolt}")
-        P_su_allow = np.pi * self.thread.d**2 * F_su / 4.0
-        # TODO: just use the eq in nasa_std_5020b:
-        print(f"P_su_allow = {P_su_allow}")
+        
+        # P_su_allow: allowable ultimate shear load
+        # depends on if threads are in the shear plane...
+        self.P_su_allow_1 = np.pi * self.thread.d**2 * F_su / 4.0
+        # TODO: just use the eq in nasa_std_5020b: eq 12
+        print("threads not in shear plane:")
+        print(f"P_su_allow_1 = {self.P_su_allow_1}")
         
         # NASA-STD-5020B eq 13:
-        P_su_allow = F_su * self.A_t
-        # TODO: just use the eq in nasa_std_5020b:
-        print(f"P_su_allow = {P_su_allow}")
+        self.P_su_allow_2 = F_su * self.A_t
+        print("threads in shear plane:")
+        print(f"P_su_allow_2 = {self.P_su_allow_2}")
+    
+    @property
+    def P_su_allow(self) -> tuple[float, float]:
+        """Allowable ultimate shear load"""
+        # allowable ultimate shear strength for the fastener material:
+        F_su = self.material.Ssu_mpa
+        # threads NOT in shear plane:
+        P_su_allow_1 = np.pi * self.thread.d**2 * F_su / 4.0
+        # threads in shear plane:
+        P_su_allow_2 = F_su * self.A_t
+        return P_su_allow_1, P_su_allow_2
+    
+    def PA_s_08307a(self, A_se) -> float:
+        """thread shear (pull out) load allowable, external thread
         
+        NSTS 08307A, pg A-4
+        """
+        PA_s = nsts_08307a.external_thread_shear_load_allowable(
+            A_se=,
+            F_su_bolt==self.material.Ssu_mpa,
+        )
+        return 1.0
+    
     @property
     def Ro_shank(self) -> float:
         """Outer radius of fastener shank."""

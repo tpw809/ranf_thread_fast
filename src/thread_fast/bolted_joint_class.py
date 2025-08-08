@@ -198,7 +198,9 @@ class BoltedJoint:
         # must engage 3 full threads
         
         if L_total_fast < self.L_total_clamped_parts:
+            # only matters for config #1:
             raise Exception("clamped parts length exceeds fastener length")
+            
         
         # TODO: check shank length < clamped parts length
         # plus some margin...
@@ -207,6 +209,11 @@ class BoltedJoint:
             raise Exception("fastener shank longer than clamped parts")
         
         # TODO: check later that bolt stretch is < 2 threads...
+        
+        # Length of engagement:
+        # TODO: deal with inserts or tapped holes:
+        self.L_e = self.nut.length
+        
         
         ###############################
         # Joint Stiffness:
@@ -526,12 +533,28 @@ class BoltedJoint:
         # Margins
         ######################################
         
+        ######################################
         # Tension only fastener strength:
-        # ultimate tensile load: NASA-STD-5020B eq6:
-        # ultimate tensile load: NASA-STD-5020B eq7:
-        # yield axial load: NASA-STD-5020B eq15:
+        ######################################
         # yield axial load: NASA-STD-5020B eq16:
-        # NSTS08307A: bolt_tensile_margin
+        
+        # bolt load (ultimate):
+        P_b_u = nsts_08307a.bolt_axial_load_for_strength(
+            PLD_max=self.P_max, 
+            n=self.n, 
+            phi=self.phi, 
+            SF=self.SF_u, 
+            P=limit_tensile_load,
+        )
+        
+        # NSTS08307A: bolt_tensile_margin:
+        MS_tu_08307a = nsts_08307a.bolt_tensile_margin(
+            PA_t=self.fastener.P_tu_allow, 
+            SF=self.SF_u, 
+            P=limit_tensile_load, 
+            P_b=P_b_u,
+        )
+        print(f"MS_tu_08307a = {MS_tu_08307a}")
         
         # TODO: override for P_tu_allow, P_ty_allow
         
@@ -551,7 +574,8 @@ class BoltedJoint:
         )
         print(f"P_prime_sep = {P_prime_sep}")
         
-        
+        # ultimate tensile load: NASA-STD-5020B eq6:
+        # ultimate tensile margin of safety:
         MS_tu_5020b = nasa_std_5020b.eq6(
             P_tu_allow=self.fastener.P_tu_allow, 
             FS_u=self.SF_u, 
@@ -560,6 +584,8 @@ class BoltedJoint:
         )
         print(f"MS_tu_5020b = {MS_tu_5020b}")
         
+        # ultimate tensile load: NASA-STD-5020B eq7:
+        # ultimate tensile margin of safety:
         MS_tu_5020b = nasa_std_5020b.eq7(
             P_prime_tu=P_prime_tu, 
             FS_u=self.SF_u, 
@@ -568,7 +594,35 @@ class BoltedJoint:
         )
         print(f"MS_tu_5020b = {MS_tu_5020b}")
         
+        # yield axial load: NASA-STD-5020B eq15:
+        # yield tensile margin of safety:
+        MS_ty_5020b = nasa_std_5020b.eq15(
+            P_ty_allow=self.fastener.P_ty_allow, 
+            FS_y=self.SF_y, 
+            P_tL=limit_tensile_load,
+            FF=self.FF,
+        )
+        print(f"MS_ty_5020b = {MS_ty_5020b}")
+        
+        P_prime_ty = nasa_std_5020b.eq17(
+            n=self.n, 
+            phi=self.phi, 
+            P_ty_allow=self.fastener.P_ty_allow, 
+            P_p_max=self.P_max,
+        )
+        print(f"P_prime_ty = {P_prime_ty}")
+        
+        MS_ty_5020b = nasa_std_5020b.eq16(
+            P_prime_ty=P_prime_ty, 
+            FS_y=self.SF_y, 
+            P_tL=limit_tensile_load,
+            FF=self.FF,
+        )
+        print(f"MS_ty_5020b = {MS_ty_5020b}")
+        
+        ######################################
         # Shear only fastener strength:
+        ######################################
         # ultimate shear load: nasa_std_5020b eq14:
         # NASA-TM-106943 eq54:
         # NSTS08307A shear_margin:
@@ -576,10 +630,12 @@ class BoltedJoint:
         # NASA-TM-106943, pg 16, F_sy = 0.577 * F_ty
         
         # TODO: fix:
-        P_su_allow = 1.0
+        P_su_allow = self.fastener.P_su_allow
+        print(P_su_allow)
         
+        # ultimate shear margin of safety:
         MS_su_5020b = nasa_std_5020b.eq14(
-            P_su_allow=P_su_allow, 
+            P_su_allow=P_su_allow[1], 
             FS_u=self.SF_u, 
             P_sL=limit_shear_load, 
             FF=self.FF,
@@ -593,7 +649,9 @@ class BoltedJoint:
         # Tension and shear fastener strength:
         # NASA-TM-106943 eq59:
         
+        ######################################
         # Tension, shear, bending fastener strength:
+        ######################################
         # ultimate combined load: NASA-STD-5020B eq20mod:
         # ultimate combined load: NASA-STD-5020B eq21mod:
         # ultimate combined load: NASA-STD-5020B eq22mod:
@@ -601,11 +659,13 @@ class BoltedJoint:
         # NASA-TM-106943 eq62:
         # NSTS08307A combined_load_margin:
         
+        ######################################
         # Joint Separation Margin:
-        # NASA-STD-5020B eq19:
+        ######################################
         # NASA-TM-106943 eq68:
         # NSTS08307A joint_separation_margin_of_safety:
         
+        # NASA-STD-5020B eq19:
         MS_sep_5020b = nasa_std_5020b.eq19(
             P_p_min=self.P_min, 
             SF_sep=self.SF_sep, 
@@ -616,12 +676,48 @@ class BoltedJoint:
         
         
         
-        
+        ######################################
         # Joint slip:
+        ######################################
+        
         # NASA-STD-5020B eq86:
         
+        
+        ######################################
         # Shear Pull Out of Threads:
-        # NSTS08307A: thread_shear_pull_out_margin
+        ######################################
+        
+        # external threads pull out shear area:
+        A_se = nsts_08307a.external_thread_shear_area(
+            L_e=self.L_e,
+            K_i_max=self.nut.thread.D1_max,  # max minor diam of int threads
+            n_0=None,
+            TK_i=,  # tol on minor diam of int threads
+            TE_e=,  # tol on pitch diam of ext threads
+            G_e=,  # allowance on ext threads
+            pitch=self.fastener.thread.pitch,
+        )
+        
+        # internal threads pull out shear area:
+        A_si = nsts_08307a.internal_thread_shear_area(
+            L_e=self.L_e,
+            D_e_min=,  # min major diam of ext threads
+            n_0=None,
+            TD_e=,  # tol on major diam ext threads
+            TE_i=,  # tol on pitch diam int threads
+            G_e=,  # allowance on ext threads
+            pitch=self.fastener.thread.pitch,
+        )
+        
+        
+        # NSTS08307A: thread_shear_pull_out_margin (ultimate)
+        MS_thread_shear_pull_out_u_08307a = nsts_08307a.thread_shear_pull_out_margin(
+            PA_s=self.fastener.PA_s_08307a, 
+            SF=self.SF_u, 
+            P=limit_tensile_load, 
+            P_b=P_b_u,
+        )
+        print(f"MS_thread_shear_pull_out_u_08307a = {MS_thread_shear_pull_out_u_08307a}")
         
         
         # Bolt Thread Shear:
@@ -633,7 +729,7 @@ class BoltedJoint:
         # Bolt Bearing (Shank Shear):
         # NASA-TM-106943 eq74:
         
-        # Bearing uner Bolt Head or Nut:
+        # Bearing under Bolt Head or Nut:
         # NASA-TM-106943 eq75:
         
         # Threaded Insert Thread:
@@ -662,8 +758,8 @@ class BoltedJoint:
         
         NASA-STD-5020B eq 14
         
-        FS_u: 
-        P_su_allow: 
+        FS_u: ultimate factor of safety
+        P_su_allow: shear load that exceed ultimate strength
         P_sL: limit shear load acting on the shear plane
         """
         MS_u_shear = thread_fast.nasa_std_5020b.eq14(
@@ -710,6 +806,8 @@ class BoltedJoint:
             "L_total_clamped_parts": self.L_total_clamped_parts,
             "thermal_preload_min": self.P_th_min,
             "thermal_preload_max": self.P_th_max,
+            "preload_min": self.P_min,
+            "preload_max": self.P_max,
         }
     
     def to_json(self):
