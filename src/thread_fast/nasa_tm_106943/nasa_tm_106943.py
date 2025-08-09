@@ -1241,9 +1241,9 @@ def eq62(R_t: float, R_b: float, R_s: float) -> float:
 
 
 def eq63(L_e: float, D_minor_int: float) -> float:
-    """NASA-TM-106943, equation 63, pg 18
+    """Calculate thread shear area of the bolt thread, A_s.
     
-    Calculate shear area of the bolt thread, A_s.
+    NASA-TM-106943, equation 63, pg 18
     
     Args:
         L_e (float): engaged length of bolt thread
@@ -1258,7 +1258,7 @@ def eq63(L_e: float, D_minor_int: float) -> float:
 
 
 def eq64(F_su: float, A_s: float) -> float:
-    """Calculate ultimate load, P_ult.
+    """Calculate ultimate load for thread shear, P_ult.
     
     NASA-TM-106943, equation 64, pg 18
     

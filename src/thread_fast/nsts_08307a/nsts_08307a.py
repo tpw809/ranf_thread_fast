@@ -556,6 +556,7 @@ def joint_separation_margin_of_safety(
         PLD_min: float, 
         n: float, 
         phi: float,
+        P_sep: float,
     ) -> float:
     """Calculate margin of safety for joint separation, MS_sep.
     
@@ -567,15 +568,16 @@ def joint_separation_margin_of_safety(
         PLD_min (float): minimum preload
         n (float): loading plane factor 
         phi (float): stiffness factor
+        P_sep (float): joint separation load
     Returns:
         float: margin of safety for joint separation
     """
     assert PLD_min >= 0.0, "minimum preload must be >= 0.0"
     assert 0.0 <= n <= 1.0
     assert phi >= 0.0, "stiffness factor must be >= 0.0"
-    MS_sep = PLD_min / (1.0 - n * phi) - 1.0
+    assert P_sep >= 0.0, "P_sep must be >= 0.0"
+    MS_sep = (PLD_min / ((1.0 - n * phi) * P_sep)) - 1.0
     return MS_sep
-
 
 
 ########################################################

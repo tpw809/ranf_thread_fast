@@ -10,6 +10,7 @@ Nut consists of:
 
 """
 import numpy as np
+import thread_fast.nsts_08307a as nsts_08307a
 from thread_fast.material_class import Material
 from thread_fast.threads.metric_thread_class import InternalMetricThread
 import thread_fast.conversion_factors as cf
@@ -35,15 +36,26 @@ class Nut:
         ):
         
         # outer bearing diameter (on abutment):
-        assert Do > 0.0
+        assert Do > 0.0, "nut outer diamter must be > 0"
         self.Do = Do
         
-        assert length > 0.0
+        assert length > 0.0, "nut length must be > 0"
         self.length = length
         
         self.thread = thread
         
         self.material = material
+    
+    def PA_s_08307a(self, A_si: float) -> float:
+        """thread shear (pull out) load allowable, internal thread
+        
+        NSTS 08307A, pg A-4
+        """
+        PA_s = nsts_08307a.internal_thread_shear_load_allowable(
+            A_si=A_si,
+            F_su_nut=self.material.Ssu_mpa,
+        )
+        return PA_s
     
     def to_dict(self) -> dict:
         return {
@@ -76,8 +88,8 @@ def main() -> None:
         cte_mm_mm_C=16.5e-6,
         tc_w_mK=15.1,
         hc_J_gC=420.0/1000.0,
-        Sy_mpa=586.0,
-        Su_mpa=896.0,
+        Sty_mpa=586.0,
+        Stu_mpa=896.0,
     )
     
     thread = InternalMetricThread(

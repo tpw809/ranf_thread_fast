@@ -134,6 +134,7 @@ class MetricThread:
             # basic major diameter:
             self.d = basic_major_diameter
             
+            # Upper Deviation, External Thread Allowance (Fundamental Deviation)
             self.es = asme_m_thread.eq_es(
                 P=self.pitch, 
                 allowance_class=allowance_class,
@@ -376,7 +377,7 @@ class ExternalMetricThread:
         # basic major diameter:
         self.d = basic_major_diameter
         
-        # 
+        # Upper Deviation, External Thread Allowance (Fundamental Deviation)
         self.es = asme_m_thread.eq_es(
             P=self.pitch, 
             allowance_class=allowance_class,

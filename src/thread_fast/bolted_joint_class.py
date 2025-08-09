@@ -402,7 +402,7 @@ class BoltedJoint:
             D=self.fastener.thread.d,  # major diameter
             K=self.K_nom,  # nut factor
             A_t=self.fastener.thread.A_t,  # A_t = tensile area
-            F_ty=self.fastener.material.Sy_mpa,  # F_ty = material tensile yield strength
+            F_ty=self.fastener.material.Sty_mpa,  # F_ty = material tensile yield strength
             preload_stress_ratio=self.preload_stress_ratio,
         )
         print(f"T_applied_nom = {self.T_applied_nom}")
@@ -411,7 +411,7 @@ class BoltedJoint:
             D=self.fastener.thread.d,  # major diameter
             K=self.K_min,  # nut factor
             A_t=self.fastener.thread.A_t,  # A_t = tensile area
-            F_ty=self.fastener.material.Sy_mpa,  # F_ty = material tensile yield strength
+            F_ty=self.fastener.material.Sty_mpa,  # F_ty = material tensile yield strength
             preload_stress_ratio=self.preload_stress_ratio,
         )
         print(f"T_applied_min = {self.T_applied_min}")
@@ -420,7 +420,7 @@ class BoltedJoint:
             D=self.fastener.thread.d,  # major diameter
             K=self.K_max,  # nut factor
             A_t=self.fastener.thread.A_t,  # A_t = tensile area
-            F_ty=self.fastener.material.Sy_mpa,  # F_ty = material tensile yield strength
+            F_ty=self.fastener.material.Sty_mpa,  # F_ty = material tensile yield strength
             preload_stress_ratio=self.preload_stress_ratio,
         )
         print(f"T_applied_max = {self.T_applied_max}")
@@ -548,13 +548,13 @@ class BoltedJoint:
         )
         
         # NSTS08307A: bolt_tensile_margin:
-        MS_tu_08307a = nsts_08307a.bolt_tensile_margin(
+        self.MS_tu_nsts08307a = nsts_08307a.bolt_tensile_margin(
             PA_t=self.fastener.P_tu_allow, 
             SF=self.SF_u, 
             P=limit_tensile_load, 
             P_b=P_b_u,
         )
-        print(f"MS_tu_08307a = {MS_tu_08307a}")
+        print(f"MS_tu_nsts08307a = {self.MS_tu_nsts08307a}")
         
         # TODO: override for P_tu_allow, P_ty_allow
         
@@ -576,33 +576,33 @@ class BoltedJoint:
         
         # ultimate tensile load: NASA-STD-5020B eq6:
         # ultimate tensile margin of safety:
-        MS_tu_5020b = nasa_std_5020b.eq6(
+        self.MS_tu_5020b_crit1 = nasa_std_5020b.eq6(
             P_tu_allow=self.fastener.P_tu_allow, 
             FS_u=self.SF_u, 
             P_tL=limit_tensile_load,
             FF=self.FF,
         )
-        print(f"MS_tu_5020b = {MS_tu_5020b}")
+        print(f"MS_tu_5020b_crit1 = {self.MS_tu_5020b_crit1}")
         
         # ultimate tensile load: NASA-STD-5020B eq7:
         # ultimate tensile margin of safety:
-        MS_tu_5020b = nasa_std_5020b.eq7(
+        self.MS_tu_5020b_crit2 = nasa_std_5020b.eq7(
             P_prime_tu=P_prime_tu, 
             FS_u=self.SF_u, 
             P_tL=limit_tensile_load,
             FF=self.FF,
         )
-        print(f"MS_tu_5020b = {MS_tu_5020b}")
+        print(f"MS_tu_5020b = {self.MS_tu_5020b_crit2}")
         
         # yield axial load: NASA-STD-5020B eq15:
         # yield tensile margin of safety:
-        MS_ty_5020b = nasa_std_5020b.eq15(
+        self.MS_ty_5020b_crit1 = nasa_std_5020b.eq15(
             P_ty_allow=self.fastener.P_ty_allow, 
             FS_y=self.SF_y, 
             P_tL=limit_tensile_load,
             FF=self.FF,
         )
-        print(f"MS_ty_5020b = {MS_ty_5020b}")
+        print(f"MS_ty_5020b = {self.MS_ty_5020b_crit1}")
         
         P_prime_ty = nasa_std_5020b.eq17(
             n=self.n, 
@@ -612,13 +612,13 @@ class BoltedJoint:
         )
         print(f"P_prime_ty = {P_prime_ty}")
         
-        MS_ty_5020b = nasa_std_5020b.eq16(
+        self.MS_ty_5020b_crit2 = nasa_std_5020b.eq16(
             P_prime_ty=P_prime_ty, 
             FS_y=self.SF_y, 
             P_tL=limit_tensile_load,
             FF=self.FF,
         )
-        print(f"MS_ty_5020b = {MS_ty_5020b}")
+        print(f"MS_ty_5020b = {self.MS_ty_5020b_crit2}")
         
         ######################################
         # Shear only fastener strength:
@@ -627,22 +627,25 @@ class BoltedJoint:
         # NASA-TM-106943 eq54:
         # NSTS08307A shear_margin:
         
-        # NASA-TM-106943, pg 16, F_sy = 0.577 * F_ty
+        # NASA-TM-106943, pg 16: F_sy = 0.577 * F_ty
         
         # TODO: fix:
+        # depends on whether threads are in shear plane:
         P_su_allow = self.fastener.P_su_allow
         print(P_su_allow)
         
         # ultimate shear margin of safety:
-        MS_su_5020b = nasa_std_5020b.eq14(
+        self.MS_su_5020b = nasa_std_5020b.eq14(
             P_su_allow=P_su_allow[1], 
             FS_u=self.SF_u, 
             P_sL=limit_shear_load, 
             FF=self.FF,
         )
-        print(f"MS_su_5020b = {MS_su_5020b}")
+        print(f"MS_su_5020b = {self.MS_su_5020b}")
         
+        ######################################
         # Bending Only Margin:
+        ######################################
         # NSTS08307A bending_margin:
         # NSTS08307A bolt_bending_margin:
         
@@ -652,28 +655,54 @@ class BoltedJoint:
         ######################################
         # Tension, shear, bending fastener strength:
         ######################################
+        # NSTS08307A combined_load_margin: (deprecated)
+        # NASA-TM-106943 eq62: (deprecated)
         # ultimate combined load: NASA-STD-5020B eq20mod:
         # ultimate combined load: NASA-STD-5020B eq21mod:
         # ultimate combined load: NASA-STD-5020B eq22mod:
         # ultimate combined load: NASA-STD-5020B eq23mod:
-        # NASA-TM-106943 eq62:
-        # NSTS08307A combined_load_margin:
+        
+        
         
         ######################################
         # Joint Separation Margin:
         ######################################
-        # NASA-TM-106943 eq68:
-        # NSTS08307A joint_separation_margin_of_safety:
+        # NASA-TM-106943, eq68:
+        P_sep_106943 = nasa_tm_106943.eq67(
+            n=self.n, 
+            phi=self.phi, 
+            P_et=limit_tensile_load,
+        )
         
-        # NASA-STD-5020B eq19:
-        MS_sep_5020b = nasa_std_5020b.eq19(
+        self.MS_sep_106943 = nasa_tm_106943.eq68(
+            P_0_min=self.P_min, 
+            P_sep=P_sep_106943,
+            SF=self.SF_sep,
+        )
+        print(f"MS_sep_106943 = {self.MS_sep_106943}")
+        
+        # NASA-STD-5020B, eq19:
+        self.MS_sep_5020b = nasa_std_5020b.eq19(
             P_p_min=self.P_min, 
             SF_sep=self.SF_sep, 
             P_tL=limit_tensile_load,
             FF=self.FF, 
         )
-        print(f"MS_sep_5020b = {MS_sep_5020b}")
+        print(f"MS_sep_5020b = {self.MS_sep_5020b}")
         
+        # NSTS08307A, joint_separation_margin_of_safety:
+        P_sep_nsts08307a = nsts_08307a.joint_separation_load(
+            P=limit_tensile_load, 
+            SF_sep=self.SF_sep,
+        )
+        
+        self.MS_sep_nsts08307a = nsts_08307a.joint_separation_margin_of_safety(
+            PLD_min=self.P_min, 
+            n=self.n, 
+            phi=self.phi,
+            P_sep=P_sep_nsts08307a,
+        )
+        print(f"MS_sep_nsts08307a = {self.MS_sep_nsts08307a}")
         
         
         ######################################
@@ -687,32 +716,49 @@ class BoltedJoint:
         # Shear Pull Out of Threads:
         ######################################
         
+        # TODO: rederive the thread shear area...
+        
         # external threads pull out shear area:
         A_se = nsts_08307a.external_thread_shear_area(
             L_e=self.L_e,
             K_i_max=self.nut.thread.D1_max,  # max minor diam of int threads
             n_0=None,
-            TK_i=,  # tol on minor diam of int threads
-            TE_e=,  # tol on pitch diam of ext threads
-            G_e=,  # allowance on ext threads
+            TK_i=self.nut.thread.TD1,  # tol on minor diam of int threads
+            TE_e=self.fastener.thread.Td2,  # tol on pitch diam of ext threads
+            G_e=self.fastener.thread.es,  # allowance on ext threads
             pitch=self.fastener.thread.pitch,
         )
+        print(f"A_se = {A_se}")
+        # TODO: fix A_se
+        A_se = 1.0
         
         # internal threads pull out shear area:
         A_si = nsts_08307a.internal_thread_shear_area(
             L_e=self.L_e,
-            D_e_min=,  # min major diam of ext threads
+            D_e_min=self.fastener.thread.d_min,  # min major diam of ext threads
             n_0=None,
-            TD_e=,  # tol on major diam ext threads
-            TE_i=,  # tol on pitch diam int threads
-            G_e=,  # allowance on ext threads
+            TD_e=self.fastener.thread.Td,  # tol on major diam ext threads
+            TE_i=self.nut.thread.TD2,  # tol on pitch diam int threads
+            G_e=self.fastener.thread.es,  # allowance on ext threads
             pitch=self.fastener.thread.pitch,
         )
-        
+        print(f"A_si = {A_si}")
+        # TODO: fix A_si
+        A_si = 1.0
         
         # NSTS08307A: thread_shear_pull_out_margin (ultimate)
+        # for fastener external threads:
         MS_thread_shear_pull_out_u_08307a = nsts_08307a.thread_shear_pull_out_margin(
-            PA_s=self.fastener.PA_s_08307a, 
+            PA_s=self.fastener.PA_s_08307a(A_se), 
+            SF=self.SF_u, 
+            P=limit_tensile_load, 
+            P_b=P_b_u,
+        )
+        print(f"MS_thread_shear_pull_out_u_08307a = {MS_thread_shear_pull_out_u_08307a}")
+        
+        # for nut internal threads:
+        MS_thread_shear_pull_out_u_08307a = nsts_08307a.thread_shear_pull_out_margin(
+            PA_s=self.nut.PA_s_08307a(A_si), 
             SF=self.SF_u, 
             P=limit_tensile_load, 
             P_b=P_b_u,
@@ -722,21 +768,37 @@ class BoltedJoint:
         
         # Bolt Thread Shear:
         # NASA-TM-106943 eq65:
+        A_s = nasa_tm_106943.eq63(
+            L_e=self.L_e, 
+            D_minor_int=self.nut.thread.D1,
+        )
         
-        # Shear Tear Out:
-        # NASA-TM-106943 eq71:
+        P_ult_thread_shear = nasa_tm_106943.eq64(
+            F_su=self.nut.material.Ssu_mpa, 
+            A_s=A_s,
+        )
         
-        # Bolt Bearing (Shank Shear):
-        # NASA-TM-106943 eq74:
-        
-        # Bearing under Bolt Head or Nut:
-        # NASA-TM-106943 eq75:
+        self.MS_thread_shear_106943 = nasa_tm_106943.eq65(
+            P_ult=P_ult_thread_shear, 
+            P_b=self.P_b,
+        )
+        print(f"MS_thread_shear_106943 = {self.MS_thread_shear_106943}")
         
         # Threaded Insert Thread:
         # NASA-TM-106943 eq77:
         
         # Nut Strength:
         # NASA-TM-106943 eq81:
+        
+        # Part Shear Tear Out:
+        # NASA-TM-106943 eq71:
+        
+        # Bolt Bearing (Shank Shear Bearing):
+        # NASA-TM-106943 eq74:
+        
+        # Bearing under Bolt Head or Nut:
+        # NASA-TM-106943 eq75:
+        
         
 
 
@@ -808,6 +870,22 @@ class BoltedJoint:
             "thermal_preload_max": self.P_th_max,
             "preload_min": self.P_min,
             "preload_max": self.P_max,
+            # Margins of Safety:
+            # Joint Separation:
+            "MS_sep_5020b": self.MS_sep_5020b,
+            "MS_sep_nsts08307a": self.MS_sep_nsts08307a,
+            "MS_sep_106943": self.MS_sep_106943,
+            # Ultimate Tensile:
+            "MS_tu_5020b_crit1": self.MS_tu_5020b_crit1,
+            "MS_tu_5020b_crit2": self.MS_tu_5020b_crit2,
+            "MS_tu_nsts08307a_crit1": self.MS_tu_nsts08307a[0],
+            "MS_tu_nsts08307a_crit2": self.MS_tu_nsts08307a[1],
+            # Yield Tensile:
+            "MS_ty_5020b_crit1": self.MS_ty_5020b_crit1,
+            "MS_ty_5020b_crit2": self.MS_ty_5020b_crit2,
+            # Ultimate Fastener Shear:
+            "MS_su_5020b": self.MS_su_5020b,
+            
         }
     
     def to_json(self):
@@ -855,8 +933,8 @@ def main() -> None:
         cte_mm_mm_C=16.5e-6,
         tc_w_mK=15.1,
         hc_J_gC=420.0/1000.0,
-        Sy_mpa=586.0,
-        Su_mpa=896.0,
+        Sty_mpa=586.0,
+        Stu_mpa=896.0,
     )
     
     # Washer material:
@@ -868,8 +946,8 @@ def main() -> None:
         cte_mm_mm_C=13.0e-6,
         tc_w_mK=11.4,
         hc_J_gC=0.435,
-        Sy_mpa=1100.0,
-        Su_mpa=1375.0,
+        Sty_mpa=1100.0,
+        Stu_mpa=1375.0,
     )
     
     # Nut material:
@@ -881,8 +959,8 @@ def main() -> None:
         cte_mm_mm_C=17.5e-6,
         tc_w_mK=16.2,
         hc_J_gC=0.5,
-        Sy_mpa=215.0,
-        Su_mpa=505.0,
+        Sty_mpa=215.0,
+        Stu_mpa=505.0,
     )
     
     # Clamped parts materials:
@@ -894,8 +972,8 @@ def main() -> None:
         cte_mm_mm_C=8.6e-6,
         tc_w_mK=6.7,
         hc_J_gC=0.526,
-        Sy_mpa=880.0,
-        Su_mpa=950.0,
+        Sty_mpa=880.0,
+        Stu_mpa=950.0,
     )
     
     ######################################

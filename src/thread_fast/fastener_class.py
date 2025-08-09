@@ -33,7 +33,9 @@ import thread_fast.conversion_factors as cf
 
 
 class Fastener:
-    """
+    """Fastener class.
+    
+    Contains material, threads, head and shank information.
     
     Args:
         name (str): Descriptive name of the fastener.
@@ -55,10 +57,10 @@ class Fastener:
             L_thread: float,
         ):
             
-        assert L_shank >= 0.0
-        assert L_thread > 0.0   
-        assert Do_shank > 0.0
-        assert Do_head > Do_shank
+        assert L_shank >= 0.0, "shank length must be >= 0"
+        assert L_thread > 0.0, "thread length must be > 0"
+        assert Do_shank > 0.0, "shank diameter must be > 0"
+        assert Do_head > Do_shank, "head diameter must be > shank diameter"
         
         self.name = name
         
@@ -92,8 +94,8 @@ class Fastener:
         
         # [N], allowable ultimate tensile load:
         # NSTS 08307A page A-4, ultimate tensile load:
-        self.P_tu_allow = self.A_t * self.material.Su_mpa
-        self.P_ty_allow = self.A_t * self.material.Sy_mpa
+        self.P_tu_allow = self.A_t * self.material.Stu_mpa
+        self.P_ty_allow = self.A_t * self.material.Sty_mpa
         print(f"P_tu_allow = {self.P_tu_allow} [N]")
         print(f"P_ty_allow = {self.P_ty_allow} [N]")
         
@@ -130,16 +132,16 @@ class Fastener:
         P_su_allow_2 = F_su * self.A_t
         return P_su_allow_1, P_su_allow_2
     
-    def PA_s_08307a(self, A_se) -> float:
+    def PA_s_08307a(self, A_se: float) -> float:
         """thread shear (pull out) load allowable, external thread
         
         NSTS 08307A, pg A-4
         """
         PA_s = nsts_08307a.external_thread_shear_load_allowable(
-            A_se=,
-            F_su_bolt==self.material.Ssu_mpa,
+            A_se=A_se,
+            F_su_bolt=self.material.Ssu_mpa,
         )
-        return 1.0
+        return PA_s
     
     @property
     def Ro_shank(self) -> float:
@@ -237,8 +239,8 @@ def main() -> None:
         cte_mm_mm_C=16.5e-6,
         tc_w_mK=15.1,
         hc_J_gC=420.0/1000.0,
-        Sy_mpa=586.0,
-        Su_mpa=896.0,
+        Sty_mpa=586.0,
+        Stu_mpa=896.0,
     )
     
     thread = ExternalMetricThread(
