@@ -191,6 +191,12 @@ class Fastener:
         # TODO: which stiffness is worst case? Kmax or Kmin?
         return k_total
 
+    @classmethod
+    def from_dict(cls, input_dict):
+        """Create Fastener object from input dictionary."""
+        # TODO: complete...
+        pass
+
     def to_dict(self) -> dict:
         return {
             "type": 'Fastener',
@@ -201,15 +207,19 @@ class Fastener:
             "Do_shank": self.Do_shank,
             "L_shank": self.L_shank,
             "L_thread": self.L_thread,
+            # Calculated Values:
             "L_overall": self.length,
             'stiffness': self.stiffness(),
-            # tensile and shear area
+            # tensile and shear area:
+            "bolt_tensile_stress_area": self.A_t,
             # thread shear area
-            "P_tu_allow": self.P_tu_allow,
-            # P_su_allow (PA_su)
+            # fastener tensile allowables:
             "P_ty_allow": self.P_ty_allow,
+            "P_tu_allow": self.P_tu_allow,
+            # fastener shear allowables:
+            "P_su_allow_1": self.P_su_allow_1,  # threads not in shear plane
+            "P_su_allow_2": self.P_su_allow_2,  # threads in shear plane
             # P_sy_allow (PA_sy)
-            # thread shear allowable
         }
 
     def __str__(self):
@@ -223,6 +233,10 @@ class Fastener:
             f"L_thread = {self.L_thread}",
             f"L_overall = {self.length}",
             f"stiffness = {self.stiffness()}",
+            f"P_ty_allow = {self.P_ty_allow}",
+            f"P_tu_allow = {self.P_tu_allow}",
+            f"P_su_allow_1 = {self.P_su_allow_1}",
+            f"P_su_allow_2 = {self.P_su_allow_2}",
             f"\n{self.material}",
             "",
         ])

@@ -1106,6 +1106,9 @@ def eq54(
     Returns:
         float: margin of safety against fastener shear failure
     """
+    assert V >= 0.0
+    assert shear_allowable >= 0.0
+    assert SF >= 1.0
     MS = (shear_allowable / (SF * V)) - 1.0
     return MS
 
@@ -1123,6 +1126,8 @@ def eq55(F_su: float, A_s: float) -> float:
     Returns:
         float: fastener shear allowable
     """
+    assert F_su >= 0.0
+    assert A_s >= 0.0
     shear_allowable = F_su * A_s
     return shear_allowable
 
@@ -1150,6 +1155,8 @@ def eq57(
     Returns:
         float: axial (tension) load ratio
     """
+    assert P_b >= 0.0
+    assert bending_allowable > 0.0
     R_t = P_b / bending_allowable
     return R_t
 
@@ -1167,6 +1174,8 @@ def eq58(SF: float, V: float, shear_allowable: float) -> float:
         float: shear load ratio
     """
     assert SF >= 1.0, "SF must be >= 1.0"
+    assert V >= 0
+    assert shear_allowable > 0.0
     R_s = SF * V / shear_allowable
     return R_s
 
@@ -1214,6 +1223,8 @@ def eq61(
         bending_allowable (float):
     """
     assert SF >= 1.0, "SF must be >= 1.0"
+    assert M >= 0.0
+    assert bending_allowable >= 0.0
     R_b = SF * M / bending_allowable
     return R_b
 
@@ -1268,6 +1279,8 @@ def eq64(F_su: float, A_s: float) -> float:
     Returns:
         float: ultimate load
     """
+    assert F_su >= 0.0
+    assert A_s >= 0.0
     P_ult = F_su * A_s
     return P_ult
 
@@ -1283,6 +1296,8 @@ def eq65(P_ult: float, P_b: float) -> float:
     Returns:
         float: margin of safety against bolt thread shear
     """
+    assert P_ult >= 0.0
+    assert P_b >= 0.0
     MS = P_ult / P_b - 1.0
     return MS
 
@@ -1309,9 +1324,9 @@ def eq67(
         phi: float, 
         P_et: float,
     ) -> float:
-    """NASA-TM-106943, equation 67, pg 19
+    """Calculate load trying to separate the joint, P_sep.
     
-    Calculate load trying to separate the joint, P_sep.
+    NASA-TM-106943, equation 67, pg 19
     
     Compare to NASA-STD-5020B eq 11, pg 28.
     
@@ -1322,6 +1337,9 @@ def eq67(
     Returns:
         float: load causing separation
     """
+    assert n >= 0.0
+    assert phi >= 0.0
+    assert P_et >= 0.0
     P_sep = (1.0 - n * phi) * P_et
     return P_sep
 
@@ -1331,13 +1349,14 @@ def eq68(
         P_sep: float, 
         SF: float=1.2,
     ) -> float:
-    """NASA-TM-106943, equation 68, pg 19
+    """Calculate margin of safety against joint separation.
     
-    Calculate margin of safety against joint separation.
+    NASA-TM-106943, equation 68, pg 19
     
     Recommended factor of safety:
-    1.2 for structural applications
-    1.4 for pressure applications
+    
+    - 1.2 for structural applications
+    - 1.4 for pressure applications
     
     Compare to NASA-STD-5020B eq 19, pg 32.
     
@@ -1348,6 +1367,8 @@ def eq68(
     Return:
         float: margin of safety against joint separation
     """
+    assert P_0_min >= 0.0, "min bolt preload must be >= 0.0"
+    assert P_sep >= 0.0, "P_sep must be >= 0.0"
     assert SF >= 1.0, "error: SF must be >= 1.0"
     MS = (P_0_min / (SF * P_sep)) - 1.0
     return MS
@@ -1360,9 +1381,9 @@ def eq68(
 
 
 def eq69(F_su: float, A_s: float) -> float:
-    """NASA-TM-106943, equation 69, pg 19
+    """Calculate , P_ult.
     
-    Calculate , P_ult.
+    NASA-TM-106943, equation 69, pg 19
     
     Args:
         F_su (float): material ultimate shear strength
@@ -1370,34 +1391,35 @@ def eq69(F_su: float, A_s: float) -> float:
     Returns:
         float:
     """
+    assert F_su > 0.0
+    assert A_s > 0.0
     P_ult = F_su * A_s
     return P_ult
 
 
 def eq70(t: float, e: float, D: float) -> float:
-    """NASA-TM-106943, equation 70, pg 19
+    """Calculate shear area, A_s.
     
-    Calculate shear area, A_s.
+    NASA-TM-106943, equation 70, pg 19
     
     Args:
         t (float): thickness of sheet or lug
         e (float): perpendicular distance from hole center to free egde of the sheet
         D (float): nominal fastener diameter
-    
     Returns:
         float: shear area
     """
-    assert t > 0.0
-    assert e > 0.0
-    assert D > 0.0
+    assert t > 0.0, "thickness must be > 0.0"
+    assert e > 0.0, "distance must be > 0.0"
+    assert D > 0.0, "diameter must be > 0.0"
     A_s = 2.0 * t * (e - D / 2.0)
     return A_s
 
 
 def eq71(P_ult: float, SF: float, V: float) -> float:
-    """NASA-TM-106943, equation 71, pg 20
+    """Calculate margin of safety to ???
     
-    Calculate margin of safety to ???
+    NASA-TM-106943, equation 71, pg 20
     
     Args:
         P_ult (float):
@@ -1406,6 +1428,7 @@ def eq71(P_ult: float, SF: float, V: float) -> float:
     Returns:
         float: margin of safety to ???
     """
+    assert P_ult >= 0.0, "load must be >= 0"
     assert SF >= 1.0, "error: SF must be >= 1.0"
     assert V >= 0.0
     MS = P_ult / (SF * V) - 1.0

@@ -289,13 +289,6 @@ class MetricThread:
                 EI=self.EI,
                 T_D2=self.TD2,
             )
-            
-            # self.D3_max = iso_5855_1_1999.eq_D3_max(
-            #     D=self.D,
-            #     P=self.pitch,
-            #     EI=self.EI,
-            #     T_D2=self.TD2,
-            # )
         
     @property
     def r_m(self) -> float:
@@ -325,8 +318,6 @@ class MetricThread:
             f"pitch = {self.pitch}",
             "",
         ])
-
-
 
 
 class ExternalMetricThread:
@@ -484,23 +475,39 @@ class ExternalMetricThread:
         psi = np.arctan(self.pitch / (2.0 * np.pi * self.r_m))
         return psi
 
+    @classmethod
+    def from_dict(cls, input_dict):
+        """Create ExternalThread object from input dictionary."""
+        # TODO: complete...
+        pass
+
     def to_dict(self) -> dict:
         return {
-            "type": 'ExternalThread',
+            "type": 'ExternalMetricThread',
+            # Inputs:
             "pitch": self.pitch,
             "basic_major_diameter": self.d,
-            "mean_thread_radius": self.r_m,
+            "tolerance_grade": self.tolerance_grade,  # [3,4,5,6,7,8,9]
+            "allowance_class": self.allowance_class,  # [e, f, g, h]
+            "profile": self.profile,  # [M, MJ]
             "thread_half_angle_rad": self.beta,
+            # Calculated Values:
+            "mean_thread_radius": self.r_m,
             "thread_lead_angle_rad": self.psi,
             "fundamental_triangle_height": self.H,
+            "LE_min": self.LE_min,  # min length of engagement
+            "LE_max": self.LE_max,  # max length of engagement
         }
 
     def __str__(self):
         return "\n".join([
-            "\nExternalThread:",
+            "\nExternalMetricThread:",
             f"name = {self.name}",
             f"basic_major_diameter = {self.d}",
             f"pitch = {self.pitch}",
+            f"thread_half_angle_rad = {self.beta}",
+            f"thread_lead_angle_rad = {self.psi}",
+            f"fundamental_triangle_height = {self.H}",
             "",
         ])
 
@@ -627,13 +634,6 @@ class InternalMetricThread:
             T_D2=self.TD2,
         )
         
-        # self.D3_max = iso_5855_1_1999.eq_D3_max(
-        #     D=self.D,
-        #     P=self.pitch,
-        #     EI=self.EI,
-        #     T_D2=self.TD2,
-        # )
-        
         # TODO: thread shear area
     
     # pull out shear area is a bolted joint level attribute:
@@ -660,26 +660,39 @@ class InternalMetricThread:
         psi = np.arctan(self.pitch / (2.0 * np.pi * self.r_m))
         return psi
 
+    @classmethod
+    def from_dict(cls, input_dict):
+        """Create InternalThread object from input dictionary."""
+        # TODO: complete...
+        pass
+
     def to_dict(self) -> dict:
         return {
-            "type": 'InternalThread',
+            "type": 'InternalMetricThread',
+            # Inputs:
             "pitch": self.pitch,
             "basic_major_diameter": self.D,
-            "mean_thread_radius": self.r_m,
+            "tolerance_grade": self.tolerance_grade,  # [3,4,5,6,7,8,9]
+            "allowance_class": self.allowance_class,  # [G, H]
+            "profile": self.profile,
             "thread_half_angle_rad": self.beta,
+            # Calculated Values:
+            "mean_thread_radius": self.r_m,
             "thread_lead_angle_rad": self.psi,
             "fundamental_triangle_height": self.H,
+            "LE_min": self.LE_min,  # min length of engagement
+            "LE_max": self.LE_max,  # max length of engagement
         }
 
     def __str__(self):
         return "\n".join([
-            "\nInternalThread:",
+            "\nInternalMetricThread:",
             f"name = {self.name}",
             f"basic_major_diameter = {self.D}",
             f"pitch = {self.pitch}",
+            f"fundamental_triangle_height = {self.H}",
             "",
         ])
-
 
 
 def main() -> None:

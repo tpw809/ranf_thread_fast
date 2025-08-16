@@ -539,7 +539,7 @@ class BoltedJoint:
         # yield axial load: NASA-STD-5020B eq16:
         
         # bolt load (ultimate):
-        P_b_u = nsts_08307a.bolt_axial_load_for_strength(
+        self.P_b_u = nsts_08307a.bolt_axial_load_for_strength(
             PLD_max=self.P_max, 
             n=self.n, 
             phi=self.phi, 
@@ -552,7 +552,7 @@ class BoltedJoint:
             PA_t=self.fastener.P_tu_allow, 
             SF=self.SF_u, 
             P=limit_tensile_load, 
-            P_b=P_b_u,
+            P_b=self.P_b_u,
         )
         print(f"MS_tu_nsts08307a = {self.MS_tu_nsts08307a}")
         
@@ -634,7 +634,7 @@ class BoltedJoint:
         P_su_allow = self.fastener.P_su_allow
         print(P_su_allow)
         
-        # ultimate shear margin of safety:
+        # ultimate fastener shear margin of safety:
         self.MS_su_5020b = nasa_std_5020b.eq14(
             P_su_allow=P_su_allow[1], 
             FS_u=self.SF_u, 
@@ -752,7 +752,7 @@ class BoltedJoint:
             PA_s=self.fastener.PA_s_08307a(A_se), 
             SF=self.SF_u, 
             P=limit_tensile_load, 
-            P_b=P_b_u,
+            P_b=self.P_b_u,
         )
         print(f"MS_thread_shear_pull_out_u_08307a = {MS_thread_shear_pull_out_u_08307a}")
         
@@ -761,7 +761,7 @@ class BoltedJoint:
             PA_s=self.nut.PA_s_08307a(A_si), 
             SF=self.SF_u, 
             P=limit_tensile_load, 
-            P_b=P_b_u,
+            P_b=self.P_b_u,
         )
         print(f"MS_thread_shear_pull_out_u_08307a = {MS_thread_shear_pull_out_u_08307a}")
         
@@ -780,7 +780,7 @@ class BoltedJoint:
         
         self.MS_thread_shear_106943 = nasa_tm_106943.eq65(
             P_ult=P_ult_thread_shear, 
-            P_b=self.P_b,
+            P_b=self.P_b_u,
         )
         print(f"MS_thread_shear_106943 = {self.MS_thread_shear_106943}")
         
@@ -798,6 +798,7 @@ class BoltedJoint:
         
         # Bearing under Bolt Head or Nut:
         # NASA-TM-106943 eq75:
+        
         
         
 
@@ -842,6 +843,7 @@ class BoltedJoint:
             "name": self.name,
             "fastener": self.fastener.to_dict(),
             "nut": self.nut.to_dict(),
+            # Safety Factors:
             "separation_safety_factor": self.SF_sep,
             "yield_safety_factor": self.SF_y,
             "ultimate_safety_factor": self.SF_u,
@@ -870,6 +872,7 @@ class BoltedJoint:
             "thermal_preload_max": self.P_th_max,
             "preload_min": self.P_min,
             "preload_max": self.P_max,
+            "ultimate_bolt_load": self.P_b_u,
             # Margins of Safety:
             # Joint Separation:
             "MS_sep_5020b": self.MS_sep_5020b,
@@ -885,7 +888,8 @@ class BoltedJoint:
             "MS_ty_5020b_crit2": self.MS_ty_5020b_crit2,
             # Ultimate Fastener Shear:
             "MS_su_5020b": self.MS_su_5020b,
-            
+            # Thread Shear:
+            'MS_thread_shear_106943': self.MS_thread_shear_106943,
         }
     
     def to_json(self):
