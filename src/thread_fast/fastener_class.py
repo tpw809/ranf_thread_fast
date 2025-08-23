@@ -265,7 +265,7 @@ def main() -> None:
         allowance_class='h',
         # external=True,
         profile='M',
-        beta=30.0 * cf.deg_to_rad,
+        beta_rad=30.0 * cf.deg_to_rad,
     )
     
     fast1 = Fastener(

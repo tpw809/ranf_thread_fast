@@ -46,6 +46,7 @@ import thread_fast.threads.asme_b1_13M_2005 as asme_m_thread
 import thread_fast.threads.iso_724_1993 as iso_724_1993
 import thread_fast.threads.iso_5855_1_1999 as iso_5855_1_1999
 import thread_fast.conversion_factors as cf
+from thread_fast.threads.thread_class import ScrewThread
 
 # coarse pitch metric thread M profile series:
 # [diameter, pitch], 
@@ -72,45 +73,48 @@ metric_coarse_thread_list = [
 
 
 
-class MetricThread:
+class MetricThread(ScrewThread):
     """MetricThread class.
     
     Args:
         name (str): Descriptive name.
         basic_major_diameter (float): Basic (nominal) major diameter.
-        pitch (float): thread pitch.
+        pitch (float): thread pitch, mm/thread.
+        tolerance_grade (int): Tolerance grade indicator.
+        allowance_class (str): Allowance class indicator.
+        external (bool): Is this an External thread?
+        internal (bool): Is this an Internal thread?
+        profile (str): Thread profile (M or MJ).
+        beta_rad (float): Thread half angle in radians.
+        beta_deg (float): Thread half angle in degrees.
     """
     def __init__(
             self, 
             name: str,
             basic_major_diameter: float,
-            pitch: float,
+            pitch: float,  # thread pitch, mm/thread
             tolerance_grade: int,  # [3,4,5,6,7,8,9]
             allowance_class: str,  # [e, f, g, h, G, H]
             external: bool=True,
             internal: bool=False,
             profile: str='M',  # [M, MJ]
-            beta: float=30.0 * cf.deg_to_rad,
+            beta_rad: float=30.0 * cf.deg_to_rad,
+            beta_deg: float=None,
         ):
+        super().__init__(
+            name=name, 
+            basic_major_diameter=basic_major_diameter, 
+            pitch=pitch,
+            beta_rad=beta_rad,
+            beta_deg=beta_deg,
+        )
             
         if internal is True:
             external = False
         
-        # [rad], thread half angle:
-        self.beta = beta
-        
         # external or internal thread?:
         self.external = external
         self.internal = internal
-            
-        self.name = name
-        
-        # thread pitch:
-        self.pitch = pitch
-        
-        # height of fundamental triangle:
-        # from: iso 68
-        self.H = (np.sqrt(3.0) / 2.0) * self.pitch
         
         # tolerance grade (indicated by number):
         self.tolerance_grade = tolerance_grade
@@ -129,198 +133,48 @@ class MetricThread:
         self.LE_min = LE_min
         self.LE_max = LE_max
         
+        # ISO 724:
+        self.basic_pitch_diameter = self.basic_major_diameter - (3.0 / 4.0) * self.fundamental_triangle_height
         
-        if self.external is True:
-            # basic major diameter:
-            self.d = basic_major_diameter
-            
-            # Upper Deviation, External Thread Allowance (Fundamental Deviation)
-            self.es = asme_m_thread.eq_es(
-                P=self.pitch, 
-                allowance_class=allowance_class,
-            )
-        
-            # basic pitch diameter:
-            self.d2 = iso_724_1993.eq_d_2(
-                d=self.d,
-                H=self.H,
-                P=self.pitch,
-            )
-            
-            # basic minor diameter:
-            self.d1 = iso_724_1993.eq_d_1(
-                d=self.d,
-                H=self.H,
-                P=self.pitch,
-            )
-            
-            # basic minor diameter (design profile):
-            self.d3 = iso_724_1993.eq_d_3(
-                d=self.d,
-                H=self.H,
-                P=self.pitch,
-            )
-            
-            # major diameter tolerance:
-            self.Td = asme_m_thread.eq_Td(
-                P=self.pitch,
-                tolerance_grade=self.tolerance_grade,
-            )
-            
-            # pitch diameter tolerance:
-            self.Td2 = asme_m_thread.eq_Td2(
-                P=self.pitch,
-                d=self.d,
-                tolerance_grade=self.tolerance_grade,
-            )
-            
-            # max major diameter:
-            self.d_max = iso_5855_1_1999.eq_d_max(
-                d=self.d,
-                es=self.es,
-            )
-            
-            # min major diameter:
-            self.d_min = iso_5855_1_1999.eq_d_min(
-                d_max=self.d_max,
-                T_d=self.Td,
-            )
-            
-            # max pitch diameter:
-            self.d2_max = iso_5855_1_1999.eq_d2_max(
-                d_max=self.d_max,
-                P=self.pitch,
-            )
-            
-            # min pitch diameter:
-            self.d2_min = iso_5855_1_1999.eq_d2_min(
-                d2_max=self.d2_max,
-                T_d2=self.Td2,
-            )
-            
-            # max root diameter:
-            self.d3_max = iso_5855_1_1999.eq_d3_max(
-                d2_max=self.d2_max,
-                P=self.pitch,
-                d3=self.d3,
-            )
-            
-            # minimum root diameter:
-            self.d3_min = iso_5855_1_1999.eq_d3_min(
-                d2_min=self.d2_min,
-                P=self.pitch,
-            )
-        
-        
-        else:
-            # basic major diameter:
-            self.D = basic_major_diameter
-        
-            # Lower Deviation, Internal Thread Allowance (Fundamental Deviation)
-            self.EI = asme_m_thread.eq_EI(
-                P=self.pitch, 
-                allowance_class=allowance_class,
-            )
-        
-            # minimum major diameter:
-            self.D_min = self.D + self.EI
-        
-            # basic pitch diameter:
-            self.D2 = iso_724_1993.eq_D_2(
-                D=self.D,
-                H=self.H,
-                P=self.pitch,
-            )
-            
-            # basic minor diameter:
-            self.D1 = iso_724_1993.eq_D_1(
-                D=self.D, 
-                H=self.H, 
-                P=self.pitch,
-            )
-            
-            # minor diameter tolerance:
-            self.TD1 = asme_m_thread.eq_TD1(
-                P=self.pitch,
-                tolerance_grade=self.tolerance_grade,
-            )
-            
-            # pitch diameter tolerance:
-            self.TD2 = asme_m_thread.eq_TD2(
-                P=self.pitch,
-                d=self.D,
-                tolerance_grade=self.tolerance_grade,
-            )
-            
-            # maximum diameter to root:
-            self.D3_max = iso_5855_1_1999.eq_D3_max(
-                D=self.D,
-                P=self.pitch,
-                EI=self.EI,
-                T_D2=self.TD2,
-            )
-            
-            # minimum minor diameter:
-            self.D1_min = iso_5855_1_1999.eq_D1_min(
-                D=self.D,
-                P=self.pitch,
-                EI=self.EI,
-            )
-            
-            # maximum minor diameter:
-            self.D1_max = iso_5855_1_1999.eq_D1_max(
-                D=self.D,
-                P=self.pitch,
-                EI=self.EI,
-                T_D1=self.TD1,
-            )
-            
-            # minimum pitch diameter:
-            self.D2_min = iso_5855_1_1999.eq_D2_min(
-                D=self.D,
-                P=self.pitch,
-                EI=self.EI,
-            )
-            
-            # maximum pitch diameter:
-            self.D2_max = iso_5855_1_1999.eq_D2_max(
-                D=self.D,
-                P=self.pitch,
-                EI=self.EI,
-                T_D2=self.TD2,
-            )
-        
+        # ISO 724:
+        self.basic_minor_diameter = self.basic_major_diameter - (5.0 / 4.0) * self.fundamental_triangle_height
+    
     @property
     def r_m(self) -> float:
-        """mean radius of screw thread
+        """Mean radius of screw thread, mm.
         
-        equals half of pitch diameter
-        
+        Equals half of basic pitch diameter.
         """
-        return self.d2 / 2.0
+        return self.basic_pitch_diameter / 2.0
 
     @property
     def psi(self) -> float:
-        """thread lead angle, rad.
-        
-        alternative for english threads:
-        alpha = np.arctan(1.0 / (n_0 * np.pi * E_in))
-        
-        """
-        psi = np.arctan(self.pitch / (2.0 * np.pi * self.r_m))
-        return psi
+        """Thread lead angle, rad."""
+        return np.arctan(self.pitch / (2.0 * np.pi * self.r_m))
 
     def __str__(self):
         return "\n".join([
-            "\nThread:",
+            "\nMetricScrewThread:",
             f"name = {self.name}",
-            f"basic_major_diameter = {self.d}",
-            f"pitch = {self.pitch}",
+            f"basic_major_diameter = {self.basic_major_diameter} mm",
+            f"pitch = {self.pitch} mm/thread",
+            f"basic_pitch_diameter = {self.basic_pitch_diameter} mm",
+            f"basic_minor_diameter = {self.basic_minor_diameter} mm",
+            f"thread lead angle = {self.psi} rad",
             "",
         ])
 
 
-class ExternalMetricThread:
+class ExternalMetricThread(MetricThread):
+    """ExternalMetricThread class.
+    
+    Args:
+        name (str): Descriptive name.
+        basic_major_diameter (float): Basic (nominal) major diameter, mm.
+        pitch (float): thread pitch, mm/thread.
+        beta_rad (float): Thread half angle in radians.
+        beta_deg (float): Thread half angle in degrees.
+    """
     def __init__(
             self, 
             name: str,
@@ -329,63 +183,26 @@ class ExternalMetricThread:
             tolerance_grade: int,  # [3,4,5,6,7,8,9]
             allowance_class: str,  # [e, f, g, h]
             profile: str='M',  # [M, MJ]
-            beta: float=30.0 * cf.deg_to_rad,
+            beta_rad: float=30.0 * cf.deg_to_rad,
+            beta_deg: float=None,
         ):
-        
-        # external or internal thread?:
-        self.external = True
-        self.internal = False
-        
-        # [rad], thread half angle:
-        self.beta = beta
-            
-        self.name = name
-        
-        # thread pitch:
-        self.pitch = pitch
-        
-        # height of fundamental triangle:
-        # from: iso 68
-        self.H = (np.sqrt(3.0) / 2.0) * self.pitch
-        
-        # tolerance grade (indicated by number):
-        self.tolerance_grade = tolerance_grade
-        
-        # allowance (fundamental deviation) (indicated by letter):
-        self.allowance_class = allowance_class
-        
-        # M or MJ:
-        self.profile = profile
-        
-        # length of engagement:
-        LE_min, LE_max = asme_m_thread.eq_LE(
-            P=self.pitch,
-            d=basic_major_diameter,
+        super().__init__(
+            name=name, 
+            basic_major_diameter=basic_major_diameter, 
+            pitch=pitch,
+            tolerance_grade=tolerance_grade,
+            allowance_class=allowance_class,
+            external=True,
+            internal=False,
+            profile=profile,
+            beta_rad=beta_rad,
+            beta_deg=beta_deg,
         )
-        self.LE_min = LE_min
-        self.LE_max = LE_max
-        
-        # basic major diameter:
-        self.d = basic_major_diameter
         
         # Upper Deviation, External Thread Allowance (Fundamental Deviation)
         self.es = asme_m_thread.eq_es(
             P=self.pitch, 
             allowance_class=allowance_class,
-        )
-        
-        # basic pitch diameter:
-        self.d2 = iso_724_1993.eq_d_2(
-            d=self.d,
-            H=self.H,
-            P=self.pitch,
-        )
-        
-        # basic minor diameter:
-        self.d1 = iso_724_1993.eq_d_1(
-            d=self.d,
-            H=self.H,
-            P=self.pitch,
         )
         
         # basic minor diameter (design profile):
@@ -453,44 +270,70 @@ class ExternalMetricThread:
         # [mm^2], mean area of threads:
         # used for fastener stiffness estimate
         self.A_mean = np.pi * self.r_m**2
-        
+    
     @property
-    def r_m(self) -> float:
-        """mean radius of screw thread, mm.
-        
-        equals half of pitch diameter
-        
-        """
-        return self.d2 / 2.0
-
+    def d(self) -> float:
+        """Basic major diameter for external thread, mm."""
+        return self.basic_major_diameter
+    
     @property
-    def psi(self) -> float:
-        """thread lead angle, rad.
-        
-        alternative for english threads:
-        
-        alpha = np.arctan(1.0 / (n_0 * np.pi * E_in))
-        
-        """
-        psi = np.arctan(self.pitch / (2.0 * np.pi * self.r_m))
-        return psi
-
+    def d1(self) -> float:
+        """Basic minor diameter for external thread, mm."""
+        return self.basic_minor_diameter
+    
+    @property
+    def d2(self) -> float:
+        """Basic pitch diameter for external thread, mm."""
+        return self.basic_pitch_diameter
+    
     @classmethod
     def from_dict(cls, input_dict):
-        """Create ExternalThread object from input dictionary."""
-        # TODO: complete...
-        pass
-
+        """Create ExternalMetricThread object from input dictionary.
+        
+        Mandatory items:
+        - name
+        - basic_major_diameter
+        - pitch
+        - tolerance_grade
+        - allowance_class
+        
+        Optional:
+        - beta_rad: thread half angle in radians
+        - beta_deg: thread half angle in degrees
+        """
+        assert input_dict['type'] == 'ExternalMetricThread'
+        
+        if 'beta_rad' in input_dict:
+            beta_rad = input_dict['beta_rad']
+        else:
+            beta_rad = None
+        
+        if 'beta_deg' in input_dict:
+            beta_deg = input_dict['beta_deg']
+        else:
+            beta_deg = None
+        
+        return ExternalMetricThread(
+            name=input_dict['name'],
+            basic_major_diameter=input_dict['basic_major_diameter'],
+            pitch=input_dict['pitch'],
+            tolerance_grade=input_dict['tolerance_grade'],
+            allowance_class=input_dict['allowance_class'],
+            beta_rad=beta_rad,
+            beta_deg=beta_deg,
+        )
+    
     def to_dict(self) -> dict:
         return {
             "type": 'ExternalMetricThread',
             # Inputs:
+            "name": self.name,
             "pitch": self.pitch,
             "basic_major_diameter": self.d,
             "tolerance_grade": self.tolerance_grade,  # [3,4,5,6,7,8,9]
             "allowance_class": self.allowance_class,  # [e, f, g, h]
             "profile": self.profile,  # [M, MJ]
-            "thread_half_angle_rad": self.beta,
+            "thread_half_angle_rad": self.beta_rad,
             # Calculated Values:
             "mean_thread_radius": self.r_m,
             "thread_lead_angle_rad": self.psi,
@@ -505,14 +348,22 @@ class ExternalMetricThread:
             f"name = {self.name}",
             f"basic_major_diameter = {self.d}",
             f"pitch = {self.pitch}",
-            f"thread_half_angle_rad = {self.beta}",
+            f"thread_half_angle_rad = {self.beta_rad}",
             f"thread_lead_angle_rad = {self.psi}",
             f"fundamental_triangle_height = {self.H}",
             "",
         ])
 
 
-class InternalMetricThread:
+class InternalMetricThread(MetricThread):
+    """InternalMetricThread class.
+    
+    Args:
+        name (str): Descriptive name.
+        basic_major_diameter (float): Basic (nominal) major diameter, mm.
+        pitch (float): thread pitch, mm/thread.
+        
+    """
     def __init__(
             self, 
             name: str,
@@ -521,44 +372,21 @@ class InternalMetricThread:
             tolerance_grade: int,  # [3,4,5,6,7,8,9]
             allowance_class: str,  # [G, H]
             profile: str='M',  # [M, MJ]
-            beta: float=30.0 * cf.deg_to_rad,
+            beta_rad: float=30.0 * cf.deg_to_rad,
+            beta_deg: float=None,
         ):
-        
-        # external or internal thread?:
-        self.external = False
-        self.internal = True
-        
-        # [rad], thread half angle:
-        self.beta = beta
-            
-        self.name = name
-        
-        # thread pitch:
-        self.pitch = pitch
-        
-        # height of fundamental triangle:
-        # from: iso 68
-        self.H = (np.sqrt(3.0) / 2.0) * self.pitch
-        
-        # tolerance grade (indicated by number):
-        self.tolerance_grade = tolerance_grade
-        
-        # allowance (fundamental deviation) (indicated by letter):
-        self.allowance_class = allowance_class
-        
-        # M or MJ:
-        self.profile = profile
-        
-        # length of engagement:
-        LE_min, LE_max = asme_m_thread.eq_LE(
-            P=self.pitch,
-            d=basic_major_diameter,
+        super().__init__(
+            name=name, 
+            basic_major_diameter=basic_major_diameter, 
+            pitch=pitch,
+            tolerance_grade=tolerance_grade,
+            allowance_class=allowance_class,
+            external=False,
+            internal=True,
+            profile=profile,
+            beta_rad=beta_rad,
+            beta_deg=beta_deg,
         )
-        self.LE_min = LE_min
-        self.LE_max = LE_max
-        
-        # basic major diameter:
-        self.D = basic_major_diameter
         
         # Lower Deviation, Internal Thread Allowance (Fundamental Deviation)
         self.EI = asme_m_thread.eq_EI(
@@ -567,21 +395,7 @@ class InternalMetricThread:
         )
         
         # minimum major diameter:
-        self.D_min = self.D + self.EI
-        
-        # basic pitch diameter:
-        self.D2 = iso_724_1993.eq_D_2(
-            D=self.D,
-            H=self.H,
-            P=self.pitch,
-        )
-        
-        # basic minor diameter:
-        self.D1 = iso_724_1993.eq_D_1(
-            D=self.D, 
-            H=self.H, 
-            P=self.pitch,
-        )
+        self.D_min = self.basic_major_diameter + self.EI
         
         # minor diameter tolerance:
         self.TD1 = asme_m_thread.eq_TD1(
@@ -592,13 +406,13 @@ class InternalMetricThread:
         # pitch diameter tolerance:
         self.TD2 = asme_m_thread.eq_TD2(
             P=self.pitch,
-            d=self.D,
+            d=self.basic_major_diameter,
             tolerance_grade=self.tolerance_grade,
         )
         
         # maximum diameter to root:
         self.D3_max = iso_5855_1_1999.eq_D3_max(
-            D=self.D,
+            D=self.basic_major_diameter,
             P=self.pitch,
             EI=self.EI,
             T_D2=self.TD2,
@@ -606,14 +420,14 @@ class InternalMetricThread:
         
         # minimum minor diameter:
         self.D1_min = iso_5855_1_1999.eq_D1_min(
-            D=self.D,
+            D=self.basic_major_diameter,
             P=self.pitch,
             EI=self.EI,
         )
         
         # maximum minor diameter:
         self.D1_max = iso_5855_1_1999.eq_D1_max(
-            D=self.D,
+            D=self.basic_major_diameter,
             P=self.pitch,
             EI=self.EI,
             T_D1=self.TD1,
@@ -621,14 +435,14 @@ class InternalMetricThread:
         
         # minimum pitch diameter:
         self.D2_min = iso_5855_1_1999.eq_D2_min(
-            D=self.D,
+            D=self.basic_major_diameter,
             P=self.pitch,
             EI=self.EI,
         )
         
         # maximum pitch diameter:
         self.D2_max = iso_5855_1_1999.eq_D2_max(
-            D=self.D,
+            D=self.basic_major_diameter,
             P=self.pitch,
             EI=self.EI,
             T_D2=self.TD2,
@@ -640,26 +454,20 @@ class InternalMetricThread:
     # requires knowledge of both threads     
     
     @property
-    def r_m(self) -> float:
-        """mean radius of screw thread, mm.
-        
-        equals half of pitch diameter
-        
-        """
-        return self.D2 / 2.0
-
+    def D(self) -> float:
+        """Basic major diameter internal metric thread, mm."""
+        return self.basic_major_diameter
+    
     @property
-    def psi(self) -> float:
-        """thread lead angle, rad.
-        
-        alternative for english threads:
-        
-        alpha = np.arctan(1.0 / (n_0 * np.pi * E_in))
-        
-        """
-        psi = np.arctan(self.pitch / (2.0 * np.pi * self.r_m))
-        return psi
-
+    def D1(self) -> float:
+        """Basic minor diameter of internal thread, mm."""
+        return self.basic_minor_diameter
+    
+    @property
+    def D2(self) -> float:
+        """Basic pitch diameter for internal threads, mm."""
+        return self.basic_pitch_diameter
+    
     @classmethod
     def from_dict(cls, input_dict):
         """Create InternalThread object from input dictionary."""
@@ -675,7 +483,7 @@ class InternalMetricThread:
             "tolerance_grade": self.tolerance_grade,  # [3,4,5,6,7,8,9]
             "allowance_class": self.allowance_class,  # [G, H]
             "profile": self.profile,
-            "thread_half_angle_rad": self.beta,
+            "thread_half_angle_rad": self.beta_rad,
             # Calculated Values:
             "mean_thread_radius": self.r_m,
             "thread_lead_angle_rad": self.psi,
@@ -688,9 +496,9 @@ class InternalMetricThread:
         return "\n".join([
             "\nInternalMetricThread:",
             f"name = {self.name}",
-            f"basic_major_diameter = {self.D}",
-            f"pitch = {self.pitch}",
-            f"fundamental_triangle_height = {self.H}",
+            f"basic_major_diameter = {self.D} [mm]",
+            f"pitch = {self.pitch} [mm/thread]",
+            f"fundamental_triangle_height = {self.H} [mm]",
             "",
         ])
 
@@ -706,8 +514,9 @@ def main() -> None:
         allowance_class='h',
         external=True,
         profile='M',
-        beta=30.0 * deg_to_rad,
+        beta_rad=30.0 * cf.deg_to_rad,
     )
+    print(M6_1_ext)
     
     M6_1_ext2 = ExternalMetricThread(
         name='M6x1.0',
@@ -716,8 +525,9 @@ def main() -> None:
         tolerance_grade=4,
         allowance_class='h',
         profile='M',
-        beta=30.0 * deg_to_rad,
+        beta_rad=30.0 * cf.deg_to_rad,
     )
+    print(M6_1_ext2)
     
     M6_1_int = MetricThread(
         name='M6x1.0',
@@ -727,8 +537,9 @@ def main() -> None:
         allowance_class='H',
         internal=True,
         profile='M',
-        beta=30.0 * deg_to_rad,
+        beta_rad=30.0 * cf.deg_to_rad,
     )
+    print(M6_1_int)
     
     M6_1_int2 = InternalMetricThread(
         name='M6x1.0',
@@ -737,8 +548,9 @@ def main() -> None:
         tolerance_grade=4,
         allowance_class='H',
         profile='M',
-        beta=30.0 * deg_to_rad,
+        beta_rad=30.0 * cf.deg_to_rad,
     )
+    print(M6_1_int2)
 
 
 

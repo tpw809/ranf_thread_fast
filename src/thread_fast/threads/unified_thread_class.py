@@ -22,17 +22,32 @@ Symbols:
 
 """
 import numpy as np
+from thread_fast.threads.thread_class import ScrewThread
 
 
-class UnifiedThread:
+class UnifiedThread(ScrewThread):
+    """UnifiedThread class.
+    
+    English units.
+    
+    Args:
+        name (str): Descriptive name.
+    
+    """
     def __init__(
             self, 
             name: str,
             basic_major_diameter: float,
             pitch: float,
             external: bool=True,
-            intneral: bool=False,
+            internal: bool=False,
         ):
+        super().__init__(
+            name=name, 
+            basic_major_diameter=basic_major_diameter, 
+            pitch=pitch,
+        )
+            
             
         if internal is True:
             external = False
@@ -41,7 +56,7 @@ class UnifiedThread:
         self.external = external
         self.internal = internal
             
-        self.name = name
+        # self.name = name
         
         # basic major diameter:
         self.d_bsc = basic_major_diameter

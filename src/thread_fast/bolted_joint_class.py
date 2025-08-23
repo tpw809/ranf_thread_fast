@@ -348,7 +348,7 @@ class BoltedJoint:
                 mu_b_typ=self.mu_abutment, 
                 mu_b_max=self.mu_abutment,
                 alpha=self.fastener.thread.psi, 
-                beta=self.fastener.thread.beta, 
+                beta=self.fastener.thread.beta_rad, # thread half angle
                 D=self.fastener.thread.d,
             )[1]
             
@@ -357,7 +357,7 @@ class BoltedJoint:
                 D_p=self.mean_thread_diameter, 
                 D=self.fastener.thread.d, 
                 psi=self.fastener.thread.psi, 
-                alpha=self.fastener.thread.beta, 
+                alpha=self.fastener.thread.beta_rad, # thread half angle
                 mu=self.mu_thread, 
                 mu_c=self.mu_abutment,
             )
@@ -992,7 +992,7 @@ def main() -> None:
         tolerance_grade=4,
         allowance_class='h',
         profile='M',
-        beta=30.0 * cf.deg_to_rad,
+        beta_rad=30.0 * cf.deg_to_rad,
     )
     
     # nut thread:
@@ -1003,7 +1003,7 @@ def main() -> None:
         tolerance_grade=4,
         allowance_class='H',
         profile='M',
-        beta=30.0 * cf.deg_to_rad,
+        beta_rad=30.0 * cf.deg_to_rad,
     )
     
     ######################################
