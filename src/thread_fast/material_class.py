@@ -34,9 +34,43 @@ Subscript keys:
 - _y = yield
 - _u = ultimate
 
+Units (trying to go unitless):
+Metric:
+length: mm
+load: N
+E: MPa
+nu: n/a
+cte: mm/mm/C
+rho: gcc = gram/cubic centimeter
+tc: W/(m-K)
+hc: J/(g-C)
+Sty: MPa = N/mm^2
+Stu: MPa = N/mm^2
+Scy: MPa = N/mm^2
+Scu: MPa = N/mm^2
+Ssy: MPa = N/mm^2
+Ssu: MPa = N/mm^2
+
+English:
+length: in
+load: lb
+E: psi? ksi?
+nu: n/a
+cte: in/in/F
+rho:
+tc:
+hc:
+Sty:
+Stu: 
+Scy: 
+Scu: 
+Ssy: 
+Ssu: 
+
 """
 import json
 import numpy as np
+from pathlib import Path
 from dataclasses import dataclass
 
 

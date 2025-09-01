@@ -9,5 +9,7 @@ from thread_fast.material_class import Material
 from thread_fast.nut_class import Nut
 from thread_fast.washer_class import Washer
 from thread_fast.threads.metric_thread_class import MetricThread
+from thread_fast.threads.metric_thread_class import ExternalMetricThread
+from thread_fast.threads.metric_thread_class import InternalMetricThread
 from thread_fast.fastener_class import Fastener
 from thread_fast.bolted_joint_class import BoltedJoint

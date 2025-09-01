@@ -59,17 +59,17 @@ metric_coarse_thread_list = [
 ]
 
 
-# TODO: need to encode table 6, pg 1886
+# TODO: need to encode table 6, machinery handbook 29th ed, pg 1886
 
-# TODO: need to encode table 7, pg 1887
+# TODO: need to encode table 7, machinery handbook 29th ed, pg 1887
 
-# TODO: need to encode table 8, pg 1889
+# TODO: need to encode table 8, machinery handbook 29th ed, pg 1889
 
-# TODO: need to encode table 9, pg 1890
+# TODO: need to encode table 9, machinery handbook 29th ed, pg 1890
 
-# TODO: need to encode table 10, pg 1890
+# TODO: need to encode table 10, machinery handbook 29th ed, pg 1890
 
-# TODO: need to encode table 11, pg 1891
+# TODO: need to encode table 11, machinery handbook 29th ed, pg 1891
 
 
 
@@ -156,9 +156,12 @@ class MetricThread(ScrewThread):
         return "\n".join([
             "\nMetricScrewThread:",
             f"name = {self.name}",
-            f"basic_major_diameter = {self.basic_major_diameter} mm",
             f"pitch = {self.pitch} mm/thread",
+            f"beta_rad = {self.beta_rad}",
+            f"beta_deg = {self.beta_rad * cf.rad_to_deg}",
+            f"fundamental_triangle_height = {self.H}",
             f"basic_pitch_diameter = {self.basic_pitch_diameter} mm",
+            f"basic_major_diameter = {self.basic_major_diameter} mm",
             f"basic_minor_diameter = {self.basic_minor_diameter} mm",
             f"thread lead angle = {self.psi} rad",
             "",
@@ -172,6 +175,9 @@ class ExternalMetricThread(MetricThread):
         name (str): Descriptive name.
         basic_major_diameter (float): Basic (nominal) major diameter, mm.
         pitch (float): thread pitch, mm/thread.
+        tolerance_grade (int): Tolerance grade indicator [3,4,5,6,7,8,9].
+        allowance_class (str): Allowance class indicator [e, f, g, h].
+        profile (str): Profile indicator [M, MJ].
         beta_rad (float): Thread half angle in radians.
         beta_deg (float): Thread half angle in degrees.
     """
@@ -199,13 +205,15 @@ class ExternalMetricThread(MetricThread):
             beta_deg=beta_deg,
         )
         
+        # TODO: M vs MJ thread profile:
+        
         # Upper Deviation, External Thread Allowance (Fundamental Deviation)
         self.es = asme_m_thread.eq_es(
             P=self.pitch, 
             allowance_class=allowance_class,
         )
         
-        # basic minor diameter (design profile):
+        # basic minor diameter (design profile) root?:
         self.d3 = iso_724_1993.eq_d_3(
             d=self.d,
             H=self.H,
@@ -329,17 +337,31 @@ class ExternalMetricThread(MetricThread):
             # Inputs:
             "name": self.name,
             "pitch": self.pitch,
+            "minimum_major_diameter": self.d_min,
             "basic_major_diameter": self.d,
+            "maximum_major_diameter": self.d_max,
+            "minimum_pitch_diameter": self.d2_min,
+            "basic_pitch_diameter": self.basic_pitch_diameter,
+            "maximum_pitch_diameter": self.d2_max,
+            "basic_minor_diameter": self.basic_minor_diameter,
             "tolerance_grade": self.tolerance_grade,  # [3,4,5,6,7,8,9]
             "allowance_class": self.allowance_class,  # [e, f, g, h]
             "profile": self.profile,  # [M, MJ]
-            "thread_half_angle_rad": self.beta_rad,
+            "beta_rad": self.beta_rad,  # thread half angle
             # Calculated Values:
             "mean_thread_radius": self.r_m,
             "thread_lead_angle_rad": self.psi,
             "fundamental_triangle_height": self.H,
             "LE_min": self.LE_min,  # min length of engagement
             "LE_max": self.LE_max,  # max length of engagement
+            "allowance_deviation": self.es,
+            "major_diameter_tolerance": self.Td,
+            "pitch_diameter_tolerance": self.Td2,
+            "minimum_root_diameter": self.d3_min,
+            "basic_root_diameter": self.d3,
+            "maximum_root_diameter": self.d3_max,
+            "mean_thread_area": self.A_mean,
+            "tensile_thread_area": self.A_t,
         }
 
     def __str__(self):
@@ -348,9 +370,12 @@ class ExternalMetricThread(MetricThread):
             f"name = {self.name}",
             f"basic_major_diameter = {self.d}",
             f"pitch = {self.pitch}",
-            f"thread_half_angle_rad = {self.beta_rad}",
+            f"beta_rad = {self.beta_rad}",
+            f"beta_deg = {self.beta_rad * cf.rad_to_deg}",
             f"thread_lead_angle_rad = {self.psi}",
             f"fundamental_triangle_height = {self.H}",
+            f"LE_min = {self.LE_min}",  # min length of engagement
+            f"LE_max = {self.LE_max}",  # max length of engagement
             "",
         ])
 
@@ -362,7 +387,11 @@ class InternalMetricThread(MetricThread):
         name (str): Descriptive name.
         basic_major_diameter (float): Basic (nominal) major diameter, mm.
         pitch (float): thread pitch, mm/thread.
-        
+        tolerance_grade (int): Tolerance grade indicator [3,4,5,6,7,8,9].
+        allowance_class (str): Allowance class indicator [G, H].
+        profile (str): Profile indicator [M, MJ].
+        beta_rad (float): Thread half angle in radians.
+        beta_deg (float): Thread half angle in degrees.
     """
     def __init__(
             self, 
@@ -388,6 +417,9 @@ class InternalMetricThread(MetricThread):
             beta_deg=beta_deg,
         )
         
+        # TODO: M vs MJ thread profile:
+        
+        
         # Lower Deviation, Internal Thread Allowance (Fundamental Deviation)
         self.EI = asme_m_thread.eq_EI(
             P=self.pitch, 
@@ -395,6 +427,7 @@ class InternalMetricThread(MetricThread):
         )
         
         # minimum major diameter:
+        # TODO: what is this??? where did this come from?
         self.D_min = self.basic_major_diameter + self.EI
         
         # minor diameter tolerance:
@@ -447,8 +480,6 @@ class InternalMetricThread(MetricThread):
             EI=self.EI,
             T_D2=self.TD2,
         )
-        
-        # TODO: thread shear area
     
     # pull out shear area is a bolted joint level attribute:
     # requires knowledge of both threads     
@@ -479,17 +510,29 @@ class InternalMetricThread(MetricThread):
             "type": 'InternalMetricThread',
             # Inputs:
             "pitch": self.pitch,
+            "minimum_major_diameter": self.D_min,
             "basic_major_diameter": self.D,
+            #"maximum_major_diameter": self.D3_max,
+            "minimum_pitch_diameter": self.D2_min,
+            "basic_pitch_diameter": self.basic_pitch_diameter,
+            "maximum_pitch_diameter": self.D2_max,
+            "basic_minor_diameter": self.basic_minor_diameter,
             "tolerance_grade": self.tolerance_grade,  # [3,4,5,6,7,8,9]
             "allowance_class": self.allowance_class,  # [G, H]
             "profile": self.profile,
-            "thread_half_angle_rad": self.beta_rad,
+            "beta_rad": self.beta_rad,
             # Calculated Values:
             "mean_thread_radius": self.r_m,
             "thread_lead_angle_rad": self.psi,
             "fundamental_triangle_height": self.H,
             "LE_min": self.LE_min,  # min length of engagement
             "LE_max": self.LE_max,  # max length of engagement
+            "allowance_deviation": self.EI,
+            "minor_diameter_tolerance": self.TD1,
+            "pitch_diameter_tolerance": self.TD2,
+            #"minimum_root_diameter": self.D,
+            #"basic_root_diameter": self.D3,
+            "maximum_root_diameter": self.D3_max,
         }
 
     def __str__(self):
@@ -551,6 +594,7 @@ def main() -> None:
         beta_rad=30.0 * cf.deg_to_rad,
     )
     print(M6_1_int2)
+    print(M6_1_int2.to_dict())
 
 
 

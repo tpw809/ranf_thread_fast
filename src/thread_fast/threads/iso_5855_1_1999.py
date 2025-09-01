@@ -215,7 +215,7 @@ def eq_D2_min(
         P: float, 
         EI: float,
     ) -> float:
-    """Calcuate minimum pitch diameter of internal thread, D2_min.
+    """Calculate minimum pitch diameter of internal thread, D2_min.
     
     ISO 5855-1:1999, pg 10
     
@@ -276,6 +276,19 @@ def eq_D3_max(
     D2_max = eq_D2_min(D, P, EI)
     D3_max = D2_max + 0.79386 * P
     return D3_max
+
+
+# What is D3_min ???
+# equal to basic major diameter?
+
+
+def deltaP(TD2: float) -> float:
+    """Pitch error.
+    
+    Args:
+        TD2 (float): 
+    """
+    return 0.4 * TD2 / 1.7321
 
 
 ###############################

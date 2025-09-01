@@ -7,7 +7,9 @@ basic_major_diameter in inches or mm
 pitch in inches/thread or mm/thread
 
 """
+import json
 import numpy as np
+from pathlib import Path
 import thread_fast.conversion_factors as cf
 
 
@@ -92,10 +94,19 @@ class ScrewThread:
             # Inputs:
             "name": self.name,
             "pitch": self.pitch,
-            "basic_major_diameter": self.d,
+            "basic_major_diameter": self.basic_major_diameter,
             "beta_rad": self.beta_rad,  # default uses beta_rad
             "fundamental_triangle_height": self.H,
         }
+
+    def to_json(self):
+        """Returns json object from dictionary."""
+        return json.dumps(self.to_dict())
+
+    def write_to_json(self, filename: str or Path):
+        """Save json data to a file."""
+        with open(filename, "w") as f:
+            f.write(self.to_json())
 
     def __str__(self):
         return "\n".join([

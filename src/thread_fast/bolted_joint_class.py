@@ -295,6 +295,8 @@ class BoltedJoint:
                     d=self.distance_between_load_planes, 
                     t=self.L_total_clamped_parts,
                 )
+                
+                # TODO: configuration ???:
         
             if insert is not None:
                 # configuration 3:
@@ -836,6 +838,31 @@ class BoltedJoint:
 
     # TODO: constructor with all basic parameters:
     
+    @classmethod
+    def from_dict(cls, input_dict):
+        """Create object from input dictionary."""
+        assert input_dict['type'] == 'BoltedJoint'
+        
+        if 'fastener' in input_dict:
+            fastener = input_dict['fastener']
+        else:
+            raise Exception("fastener required for bolted joint")
+        
+        obj = BoltedJoint(
+            name=input_dict['name'],
+            fastener=fastener,
+        )
+        
+        # overwrite precalculated values:
+        
+        
+        # TODO: need to turn crank again with overwritten values...
+        
+        
+        return obj
+        
+        
+    
     # TODO: 
     def to_dict(self):
         return {
@@ -912,6 +939,14 @@ class BoltedJoint:
             f"T_amb = {self.T_amb_C}",
             f"T_min = {self.T_min_C}",
             f"T_max = {self.T_max_C}",
+            "Margins:",
+            "Joint Separation:",
+            f"MS_sep_5020b = {self.MS_sep_5020b}",
+            f"MS_sep_nsts08307a = {self.MS_sep_nsts08307a}",
+            f"MS_sep_106943 = {self.MS_sep_106943}",
+            f"MS_su_5020b = {self.MS_su_5020b}",
+            "Thread Shear:",
+            f"MS_thread_shear_106943 = {self.MS_thread_shear_106943}",
             "",
         ])
 

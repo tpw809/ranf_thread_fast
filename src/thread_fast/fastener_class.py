@@ -2,7 +2,6 @@
 
 Timothy P Woodard, June 21, 2025
 
-
 Fastener consists of:
 
 - head
@@ -29,13 +28,14 @@ import thread_fast.nsts_08307a as nsts_08307a
 import thread_fast.nasa_tm_106943 as nasa_tm_106943
 from thread_fast.material_class import Material
 from thread_fast.threads.metric_thread_class import ExternalMetricThread
+#TODO: unified external thread
 import thread_fast.conversion_factors as cf
 
 
 class Fastener:
     """Fastener class.
     
-    Contains material, threads, head and shank information.
+    Contains material, threads, head, and shank information.
     
     Args:
         name (str): Descriptive name of the fastener.
@@ -61,6 +61,7 @@ class Fastener:
         assert L_thread > 0.0, "thread length must be > 0"
         assert Do_shank > 0.0, "shank diameter must be > 0"
         assert Do_head > Do_shank, "head diameter must be > shank diameter"
+        assert Do_head > thread.basic_major_diameter, "head diameter must be > thread.basic_major_diameter"
         
         self.name = name
         
@@ -123,11 +124,20 @@ class Fastener:
     
     @property
     def P_su_allow(self) -> tuple[float, float]:
-        """Allowable ultimate shear load"""
+        """Allowable ultimate shear load.
+        
+        P_su_allow_1: thread NOT in shear plane.
+        
+        P_su_allow_2: thread in shear plane.
+        """
         # allowable ultimate shear strength for the fastener material:
         F_su = self.material.Ssu_mpa
+        
+        # NASA-STD-5020B eq 12:
         # threads NOT in shear plane:
         P_su_allow_1 = np.pi * self.thread.d**2 * F_su / 4.0
+        
+        # NASA-STD-5020B eq 13:
         # threads in shear plane:
         P_su_allow_2 = F_su * self.A_t
         return P_su_allow_1, P_su_allow_2
@@ -136,6 +146,11 @@ class Fastener:
         """thread shear (pull out) load allowable, external thread
         
         NSTS 08307A, pg A-4
+        
+        Args:
+            A_se (float): shear area of external thread
+        Returns:
+            float: external thread shear (pull out) load allowable
         """
         PA_s = nsts_08307a.external_thread_shear_load_allowable(
             A_se=A_se,
@@ -195,11 +210,33 @@ class Fastener:
     def from_dict(cls, input_dict):
         """Create Fastener object from input dictionary."""
         # TODO: complete...
-        pass
+        assert input_dict['type'] == 'Fastener'
+        
+        mat = Material.from_dict(input_dict['material'])
+        
+        thread = Thread.from_dict(input_dict['thread'])
+        
+        obj = Fastener(
+            name=input_dict['name'],
+            material=mat,
+            thread=thread,
+            Do_head=input_dict['Do_head'],
+            Do_shank=input_dict['Do_shank'],
+            L_shank=input_dict['L_shank'],
+            L_thread=input_dict['L_thread'],
+        )
+        
+        # overwrite precalculated values:
+        
+        # TODO: need to turn crank again with overwritten values...
+        
+        
+        return obj
 
     def to_dict(self) -> dict:
         return {
             "type": 'Fastener',
+            # inputs:
             "name": self.name,
             "material": self.material.to_dict(),
             "thread": self.thread.to_dict(),
@@ -233,8 +270,8 @@ class Fastener:
             f"L_thread = {self.L_thread}",
             f"L_overall = {self.length}",
             f"stiffness = {self.stiffness()}",
-            f"P_ty_allow = {self.P_ty_allow}",
-            f"P_tu_allow = {self.P_tu_allow}",
+            f"P_ty_allow = {self.P_ty_allow} [N or lb]",
+            f"P_tu_allow = {self.P_tu_allow} [N or lb]",
             f"P_su_allow_1 = {self.P_su_allow_1}",
             f"P_su_allow_2 = {self.P_su_allow_2}",
             f"\n{self.material}",
