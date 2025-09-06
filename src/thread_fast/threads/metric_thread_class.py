@@ -7,13 +7,26 @@ machinery handbook 29th ed, pg 1878
 Standards:
 
 - ANSI/ASME B1.13M-2005 Metric Screw Threads: M Profile
+- ANSI/ASME B1.21M-1997 (R2003) Metric Screw Threads: MJ Profile
 - ANSI B1.18M-1982 (R1987) Metric Screw Threads for Commercial Mechanical Fasteners - Boundary Profile Defined
 - ISO 68-1:1998, ISO general purpose screw threads — Basic profile — Part 1: Metric screw threads
 - ISO 261 general purpose metric screw threads — General plan
 - ISO 724:1993, ISO general purpose metric screw threads — Basic dimensions
 - ISO 965-1:1998, ISO general purpose metric screw threads — Tolerances — Part 1: Principles and basic data
-- ANSI/ASME B1.21M-1997 (R2003) Metric Screw Threads: MJ Profile
 - ISO 5408:1983, Cylindrical screw threads — Vocabulary
+- ISO 5855-1:1999 Aerospace MJ threads Part 1: General Requirements
+
+M vs MJ:
+
+M:
+
+- ANSI/AMSE B1.13M-2005
+
+MJ:
+
+- ANSI/ASME B1.21M-1997
+
+
 
 Symbols:
 
@@ -50,14 +63,29 @@ from thread_fast.threads.thread_class import ScrewThread
 
 # coarse pitch metric thread M profile series:
 # [diameter, pitch], 
-# machinery handbook 29th ed, pg 1880
+# machinery handbook 29th ed, Table 2, pg 1880
 metric_coarse_thread_list = [
     [1.6, 0.35],
     [2.0, 0.4],
     [2.5, 0.45],
+    [3.0, 0.5],
+    [3.5, 0.6],
+    [4.0, 0.7],
+    [5.0, 0.8],
+    [6.0, 1.0],
+    [8.0, 1.25],
     #TODO: finish...
 ]
 
+
+# Table 4: American National Standard Minimum Rounded Root Radius— M Profile Series ANSI/ASME B1.13M-2005
+# machinery handbook 29th ed, Table 4, pg 1882
+# TODO: 
+
+
+# Table 5: American National Standard Fine Pitch Metric Thread—M Profile Series ANSI/ASME B1.13M-2005
+# machinery handbook 29th ed, Table 5, pg 1882
+# TODO: 
 
 # TODO: need to encode table 6, machinery handbook 29th ed, pg 1886
 
