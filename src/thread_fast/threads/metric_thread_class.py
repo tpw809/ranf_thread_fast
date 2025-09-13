@@ -191,7 +191,7 @@ class MetricThread(ScrewThread):
             f"basic_pitch_diameter = {self.basic_pitch_diameter} mm",
             f"basic_major_diameter = {self.basic_major_diameter} mm",
             f"basic_minor_diameter = {self.basic_minor_diameter} mm",
-            f"thread lead angle = {self.psi} rad",
+            f"thread_lead_angle = {self.psi} rad",
             "",
         ])
 
@@ -235,33 +235,33 @@ class ExternalMetricThread(MetricThread):
         
         # TODO: M vs MJ thread profile:
         
-        # Upper Deviation, External Thread Allowance (Fundamental Deviation)
+        # es = Upper Deviation, External Thread Allowance (Fundamental Deviation)
         self.es = asme_m_thread.eq_es(
             P=self.pitch, 
             allowance_class=allowance_class,
         )
         
-        # basic minor diameter (design profile) root?:
+        # d3 = basic minor diameter (design profile) root?:
         self.d3 = iso_724_1993.eq_d_3(
             d=self.d,
             H=self.H,
             P=self.pitch,
         )
         
-        # major diameter tolerance:
+        # Td = major diameter tolerance:
         self.Td = asme_m_thread.eq_Td(
             P=self.pitch,
             tolerance_grade=self.tolerance_grade,
         )
         
-        # pitch diameter tolerance:
+        # Td2 = pitch diameter tolerance:
         self.Td2 = asme_m_thread.eq_Td2(
             P=self.pitch,
             d=self.d,
             tolerance_grade=self.tolerance_grade,
         )
         
-        # maximum major diameter:
+        # d_min = maximum major diameter:
         self.d_max = iso_5855_1_1999.eq_d_max(
             d=self.d,
             es=self.es,
@@ -273,26 +273,26 @@ class ExternalMetricThread(MetricThread):
             T_d=self.Td,
         )
         
-        # maximum pitch diameter:
+        # d2_max = maximum pitch diameter:
         self.d2_max = iso_5855_1_1999.eq_d2_max(
             d_max=self.d_max,
             P=self.pitch,
         )
         
-        # minimum pitch diameter:
+        # d2_min = minimum pitch diameter:
         self.d2_min = iso_5855_1_1999.eq_d2_min(
             d2_max=self.d2_max,
             T_d2=self.Td2,
         )
         
-        # maximum root diameter:
+        # d3_max = maximum root diameter:
         self.d3_max = iso_5855_1_1999.eq_d3_max(
             d2_max=self.d2_max,
             P=self.pitch,
             d3=self.d3,
         )
         
-        # minimum root diameter:
+        # d3_min = minimum root diameter:
         self.d3_min = iso_5855_1_1999.eq_d3_min(
             d2_min=self.d2_min,
             P=self.pitch,

@@ -19,5 +19,9 @@ setup(
         'numpy', 
         'scipy',
         'matplotlib',
+        'flask',
     ]
 )
+
+# pip freeze > requirements.txt
+# pip install -r requirements.txt

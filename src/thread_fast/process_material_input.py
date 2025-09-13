@@ -12,8 +12,10 @@ Parameters:
 - name: material descriptor
 - E: modulus of elasticity
 - nu: Poisson's ratio
-- rho: density
+- rho: density (not really needed)
 - cte: coefficient of thermal expansion
+- tc: thermal conductance (not really needed)
+- hc: heat capacity (not really needed)
 - Sty: tensile yield strength (stress)
 - Stu: tensile ultimate strength (stress)
 - Ssy: shear yield strength (stress)

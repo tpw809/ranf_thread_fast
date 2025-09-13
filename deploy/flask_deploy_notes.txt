@@ -1,0 +1,77 @@
+WSGI Server:
+pip install gunicorn
+# or
+pip install uwsgi
+
+gunicorn:
+
+
+NGINX is basically linux only...
+sudo apt install nginx # On Ubuntu/Debian
+# or
+sudo yum install nginx # On CentOS/RHEL
+
+
+
+pip freeze > requirements.txt
+pip install -r requirements.txt
+
+ensure flask app is production ready and not in debug mode
+
+push code to github
+
+
+Free Hosting Platforms:
+Render
+Railway
+Koyeb
+PythonAnywhere
+
+
+provide command to run the flask app:
+gunicorn app:app where app.y is the main python file
+
+configure to listen on $PORT
+
+
+Alternate: Use Docker
+
+
+
+Nginx is an open-source web server that functions as a reverse proxy, load balancer, HTTP cache, and mail proxy, known for its high performance and ability to handle many concurrent connections.
+
+Here are Nginx's main uses:
+Web Server:
+.Nginx serves static web content efficiently. 
+Reverse Proxy:
+.It acts as an intermediary between clients and backend servers, directing client requests to the appropriate server and managing responses. 
+Load Balancer:
+.Nginx distributes incoming network traffic across multiple backend servers, preventing any single server from becoming a bottleneck and improving overall application performance. 
+SSL/TLS Termination:
+.It can handle the encryption and decryption of data for secure HTTPS connections, offloading this resource-intensive task from backend servers. 
+API Gateway:
+.Nginx can manage API traffic, acting as a central point for routing requests to different services. 
+Caching:
+.It can cache static and dynamic content to reduce server load and speed up response times for clients. 
+Web Application Firewall (WAF):
+.Nginx can also function as a WAF to protect web applications and APIs from attacks. 
+Nginx is particularly suited for high-traffic websites due to its ability to handle a large number of concurrent connections with its event-driven architecture. 
+
+Need an nginx configuration file...
+
+
+server {
+    listen 80;
+    server_name your_domain_or_ip; # Replace with your domain or local IP
+
+    location / {
+        include proxy_params;
+        proxy_pass http://127.0.0.1:8000; # Address and port of your WSGI server
+    }
+}
+
+
+sudo nginx -t
+sudo systemctl restart nginx
+
+
