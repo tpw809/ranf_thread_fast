@@ -82,8 +82,8 @@ class BoltedJoint:
             ambient_temperature: float=20.0,
             max_temperature: float=20.0,
             min_temperature: float=20.0,
-            limit_tensile_load: float=0.0,
-            limit_shear_load: float=0.0,
+            limit_tensile_load: float=0.0,  # externally applied
+            limit_shear_load: float=0.0,  # externally applied
             loaded_part_index: list[int]=[1,2],
             nut_torqued: bool=False, # is nut or head torqued?
             override_nut_factor: list=None, # [K_min, K_nom, K_max]

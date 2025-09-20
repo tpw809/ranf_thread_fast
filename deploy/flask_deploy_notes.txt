@@ -1,4 +1,4 @@
-WSGI Server:
+WSGI Server: Web Server Gateway Interface (WSGI)
 pip install gunicorn
 # or
 pip install uwsgi
@@ -74,4 +74,9 @@ server {
 sudo nginx -t
 sudo systemctl restart nginx
 
+
+
+
+https://www.youtube.com/watch?v=KWIIPKbdxD0
+github.com/tonyflo/flask-app-demo
 

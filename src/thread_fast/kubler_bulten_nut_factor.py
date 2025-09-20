@@ -1,7 +1,10 @@
 """Nut Factor based on Kubler/Bulten
 
-From: Fastening Technology & Bolted Joint Seminar
+From: 
+Fastening Technology & Bolted Joint Seminar
+
 Bengt Blendulf
+
 pg 118
 """
 import numpy as np
@@ -18,12 +21,12 @@ def kubler_bulten_nut_factor(
     """Estimated nut factor.
     
     Args:
-        P: thread pitch, mm
-        d_2: pitch diameter, mm
-        mu_t: friction coefficient between threads
-        mu_b: friction coefficient between bolt head or nut and abutment bearing surface
-        d_w: effective diameter, bearing area, mm
-        d: nominal thread diameter, mm
+        P (float): thread pitch, mm
+        d_2 (float): pitch diameter, mm
+        mu_t (float): friction coefficient between threads
+        mu_b (float): friction coefficient between bolt head or nut and abutment bearing surface
+        d_w (float): effective diameter, bearing area, mm
+        d (float): nominal thread diameter, mm
     Returns:
         float: estimated nut factor
     """
@@ -40,13 +43,25 @@ def main() -> None:
     
     # M5 bolt example:
     
+    # coefficient of frictin between threads:
     mu_t = 0.15
+    
+    # coefficient of friction under bolt head:
     mu_b = 0.15
+    
+    # nominal bolt diameter:
     d = 5.0
+    
+    # thread pitch:
     pitch = 0.8
+    
+    # thread pitch diameter:
     d_2 = 4.48
+    
+    # bolt head effective bearing diameter:
     d_w = (8.75 + 5.0) / 2.0
     
+    # estimated / predicted nut factor:
     K = kubler_bulten_nut_factor(
         P=pitch, 
         d_2=d_2,

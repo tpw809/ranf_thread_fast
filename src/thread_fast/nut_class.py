@@ -47,9 +47,14 @@ class Nut:
         self.material = material
     
     def PA_s_08307a(self, A_si: float) -> float:
-        """thread shear (pull out) load allowable, internal thread
+        """Thread shear (pull out) load allowable, internal thread, PA_s.
         
         NSTS 08307A, pg A-4
+        
+        Args:
+            A_si (float): 
+        Returns:
+            float: thread shear pull-out load allowable (internal thread)
         """
         PA_s = nsts_08307a.internal_thread_shear_load_allowable(
             A_si=A_si,

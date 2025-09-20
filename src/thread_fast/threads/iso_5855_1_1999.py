@@ -259,7 +259,7 @@ def eq_D3_max(
         D: float, 
         P: float, 
         EI: float,
-        T_D2: float,
+        # T_D2: float,
     ) -> float:
     """Calculate maximum diameter to root of internal thread, D3_max.
     
@@ -286,7 +286,7 @@ def deltaP(TD2: float) -> float:
     """Pitch error.
     
     Args:
-        TD2 (float): 
+        TD2 (float): tolerance on pitch diameter.
     """
     return 0.4 * TD2 / 1.7321
 
