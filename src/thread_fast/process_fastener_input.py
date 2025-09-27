@@ -125,8 +125,21 @@ def process_fastener_input(input_dict: dict):
     # Ro_shank = Do_shank / 2.0
     
     # length = L_shank + L_thread
+    input_dict['length'] = L_shank + L_thread
     
     
+    # Axial Stiffness:
+    # k = (A * E) / L
+    # NASA-TM-106943 eq 32, pg 12
+    A_thread_mean = thread['A_mean']
+    A_shank = A_bolt
+    k_shank = A_shank * material['E'] / L_shank
+    k_thread = A_thread_mean * material['E'] / L_thread
+    
+    # combined stiffness in series:
+    k_total = 1.0 / (1.0 / k_shank + 1.0 / k_thread)
+    print(f"k_b_total = {k_total} [N/mm]")
+    input_dict['stiffness'] = k_total
     
     
     return input_dict

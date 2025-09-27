@@ -65,6 +65,8 @@ class Washer:
             f"D_hole = {self.D_hole}",
             f"D_outer = {self.D_outer}",
             f"thickness = {self.thickness}",
+            f"area = {self.area}",
+            f"stiffness = {self.stiffness}",
             f"\n{self.material}",
             "",
         ])
