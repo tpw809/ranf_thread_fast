@@ -102,6 +102,8 @@ class BoltedJoint:
         
         self.insert = insert
         
+        # threaded_hole
+        
         self.override_nut_factor = override_nut_factor
         
         self.override_applied_torque = override_applied_torque
@@ -149,7 +151,7 @@ class BoltedJoint:
         assert limit_tensile_load >= 0.0, "externally applied limit tensile load must be >= 0.0"
         assert limit_shear_load >= 0.0, "externally applied limit shear load must be >= 0.0"
         
-        
+        # Loaded Parts Index:
         assert len(loaded_part_index) >= 2, "there must be at least 2 loaded parts (equal and opposite reaction)"
         self.loaded_part_index = loaded_part_index
         
@@ -158,6 +160,7 @@ class BoltedJoint:
         #################################
         #TODO: should these be argments to functions?
         self.preload_stress_ratio = preload_stress_ratio
+        assert 0.0 <= preload_stress_ratio <= 1.0
         
         assert relaxation_ratio >= 0.0, "relaxation ratio must be >= 0.0"
         self.relaxation_ratio = relaxation_ratio

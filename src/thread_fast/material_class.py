@@ -291,6 +291,16 @@ def main() -> None:
     print(ti6al4v)
     print(ti6al4v.Scy_mpa)
     
+    ti6al4v_material_dict = {
+        'type': 'Material',
+        'name': 'ti6al4v',
+        'E': 114.0e3,  # modulus of elasticity
+        'nu': 0.342,  # Poisson's ratio
+        'cte': 8.6e-6,  # coefficient of thermal expansion
+        'Sty': 880.0,  # tensile yield strength
+        'Stu': 950.0,  # tensile ultimate strength
+    }
+    
     # test to_dict:
     output_dict = a286.to_dict()
     print(output_dict)

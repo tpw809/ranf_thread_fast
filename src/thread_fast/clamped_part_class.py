@@ -53,6 +53,7 @@ class ClampedPart:
         
         k = (A * E) / L
         """
+        # TODO: fix stiffness (frustum volume)
         return (self.area() * self.material.E_mpa) / self.thickness
 
     def __str__(self):

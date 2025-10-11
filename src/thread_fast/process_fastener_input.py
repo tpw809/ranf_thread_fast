@@ -9,8 +9,23 @@ Also try going unitless...
 
 Parameters:
 
+- type: Fastener
 - name: descriptor
+- material: material data
+- thread: external thread data
+- Do_head: head outer diameter
+- Do_shank: outer diameter of unthreaded portion
+- L_shank: length of unthreaded portion
+- L_thread: length of threaded portion
 
+Calculated:
+
+- A_t: thread area
+- A_bolt: bolt shank area
+- length: total length (thread and shank)
+- stiffness
+- P_ty_allow
+- P_tu_allow
 
 """
 import numpy as np
@@ -79,24 +94,28 @@ def process_fastener_input(input_dict: dict):
     assert Do_head > Do_shank, "head diameter must be > shank diameter"
     assert Do_head > thread['basic_major_diameter'], "head diameter must be > thread.basic_major_diameter"
     
-    
-    
     # [mm^2], minimum minor diameter area for the fastener threads:
     # NSTS 08307A, bolt_tensile_stress_area
-    A_t = nsts_08307a.bolt_tensile_stress_area(
-        D_e_bsc=thread['basic_major_diameter'], 
-        n_0=None,  # tpi
-        pitch=thread['pitch'],
-    )
-    input_dict['A_t'] = A_t
-    
+    if input_dict.get('A_t') is None:
+        print("calculating A_t...")
+        A_t = nsts_08307a.bolt_tensile_stress_area(
+            D_e_bsc=thread['basic_major_diameter'], 
+            n_0=None,  # tpi
+            pitch=thread['pitch'],
+        )
+        input_dict['A_t'] = A_t
     
     # [N], allowable ultimate tensile load:
     # NSTS 08307A page A-4, ultimate tensile load:
-    P_tu_allow = A_t * material['Stu']
-    P_ty_allow = A_t * material['Sty']
-    input_dict['P_tu_allow'] = P_tu_allow
-    input_dict['P_ty_allow'] = P_ty_allow
+    if input_dict.get('P_tu_allow') is None:
+        print("calculating P_tu_allow...")
+        P_tu_allow = input_dict['A_t'] * material['Stu']
+        input_dict['P_tu_allow'] = P_tu_allow
+    
+    if input_dict.get('P_ty_allow') is None:
+        print("calculating P_ty_allow...")
+        P_ty_allow = input_dict['A_t'] * material['Sty']
+        input_dict['P_ty_allow'] = P_ty_allow
     
     # [N], allowable ultimate shear load:
     # NASA-STD-5020B eq 12 & 13
@@ -104,42 +123,50 @@ def process_fastener_input(input_dict: dict):
     # NASA-STD-5020B eq 12:
     # F_su = allowable ultimate shear strength for the fastener material
     F_su = material['Ssu']
+    
     # For shank (not threads):
-    A_bolt = np.pi  * thread['basic_major_diameter']**2 / 4.0
+    if input_dict.get('A_bolt') is None:
+        A_bolt = np.pi  * thread['basic_major_diameter']**2 / 4.0
+        input_dict['A_bolt'] = A_bolt
     
     # P_su_allow: allowable ultimate shear load
     # depends on if threads are in the shear plane...
     
     # NASA-STD-5020B eq 12:
     # threads NOT in shear plane:
-    P_su_allow_1 = A_bolt * F_su
-    input_dict['P_su_allow_1'] = P_su_allow_1
+    if input_dict.get('P_su_allow_1') is None:
+        P_su_allow_1 = input_dict['A_bolt'] * F_su
+        input_dict['P_su_allow_1'] = P_su_allow_1
 
     
     # NASA-STD-5020B eq 13:
     # threads in shear plane:
-    P_su_allow_2 = F_su * A_t
-    input_dict['P_su_allow_2'] = P_su_allow_2
+    if input_dict.get('P_su_allow_2') is None:
+        P_su_allow_2 = F_su * A_t
+        input_dict['P_su_allow_2'] = P_su_allow_2
     
     
     # Ro_shank = Do_shank / 2.0
     
+    # total tensile length:
     # length = L_shank + L_thread
-    input_dict['length'] = L_shank + L_thread
+    if input_dict.get('length') is None:
+        input_dict['length'] = L_shank + L_thread
     
     
     # Axial Stiffness:
     # k = (A * E) / L
     # NASA-TM-106943 eq 32, pg 12
-    A_thread_mean = thread['A_mean']
-    A_shank = A_bolt
-    k_shank = A_shank * material['E'] / L_shank
-    k_thread = A_thread_mean * material['E'] / L_thread
-    
-    # combined stiffness in series:
-    k_total = 1.0 / (1.0 / k_shank + 1.0 / k_thread)
-    print(f"k_b_total = {k_total} [N/mm]")
-    input_dict['stiffness'] = k_total
+    if input_dict.get('stiffness') is None:
+        A_thread_mean = thread['A_mean']
+        A_shank = A_bolt
+        k_shank = A_shank * material['E'] / L_shank
+        k_thread = A_thread_mean * material['E'] / L_thread
+        
+        # combined stiffness in series:
+        k_total = 1.0 / (1.0 / k_shank + 1.0 / k_thread)
+        print(f"k_b_total = {k_total} [N/mm]")
+        input_dict['stiffness'] = k_total
     
     
     return input_dict
@@ -158,7 +185,7 @@ def main() -> None:
     }
     
     material_dict = process_material_input(material_dict)
-    print(material_dict)
+    print(f"material_dict = \n{material_dict}")
     
     thread_dict = {
         'type': 'Metric_Thread',
@@ -174,8 +201,9 @@ def main() -> None:
     }
     
     thread_dict = process_metric_thread_input(thread_dict)
-    print(thread_dict)
+    print(f"thread_dict = \n{thread_dict}")
     
+    # minimal fastener input dictionary:
     input_dict = {
         'type': 'Fastener',
         'name': 'fastener_test_input_dict',
@@ -187,10 +215,13 @@ def main() -> None:
         'L_thread': 10.0,
     }
     
+    # test fastener processor:
     output_dict = process_fastener_input(input_dict)
     print(output_dict)
     
-    
+    # test accessing data:
+    thread_pitch = output_dict['thread']['pitch']
+    print(f"thread pitch = {thread_pitch}")
 
 
 if __name__ == "__main__":
