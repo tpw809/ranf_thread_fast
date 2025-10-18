@@ -69,22 +69,24 @@ def process_clamped_part_input(input_dict: dict):
     # only process if it does not already exist...
     
     # TODO: limit area to under head or nut...
-    if 'area' in input_dict:
-        assert input_dict['area'] > 0.0
-    else:
+    if input_dict.get('area') is None:
+        print("calculating area for clamped part...")
         ro = D_outer / 2.0
         ri = D_hole / 2.0
         area = np.pi * (ro**2 - ri**2)
         input_dict['area'] = area
+    else:
+        assert input_dict['area'] > 0.0
     
     # TODO: update stiffness estimate... frustum volume
     
     # estimated stiffness: k = (A * E) / L
-    if 'stiffness' in input_dict:
-        assert input_dict['stiffness'] > 0.0
-    else:
+    if input_dict.get('stiffness') is None:
+        print("calculating stiffness for clamped part...")
         stiffness = input_dict['area'] * input_dict['material']['E'] / thickness
         input_dict['stiffness'] = stiffness
+    else:
+        assert input_dict['stiffness'] > 0.0
     
     # TODO: add 'processed' tag ???
     

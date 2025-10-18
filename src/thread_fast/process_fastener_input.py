@@ -63,7 +63,7 @@ def process_fastener_input(input_dict: dict):
     
     assert input_dict['type'] == 'Fastener'
     
-    assert 'name' in input_dict
+    assert input_dict.get('name') is not None
     
     assert 'material' in input_dict
     
@@ -79,9 +79,11 @@ def process_fastener_input(input_dict: dict):
     
     material = input_dict['material']
     material = process_material_input(material)
+    input_dict['material'] = material
     
     thread = input_dict['thread']
     thread = process_metric_thread_input(thread)
+    input_dict['thread'] = thread
     
     Do_head = input_dict['Do_head']
     Do_shank = input_dict['Do_shank']
@@ -137,14 +139,18 @@ def process_fastener_input(input_dict: dict):
     if input_dict.get('P_su_allow_1') is None:
         P_su_allow_1 = input_dict['A_bolt'] * F_su
         input_dict['P_su_allow_1'] = P_su_allow_1
-
+    else:
+        pass
+        # TODO: validity check...
     
     # NASA-STD-5020B eq 13:
     # threads in shear plane:
     if input_dict.get('P_su_allow_2') is None:
         P_su_allow_2 = F_su * A_t
         input_dict['P_su_allow_2'] = P_su_allow_2
-    
+    else:
+        pass
+        # TODO: validity check...
     
     # Ro_shank = Do_shank / 2.0
     

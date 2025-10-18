@@ -17,8 +17,9 @@ Parameters:
 - D_outer: outer diameter
 
 Processed Outputs:
-- area:
-- stiffness:
+
+- area: area used for stiffness calculation
+- stiffness: axial stiffness of the washer
 
 """
 import numpy as np
@@ -31,12 +32,18 @@ def process_washer_input(input_dict: dict):
     """Read and modify the input dict to ensure completeness and validity.
     
     Must supply:
+    
     - type: 'Washer'
     - name: description
     - material: material data dictionary
     - thickness: thickness of the washer
     - D_hole: hole (inner) diameter
     - D_outer: outer diameter (bearing area)
+    
+    Optional / Calculated:
+    
+    - area: area used for stiffness calculation
+    - stiffness: axial stiffness of the washer
     """
     # check required inputs:
     
@@ -66,23 +73,23 @@ def process_washer_input(input_dict: dict):
     
     assert thickness > 0.0, "washer thickness must be > 0"
     
-    # only process if it does not already exist...
-    
     # TODO: limit area to under head or nut...
-    if 'area' in input_dict:
-        assert input_dict['area'] > 0.0
-    else:
+    if input_dict.get('area') is None:
+        print("calculating area for washer...")
         ro = D_outer / 2.0
         ri = D_hole / 2.0
         area = np.pi * (ro**2 - ri**2)
         input_dict['area'] = area
+    else:
+        assert input_dict['area'] > 0.0
     
     # stiffness: k = (A * E) / L
-    if 'stiffness' in input_dict:
-        assert input_dict['stiffness'] > 0.0
-    else:
+    if input_dict.get('stiffness') is None:
+        print("calculating stiffness for washer...")
         stiffness = input_dict['area'] * input_dict['material']['E'] / thickness
         input_dict['stiffness'] = stiffness
+    else:
+        assert input_dict['stiffness'] > 0.0
     
     # TODO: add 'processed' tag ???
     

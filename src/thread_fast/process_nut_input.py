@@ -45,7 +45,7 @@ def process_nut_input(input_dict: dict):
     
     assert input_dict['type'] == 'Nut'
     
-    assert 'name' in input_dict
+    assert input_dict.get('name') is not None
     
     assert 'material' in input_dict
     
@@ -54,6 +54,10 @@ def process_nut_input(input_dict: dict):
     assert 'Do' in input_dict
     
     assert 'length' in input_dict
+    
+    # process subclasses:
+    input_dict['material'] = process_material_input(input_dict['material'])
+    input_dict['thread'] = process_metric_thread_input(input_dict['thread'])
     
     Do = input_dict['Do']
     
