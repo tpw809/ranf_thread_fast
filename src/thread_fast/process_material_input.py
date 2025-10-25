@@ -90,9 +90,9 @@ def process_material_input(input_dict: dict):
     - Scy: contact (bearing) yield strength
     - Scu: contact (bearing) ulimate strength
     """
-    assert input_dict['type'] == 'Material'
+    assert input_dict['type'] == 'Material', "material type must be Material"
     
-    assert 'name' in input_dict
+    assert input_dict.get('name') is not None
     
     assert input_dict['E'] > 0.0
     
@@ -105,28 +105,28 @@ def process_material_input(input_dict: dict):
     assert input_dict['Stu'] > 0.0
     
     # check / fill contact yield strength:
-    if 'Scy' in input_dict:
-        assert input_dict['Scy'] >= 0.0
-    else:
+    if input_dict.get('Scy') is None:
         input_dict['Scy'] = calc_Scy(input_dict['Sty'])
+    else:
+        assert input_dict['Scy'] >= 0.0
     
     # check / fill contact ultimate strength:
-    if 'Scu' in input_dict:
-        assert input_dict['Scu'] >= 0.0
-    else:
+    if input_dict.get('Scu') is None:
         input_dict['Scu'] = calc_Scu(input_dict['Stu'])
+    else:
+        assert input_dict['Scu'] >= 0.0
     
     # check / fill shear yield strength:
-    if 'Ssy' in input_dict:
-        assert input_dict['Ssy'] >= 0.0
-    else:
+    if input_dict.get('Ssy') is None:
         input_dict['Ssy'] = input_dict['Sty'] / np.sqrt(3.0)
+    else:
+        assert input_dict['Ssy'] >= 0.0
     
     # check / fill shear ultimate strength:
-    if 'Ssu' in input_dict:
-        assert input_dict['Ssu'] >= 0.0
-    else:
+    if input_dict.get('Ssu') is None:
         input_dict['Ssu'] = input_dict['Stu'] / np.sqrt(3.0)
+    else:
+        assert input_dict['Ssu'] >= 0.0
     
     return input_dict
 
@@ -149,9 +149,10 @@ def main() -> None:
         'Scy': 900.0,  # contact (bearing) yield strength
         'Scu': 1200.0,  # contact (bearing) ultimate strength
     }
+    print(f"\ninput_dict = \n{input_dict}\n")
     
     output_dict = process_material_input(input_dict)
-    print(output_dict)
+    print(f"\noutput_dict = \n{output_dict}\n")
     
     input_dict = {
         'type': 'Material',
@@ -169,9 +170,31 @@ def main() -> None:
         # 'Scy': 900.0,  # contact (bearing) yield strength
         # 'Scu': 1200.0,  # contact (bearing) ultimate strength
     }
+    print(f"\ninput_dict = \n{input_dict}\n")
     
     output_dict = process_material_input(input_dict)
-    print(output_dict)
+    print(f"\noutput_dict = \n{output_dict}\n")
+    
+    input_dict = {
+        'type': 'Material',
+        'name': 'test_input_dict',
+        'E': 200000.0,  # modulus of elasticity
+        'nu': 0.3,  # Poisson's ratio
+        # 'rho': 8.0,  # density
+        'cte': 2.0e-6,  # coefficient of thermal expansion
+        #'tc': 12.0,  # thermal conductance
+        #'hc': 0.5,  # heat capacity
+        'Sty': 600.0,  # tensile yield strength
+        'Stu': 800.0,  # tensile ultimate strength
+        'Ssy': None,  # shear yield strength
+        'Ssu': None,  # shear ultimate strength
+        'Scy': None,  # contact (bearing) yield strength
+        'Scu': None,  # contact (bearing) ultimate strength
+    }
+    print(f"\ninput_dict = \n{input_dict}\n")
+    
+    output_dict = process_material_input(input_dict)
+    print(f"\noutput_dict = \n{output_dict}\n")
     
     
 if __name__ == "__main__":

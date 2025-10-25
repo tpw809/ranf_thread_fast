@@ -13,3 +13,10 @@ from thread_fast.threads.metric_thread_class import ExternalMetricThread
 from thread_fast.threads.metric_thread_class import InternalMetricThread
 from thread_fast.fastener_class import Fastener
 from thread_fast.bolted_joint_class import BoltedJoint
+
+# process functions:
+from thread_fast.process_material_input import process_material_input
+from thread_fast.threads.process_metric_thread import process_metric_thread_input
+from thread_fast.process_nut_input import process_nut_input
+from thread_fast.process_fastener_input import process_fastener_input
+from thread_fast.process_bolted_joint_input import process_bolted_joint_input

@@ -47,9 +47,9 @@ def process_nut_input(input_dict: dict):
     
     assert input_dict.get('name') is not None
     
-    assert 'material' in input_dict
+    assert input_dict.get('material') is not None
     
-    assert 'thread' in input_dict
+    assert input_dict.get('thread') is not None
     
     assert 'Do' in input_dict
     
@@ -59,13 +59,11 @@ def process_nut_input(input_dict: dict):
     input_dict['material'] = process_material_input(input_dict['material'])
     input_dict['thread'] = process_metric_thread_input(input_dict['thread'])
     
-    Do = input_dict['Do']
-    
-    length = input_dict['length']
-    
     # outer bearing diameter (on abutment):
+    Do = input_dict['Do']
     assert Do > 0.0, "nut outer diamter must be > 0"
     
+    length = input_dict['length']
     assert length > 0.0, "nut length must be > 0"
     
     # the following is bolted joint level, includes both innternal and external thread goemetry: 
@@ -98,9 +96,10 @@ def main() -> None:
         'Sty': 600.0,  # tensile yield strength
         'Stu': 800.0,  # tensile ultimate strength
     }
+    print(f"\nmaterial_dict = \n{material_dict}\n")
     
     material_dict = process_material_input(material_dict)
-    print(material_dict)
+    print(f"\nmaterial_dict = \n{material_dict}\n")
     
     thread_dict = {
         'type': 'Metric_Thread',
@@ -114,9 +113,10 @@ def main() -> None:
         'tolerance_grade': 6,
         'allowance_class': 'H',
     }
+    print(f"\nthread_dict = \n{thread_dict}\n")
     
     thread_dict = process_metric_thread_input(thread_dict)
-    print(thread_dict)
+    print(f"\nthread_dict = \n{thread_dict}\n")
     
     input_dict = {
         'type': 'Nut',
@@ -126,9 +126,10 @@ def main() -> None:
         'Do': 8.5,
         'length': 5.0,
     }
+    print(f"\ninput_dict = \n{input_dict}\n")
     
     output_dict = process_nut_input(input_dict)
-    print(output_dict)
+    print(f"\noutput_dict = \n{output_dict}\n")
     
 
 if __name__ == "__main__":

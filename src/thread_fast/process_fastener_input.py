@@ -38,7 +38,6 @@ from thread_fast.process_material_input import process_material_input
 from thread_fast.threads.process_metric_thread import process_metric_thread_input
 
 
-
 def process_fastener_input(input_dict: dict):
     """
     modify the input dict to ensure completeness
@@ -65,9 +64,9 @@ def process_fastener_input(input_dict: dict):
     
     assert input_dict.get('name') is not None
     
-    assert 'material' in input_dict
+    assert input_dict.get('material') is not None
     
-    assert 'thread' in input_dict
+    assert input_dict.get('thread') is not None
     
     assert 'Do_head' in input_dict
     
@@ -106,6 +105,9 @@ def process_fastener_input(input_dict: dict):
             pitch=thread['pitch'],
         )
         input_dict['A_t'] = A_t
+    else:
+        pass
+        # TODO: validate...
     
     # [N], allowable ultimate tensile load:
     # NSTS 08307A page A-4, ultimate tensile load:
@@ -113,11 +115,17 @@ def process_fastener_input(input_dict: dict):
         print("calculating P_tu_allow...")
         P_tu_allow = input_dict['A_t'] * material['Stu']
         input_dict['P_tu_allow'] = P_tu_allow
+    else:
+        pass
+        # TODO: validate...
     
     if input_dict.get('P_ty_allow') is None:
         print("calculating P_ty_allow...")
         P_ty_allow = input_dict['A_t'] * material['Sty']
         input_dict['P_ty_allow'] = P_ty_allow
+    else:
+        pass
+        # TODO: validate...
     
     # [N], allowable ultimate shear load:
     # NASA-STD-5020B eq 12 & 13
@@ -130,6 +138,9 @@ def process_fastener_input(input_dict: dict):
     if input_dict.get('A_bolt') is None:
         A_bolt = np.pi  * thread['basic_major_diameter']**2 / 4.0
         input_dict['A_bolt'] = A_bolt
+    else:
+        pass
+        # TODO: validity check...
     
     # P_su_allow: allowable ultimate shear load
     # depends on if threads are in the shear plane...
@@ -158,7 +169,9 @@ def process_fastener_input(input_dict: dict):
     # length = L_shank + L_thread
     if input_dict.get('length') is None:
         input_dict['length'] = L_shank + L_thread
-    
+    else:
+        pass
+        # TODO: validity check...
     
     # Axial Stiffness:
     # k = (A * E) / L
@@ -173,7 +186,9 @@ def process_fastener_input(input_dict: dict):
         k_total = 1.0 / (1.0 / k_shank + 1.0 / k_thread)
         print(f"k_b_total = {k_total} [N/mm]")
         input_dict['stiffness'] = k_total
-    
+    else:
+        pass
+        # TODO: validity check...
     
     return input_dict
     
@@ -220,10 +235,11 @@ def main() -> None:
         'L_shank': 10.0,
         'L_thread': 10.0,
     }
+    print(f"\ninput_dict = \n{input_dict}\n")
     
     # test fastener processor:
     output_dict = process_fastener_input(input_dict)
-    print(output_dict)
+    print(f"\noutput_dict = \n{output_dict}\n")
     
     # test accessing data:
     thread_pitch = output_dict['thread']['pitch']

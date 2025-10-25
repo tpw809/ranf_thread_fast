@@ -19,6 +19,7 @@ Parameters:
 - mu_abutment: coefficient of friction between bolt head and washer or nut and washer (whichever is turned in torquing)
 
 """
+import json
 import numpy as np
 import thread_fast.conversion_factors as cf
 import thread_fast.nsts_08307a as nsts_08307a
@@ -901,10 +902,21 @@ def process_bolted_joint_input(input_dict: dict):
     A_si = 1.0
     
     
+    PA_s_08307a_fastener = nsts_08307a.external_thread_shear_load_allowable(
+        A_se=A_se,
+        F_su_bolt=fastener['material']['Ssu'],
+    )
+    
+    PA_s_08307a_nut = nsts_08307a.internal_thread_shear_load_allowable(
+        A_si=A_si,
+        F_su_nut=nut['material']['Ssu'],
+    )
+    
+    
     # NSTS08307A: thread_shear_pull_out_margin (ultimate)
     # for fastener external threads:
     MS_thread_shear_pull_out_u_08307a = nsts_08307a.thread_shear_pull_out_margin(
-        PA_s=fastener.PA_s_08307a(A_se), 
+        PA_s=PA_s_08307a_fastener, 
         SF=SF_u, 
         P=applied_tensile_load, 
         P_b=P_b_u,
@@ -913,7 +925,7 @@ def process_bolted_joint_input(input_dict: dict):
     
     # for nut internal threads:
     MS_thread_shear_pull_out_u_08307a = nsts_08307a.thread_shear_pull_out_margin(
-        PA_s=nut.PA_s_08307a(A_si), 
+        PA_s=PA_s_08307a_nut, 
         SF=SF_u, 
         P=applied_tensile_load, 
         P_b=P_b_u,
@@ -922,10 +934,9 @@ def process_bolted_joint_input(input_dict: dict):
     
     input_dict['MS_thread_shear_pull_out_u_08307a'] = MS_thread_shear_pull_out_u_08307a
     
-    
-    # Bolt Thread Shear:
-    
-    
+    ##################################
+    # Thread Shear:
+    ##################################
     
     # NASA-TM-106943 eq65:
     A_s_min = nasa_tm_106943.eq63(
@@ -940,7 +951,7 @@ def process_bolted_joint_input(input_dict: dict):
     
     P_ult_thread_shear = nasa_tm_106943.eq64(
         F_su=nut['material']['Ssu'], 
-        A_s=A_s,
+        A_s=A_s_min,  # TODO: check this!
     )
     print(f"P_ult_thread_shear = {P_ult_thread_shear}")
     
@@ -989,9 +1000,9 @@ def main() -> None:
         'Sty': 600.0,  # tensile yield strength
         'Stu': 800.0,  # tensile ultimate strength
     }
-    print(f"\ninput: \n{fastener_material_dict}")
-    fastener_material_dict = process_material_input(fastener_material_dict)
-    print(f"\noutput: \n{fastener_material_dict}")
+    print(f"\nfastener material input: \n{fastener_material_dict}\n")
+    # fastener_material_dict = process_material_input(fastener_material_dict)
+    # print(f"\noutput: \n{fastener_material_dict}\n")
     
     print("\nNut Material:")
     nut_material_dict = {
@@ -1003,7 +1014,7 @@ def main() -> None:
         'Sty': 600.0,  # tensile yield strength
         'Stu': 800.0,  # tensile ultimate strength
     }
-    print(f"\ninput: \n{nut_material_dict}")
+    print(f"\nnut material input: \n{nut_material_dict}\n")
     
     print("\nFastener Thread:")
     fastener_thread_dict = {
@@ -1018,7 +1029,7 @@ def main() -> None:
         'tolerance_grade': 6,
         'allowance_class': 'h',
     }
-    print(f"\ninput: \n{fastener_thread_dict}")
+    print(f"\nFastener Thread input: \n{fastener_thread_dict}\n")
     
     print("\nNut Thread:")
     nut_thread_dict = {
@@ -1033,7 +1044,7 @@ def main() -> None:
         'tolerance_grade': 6,
         'allowance_class': 'H',
     }
-    print(nut_thread_dict)
+    print(f"\nnut_thread_dict = \n{nut_thread_dict}\n")
     
     print("\nNut:")
     nut_dict = {
@@ -1044,7 +1055,7 @@ def main() -> None:
         'Do': 8.5,
         'length': 5.0,
     }
-    print(nut_dict)
+    print(f"\nnut_dict = \n{nut_dict}\n")
     
     print("\nFastener:")
     fastener_dict = {
@@ -1057,7 +1068,7 @@ def main() -> None:
         'L_shank': 10.0,
         'L_thread': 20.0,
     }
-    print(fastener_dict)
+    print(f"\nfastener_dict = \n{fastener_dict}\n")
     
     
     print("\nWasher Material:")
@@ -1070,9 +1081,9 @@ def main() -> None:
         'Sty': 600.0,  # tensile yield strength
         'Stu': 800.0,  # tensile ultimate strength
     }
-    print(f"\ninput: \n{washer_material_dict}")
-    washer_material_dict = process_material_input(washer_material_dict)
-    print(f"\noutput: \n{washer_material_dict}")
+    print(f"\ninput: \n{washer_material_dict}\n")
+    # washer_material_dict = process_material_input(washer_material_dict)
+    # print(f"\noutput: \n{washer_material_dict}\n")
     
     print("\nWasher:")
     washer_dict = {
@@ -1083,9 +1094,9 @@ def main() -> None:
         'D_outer': 8.5,
         'thickness': 2.0,
     }
-    print(f"\ninput: \n{washer_dict}")
-    washer_dict = process_washer_input(washer_dict)
-    print(f"\noutput: \n{washer_dict}")
+    print(f"\ninput: \n{washer_dict}\n")
+    # washer_dict = process_washer_input(washer_dict)
+    # print(f"\noutput: \n{washer_dict}\n")
     
     
     # Loaded parts:
@@ -1108,9 +1119,9 @@ def main() -> None:
         'D_outer': 12.5,
         'thickness': 5.0,
     }
-    print(f"\ninput: \n{clamped_part1_dict}")
-    clamped_part1_dict = process_clamped_part_input(clamped_part1_dict)
-    print(f"\noutput: \n{clamped_part1_dict}")
+    print(f"\ninput: \n{clamped_part1_dict}\n")
+    # clamped_part1_dict = process_clamped_part_input(clamped_part1_dict)
+    # print(f"\noutput: \n{clamped_part1_dict}\n")
     
     clamped_part2_dict = {
         'type': 'ClampedPart',
@@ -1120,9 +1131,9 @@ def main() -> None:
         'D_outer': 12.5,
         'thickness': 10.0,
     }
-    print(f"\ninput: \n{clamped_part2_dict}")
-    clamped_part2_dict = process_clamped_part_input(clamped_part2_dict)
-    print(f"\noutput: \n{clamped_part2_dict}")
+    print(f"\ninput: \n{clamped_part2_dict}\n")
+    # clamped_part2_dict = process_clamped_part_input(clamped_part2_dict)
+    # print(f"\noutput: \n{clamped_part2_dict}\n")
     
     
     print("\nBoltedJoint:")
@@ -1160,10 +1171,20 @@ def main() -> None:
         'applied_preload': None,  # optional override
         'phi': None,
     }
-    print(f"input: \n{bolted_joint_input_dict}")
+    print(f"\ninput: \n{bolted_joint_input_dict}\n")
+    
+    # save input to json:
+    with open("bolted_joint_input_example.json", "w") as json_file:
+        json.dump(bolted_joint_input_dict, json_file)
 
     output_dict = process_bolted_joint_input(bolted_joint_input_dict)
-    print(f"output: \n{output_dict}")
+    print(f"\noutput: \n{output_dict}\n")
+    
+    output_dict = process_bolted_joint_input(output_dict)
+    print(f"\noutput: \n{output_dict}\n")
+    
+    # test invalid input:
+    # process_bolted_joint_input({})
 
 
 if __name__ == "__main__":
