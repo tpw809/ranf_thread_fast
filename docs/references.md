@@ -18,8 +18,6 @@
 
 [MIL-STD-1312-15 Fastener Test Methods, Method 15, Torque - Tension](references/MIL-STD-1312_15.PDF)
 
-[MS33540J Safety Wiring, Cotter Pinning](references/MS33540J_safety_wiring_cotter_pinning.pdf)
-
 [MSFC-STD-486B Standard, Threaded Fasteners, Torque Limits for](references/MSFC-STD-486-B.pdf)
 
 [NASA-STD-8739.14 NASA FASTENER PROCUREMENT, RECEIVING INSPECTION, AND STORAGE PRACTICES FOR NASA MISSION HARDWARE](references/nasa-std-873914_fastener_procurement_receiving_inspection.pdf)
@@ -58,6 +56,13 @@ JIS B 0206 Unified Thread
 
 MIL-S-8879C UNJ Thread Definition
 
+## Military Standard Equipment
+
+[MS14179A Self Locking Nut Plate](references/MS14179A_self_locking_nut_plate.pdf)
+
+[MS33540J Safety Wiring, Cotter Pinning](references/MS33540J_safety_wiring_cotter_pinning.pdf)
+
+
 ## Technical Papers
 
 [NASA-TM-106943 Preloaded Joint Analysis Methodology for Space Flight Systems](references/NASA-TM-106943_preloaded_joint_analysis_methodology_for_space_flight_systems.pdf)
@@ -68,7 +73,7 @@ MIL-S-8879C UNJ Thread Definition
 
 [NASA-RP-1228 Fastener Design Manual](references/rp-1228_fastener_design_manual.pdf)
 
-[MIL-HDBK-60 Threaded Fasteners - Tightening to Proper Tension](references/MIL-HDBK-60.PDF)
+[MIL-HDBK-60 Threaded Fasteners - Tightening to Proper Tension](references/MIL-HDBK-60_threaded_fasteners_tightening_to_proper_tension.PDF)
 
 ## Superceded, for Posterity
 
