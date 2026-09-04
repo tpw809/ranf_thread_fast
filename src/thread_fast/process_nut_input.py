@@ -1,7 +1,8 @@
-"""
-Use functional programming instead of object oriented...
+"""Process json input file for nut information.
 
-focus on web-app interface...
+Use functional programming instead of object oriented.
+
+Facilitates web-app interfaces.
 
 Goal: user can input as little or as much as they want...
 
@@ -14,7 +15,7 @@ Parameters:
 - material: 
 - thread:
 - length:
-- Do: outer diameter
+- Do: outer diameter for bearing area
 
 """
 import numpy as np
@@ -41,9 +42,14 @@ def process_nut_input(input_dict: dict):
     Optional:
     
     """
-    # check required inputs:
+    # check type:
+    assert input_dict['type'] == 'Nut', "type must be Nut"
     
-    assert input_dict['type'] == 'Nut'
+    # check if this data has already been processed:
+    if input_dict.get('processed_bool') == True:
+        return input_dict
+    
+    # check required inputs:
     
     assert input_dict.get('name') is not None
     
@@ -80,7 +86,8 @@ def process_nut_input(input_dict: dict):
     # )
     # input_dict['PA_s_08307a'] = PA_s_08307a
     
-    # TODO: add 'processed' tag ???
+    # add 'processed' tag:
+    input_dict['processed_bool'] = True
     
     return input_dict
 
@@ -107,7 +114,7 @@ def main() -> None:
         'basic_major_diameter': 6.0,
         'pitch': 1.0,
         'beta_deg': 30.0,  # thread half angle
-        'external': False,
+        # 'external': False,
         'internal': True,
         'profile': 'MJ',  # thread profile, M or MJ
         'tolerance_grade': 6,

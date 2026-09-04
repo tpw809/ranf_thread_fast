@@ -45,9 +45,14 @@ def process_washer_input(input_dict: dict):
     - area: area used for stiffness calculation
     - stiffness: axial stiffness of the washer
     """
-    # check required inputs:
+    # check type:
+    assert input_dict['type'] == 'Washer', "type must be Washer"
     
-    assert input_dict['type'] == 'Washer'
+    # check if this data has already been processed:
+    if input_dict.get('processed_bool') == True:
+        return input_dict
+    
+    # check required inputs:
     
     assert 'name' in input_dict
     
@@ -91,7 +96,8 @@ def process_washer_input(input_dict: dict):
     else:
         assert input_dict['stiffness'] > 0.0
     
-    # TODO: add 'processed' tag ???
+    # add 'processed' tag:
+    input_dict['processed_bool'] = True
     
     return input_dict
 

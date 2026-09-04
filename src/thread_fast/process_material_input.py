@@ -90,7 +90,14 @@ def process_material_input(input_dict: dict):
     - Scy: contact (bearing) yield strength
     - Scu: contact (bearing) ulimate strength
     """
-    assert input_dict['type'] == 'Material', "material type must be Material"
+    # check type:
+    assert input_dict['type'] == 'Material', "type must be Material"
+    
+    # check if this data has already been processed:
+    if input_dict.get('processed_bool') == True:
+        return input_dict
+        
+    # check required inputs:
     
     assert input_dict.get('name') is not None
     
@@ -127,6 +134,9 @@ def process_material_input(input_dict: dict):
         input_dict['Ssu'] = input_dict['Stu'] / np.sqrt(3.0)
     else:
         assert input_dict['Ssu'] >= 0.0
+    
+    # add 'processed' tag:
+    input_dict['processed_bool'] = True
     
     return input_dict
 
