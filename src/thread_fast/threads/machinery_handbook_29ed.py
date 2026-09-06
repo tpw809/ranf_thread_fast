@@ -1,7 +1,7 @@
 """Equation from Machinery Handbook, 29th Edition.
 
 
-
+tpi = threads per inch = thread / inch
 """
 import numpy as np
 
