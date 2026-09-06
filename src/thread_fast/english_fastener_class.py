@@ -8,7 +8,7 @@ import numpy as np
 # UN = Unified Thread Standard 
 # UNC = Unified Thread Standard Coarse
 # UNF = Unified Thread Standard Fine
-# UNF = Unified Thread Standard Extra Fine
+# UNEF = Unified Thread Standard Extra Fine
 # UNJ = Unified Thread Standard Inch Aerospace Modified Thread (larger dm)
 
 

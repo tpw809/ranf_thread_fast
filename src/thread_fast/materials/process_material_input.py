@@ -1,4 +1,5 @@
-"""
+"""Process input data and return completed data.
+
 Use functional programming instead of object oriented...
 
 focus on web-app interface...
@@ -40,7 +41,7 @@ def calc_Scy(Sty: float) -> float:
     
     0.577 / 0.335 = 1.723
     
-    Just use RP-1228, pg 21.
+    Just use NASA-RP-1228, pg 21.
     """
     return 1.5 * Sty
 
@@ -48,7 +49,7 @@ def calc_Scy(Sty: float) -> float:
 def calc_Scu(Stu: float) -> float:
     """Max contact stress ultimate allowable (bearing strength) 
     
-    Just use RP-1228, pg 21.
+    Just use NASA-RP-1228, pg 21.
     """
     return 1.5 * Stu
 
@@ -73,8 +74,7 @@ def calc_Ssu_mpa(Stu: float) -> float:
 
 
 def process_material_input(input_dict: dict):
-    """
-    modify the input dict to ensure completeness
+    """Read and modify the input dict to ensure completeness and validity.
     
     Must supply:
     - name: descriptor

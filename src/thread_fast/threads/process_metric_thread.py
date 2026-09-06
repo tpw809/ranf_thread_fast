@@ -1,4 +1,5 @@
-"""
+"""Process input and return validated and completed data.
+
 Use functional programming instead of object oriented...
 
 focus on web-app interface...
@@ -22,6 +23,7 @@ Calculated / Optional Parameters:
 
 """
 import numpy as np
+
 import thread_fast.conversion_factors as cf
 import thread_fast.threads.iso_724_1993 as iso_724_1993
 import thread_fast.threads.asme_b1_13M_2005 as asme_m_thread
@@ -29,8 +31,7 @@ import thread_fast.threads.iso_5855_1_1999 as iso_5855_1_1999
 
 
 def process_metric_thread_input(input_dict: dict):
-    """
-    modify the input dict to ensure completeness
+    """Read and modify the input dict to ensure completeness and validity.
     
     Must supply:
     - name: descriptor
@@ -66,12 +67,14 @@ def process_metric_thread_input(input_dict: dict):
     assert input_dict.get('allowance_class') is not None
     
     # assert 'external' in input_dict
-    assert input_dict.get('external') is not None
+    if input_dict.get('internal') is None:
+        assert input_dict.get('external') is not None
     
     # assert 'internal' in input_dict
-    assert input_dict.get('internal') is not None
+    if input_dict.get('external') is None:
+        assert input_dict.get('internal') is not None
     
-    assert input_dict['external'] != input_dict['internal']
+    # assert input_dict['external'] != input_dict['internal']
     
     # assert 'profile' in input_dict
     assert input_dict.get('profile') is not None
@@ -91,8 +94,17 @@ def process_metric_thread_input(input_dict: dict):
     pitch = input_dict['pitch']
     tolerance_grade = input_dict['tolerance_grade']
     allowance_class = input_dict['allowance_class']
-    external = input_dict['external']
-    internal = input_dict['internal']
+    
+    if input_dict.get('internal') is None:
+        external = input_dict['external']
+        internal = not external
+    elif input_dict.get('external') is None:
+        internal = input_dict['internal']
+        external = not internal
+    else:
+        external = input_dict['external']
+        internal = input_dict['internal']
+    
     profile = input_dict['profile']
     
     # height of fundamental triangle:

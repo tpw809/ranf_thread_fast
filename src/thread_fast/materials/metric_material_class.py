@@ -15,7 +15,7 @@ From NASA-TM-106943, pg 16:
 
 Shear yield strength may be assumed to be 0.577 * tensile yield strength, per von Mises criterion.
 
-From RP-1228 Fastener Design Manual (1990), pg 21:
+From NASA-RP-1228 Fastener Design Manual (1990), pg 21:
 
 Approximate Bearing Strength Allowables:
 
@@ -33,7 +33,6 @@ Subscript keys:
 - _c or _b = contact or bearing
 - _y = yield
 - _u = ultimate
-
 """
 import json
 import numpy as np
@@ -84,7 +83,7 @@ class MetricMaterial:
         
         0.577 / 0.335 = 1.723
         
-        Just use RP-1228, pg 21.
+        Just use NASA-RP-1228, pg 21.
         """
         # return (1.0/np.sqrt(3.0)) / 0.335 * self.Sy_mpa
         return 1.5 * self.Sty_mpa
@@ -92,7 +91,7 @@ class MetricMaterial:
     def calc_Scu_mpa(self) -> float:
         """Max contact stress ultimate allowable (bearing strength) 
         
-        Just use RP-1228, pg 21.
+        Just use NASA-RP-1228, pg 21.
         """
         return 1.5 * self.Stu_mpa
         
@@ -157,7 +156,7 @@ class MetricMaterial:
         else:
             Ssu_mpa = None
         
-        mat = Material(
+        mat = MetricMaterial(
             name=input_dict['name'],
             E_mpa=input_dict['E_mpa'],
             nu=input_dict['nu'],
@@ -266,7 +265,7 @@ def main() -> None:
     print(mat_copy)
     
     input_dict = {
-        'type': 'Material',
+        'type': 'MetricMaterial',
         'name': 'test_input_dict',
         'E_mpa': 200000.0,
         'nu': 0.3,

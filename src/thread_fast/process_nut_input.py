@@ -19,12 +19,13 @@ Parameters:
 
 """
 import numpy as np
+
 import thread_fast.conversion_factors as cf
 import thread_fast.nsts_08307a as nsts_08307a
 import thread_fast.nasa_tm_106943 as nasa_tm_106943
-from thread_fast.material_class import Material
+from thread_fast.materials.material_class import Material
 from thread_fast.threads.metric_thread_class import ExternalMetricThread
-from thread_fast.process_material_input import process_material_input
+from thread_fast.materials.process_material_input import process_material_input
 from thread_fast.threads.process_metric_thread import process_metric_thread_input
 
 
@@ -72,7 +73,7 @@ def process_nut_input(input_dict: dict):
     length = input_dict['length']
     assert length > 0.0, "nut length must be > 0"
     
-    # the following is bolted joint level, includes both innternal and external thread goemetry: 
+    # the following is bolted joint level, includes both internal and external thread goemetry: 
     
     # shear area of internal threads:
     # NSTS_08307A, pg A-4 & A-5:

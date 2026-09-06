@@ -1,4 +1,5 @@
-"""
+"""Process input and return validated and completed data.
+
 Use functional programming instead of object oriented...
 
 focus on web-app interface...
@@ -23,8 +24,8 @@ Processed Outputs:
 """
 import numpy as np
 import thread_fast.conversion_factors as cf
-from thread_fast.material_class import Material
-from thread_fast.process_material_input import process_material_input
+from thread_fast.materials.material_class import Material
+from thread_fast.materials.process_material_input import process_material_input
 
 
 def process_clamped_part_input(input_dict: dict):

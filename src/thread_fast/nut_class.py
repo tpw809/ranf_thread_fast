@@ -11,7 +11,7 @@ Nut consists of:
 """
 import numpy as np
 import thread_fast.nsts_08307a as nsts_08307a
-from thread_fast.material_class import Material
+from thread_fast.materials.material_class import Material
 from thread_fast.threads.metric_thread_class import InternalMetricThread
 import thread_fast.conversion_factors as cf
 
@@ -119,7 +119,6 @@ def main() -> None:
     # to dictionary:
     nut1_dict = nut1.to_dict()
     print(nut1_dict)
-
 
 
 if __name__ == "__main__":

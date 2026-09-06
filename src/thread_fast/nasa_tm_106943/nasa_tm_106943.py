@@ -95,7 +95,7 @@ def eq2(
         mu: float, 
         mu_c: float,
     ) -> float:
-    """Calculate and estimated nut factor, K.
+    """Calculate estimated nut factor, K.
     
     NASA-TM-106943, equation 2, pg 4
     

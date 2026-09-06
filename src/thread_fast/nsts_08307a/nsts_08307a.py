@@ -84,7 +84,7 @@ def nut_factor(
         mu_t_typ (float): typical coefficient of friction at the external-to-internal thread interface
         mu_b_typ (float): typical coefficient of friction at the nut-to-joint bearing interface
         alpha (float): Thread lead angle (Tan^-1 [1/(n_0*pi*E)] for unified thread form)
-        beta (float): Thread half angle (30° for unified thread form)
+        beta (float): Thread half angle (30 deg for unified thread form)
         D (float): Basic major diameter of external threads (bolt)
     Returns:
         Tuple[float, float, float]: estimated nut factor

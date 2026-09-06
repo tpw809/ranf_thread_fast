@@ -26,7 +26,7 @@ Symbols:
 import numpy as np
 import thread_fast.nsts_08307a as nsts_08307a
 import thread_fast.nasa_tm_106943 as nasa_tm_106943
-from thread_fast.material_class import Material
+from thread_fast.materials.material_class import Material
 from thread_fast.threads.metric_thread_class import ExternalMetricThread
 #TODO: unified external thread
 import thread_fast.conversion_factors as cf

@@ -8,9 +8,17 @@ Standards:
 - DIN 125
 - DIN 125A (Not chamfered)
 
+Data:
+
+- Nominal size
+- D_hole
+- D_outer
+- thickness
+- material
+
 """
 import numpy as np
-from thread_fast.material_class import Material
+from thread_fast.materials.material_class import Material
 
 
 class Washer:
@@ -42,21 +50,21 @@ class Washer:
 
     @property
     def length(self) -> float:
-        """length, mm."""
+        """length, mm or in"""
         return self.thickness
         
     def area(self) -> float:
-        """area, mm^2"""
+        """area, mm^2 or in^2"""
         ro = self.D_outer / 2.0
         ri = self.D_hole / 2.0
         return np.pi * (ro**2 - ri**2)
         
     def stiffness(self) -> float:
-        """axial stiffness, N/mm.
+        """axial stiffness, N/mm or lb/in.
         
         k = (A * E) / L
         """
-        return (self.area() * self.material.E_mpa) / self.thickness
+        return (self.area() * self.material.E) / self.thickness
 
     def __str__(self):
         return "\n".join([
@@ -77,14 +85,14 @@ def main() -> None:
     
     inconel_718 = Material(
         name='inconel_718',
-        E_mpa=200.0e3,
+        E=200.0e3,
         nu=0.29,
-        rho_gcc=8.19,
-        cte_mm_mm_C=13.0e-6,
-        tc_w_mK=11.4,
-        hc_J_gC=0.435,
-        Sy_mpa=1100.0,
-        Su_mpa=1375.0,
+        rho=8.19,
+        cte=13.0e-6,
+        tc=11.4,
+        hc=0.435,
+        Sty=1100.0,
+        Stu=1375.0,
     )
     
     washer1 = Washer(
@@ -98,7 +106,7 @@ def main() -> None:
     
     print(washer1)
     print(washer1.area())
-    print(washer1.material.E_mpa)
+    print(washer1.material.E)
     print(washer1.stiffness())
 
 

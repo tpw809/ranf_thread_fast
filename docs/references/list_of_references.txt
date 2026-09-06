@@ -1,0 +1,13 @@
+FED-STD-28-2B
+NASA-STD-5020B Requirements for Threaded Fastening Systems in Spaceflight Hardware 2021
+NASA-TM-106943 Preloaded Joint Analysis Methodology for Space Flight Systems, 1995
+MIL-HDBK-60 Threaded Fasteners - Tightening to Proper Tension, 1990
+NASA RP-1228 Fastener Design Manual
+Machinery Handbook 29th Ed.
+Sandia Report 2008-0371 Guideline for Bolted Joint Design
+MIL-STD-1312-15 Fastener Test Methods, Torque - Tension, 1985
+NASA-TM-2012-217454 Aerospace Threaded Fastener Strength in Combined Shear and Tension Loading, 2012
+NASA-TM-108377 The Mechanism of Bolt Loading, 1992
+NSTS-08307 Rev-A Space Shuttle, Criteria for Preloaded Bolts, 1998
+MS33540 Rev-J General Practices for Safety Wiring and Cotter Pinning, 1986
+MSFC-STD-486-B Torque Limitsfor Threaded Fasteners

@@ -9,7 +9,7 @@ ClampedPart consists of:
 
 """
 import numpy as np
-from thread_fast.material_class import Material
+from thread_fast.materials.material_class import Material
 
 
 class ClampedPart:
@@ -39,22 +39,22 @@ class ClampedPart:
         
     @property
     def length(self) -> float:
-        """length, mm."""
+        """length, mm or in."""
         return self.thickness
         
     def area(self) -> float:
-        """area, mm^2"""
+        """area, mm^2 or in^2"""
         ro = self.D_outer / 2.0
         ri = self.D_hole / 2.0
         return np.pi * (ro**2 - ri**2)
         
     def stiffness(self) -> float:
-        """axial stiffness, N/mm.
+        """axial stiffness, N/mm or lb/in.
         
         k = (A * E) / L
         """
         # TODO: fix stiffness (frustum volume)
-        return (self.area() * self.material.E_mpa) / self.thickness
+        return (self.area() * self.material.E) / self.thickness
 
     def __str__(self):
         return "\n".join([
@@ -73,14 +73,14 @@ def main() -> None:
     
     ti6al4v = Material(
         name='ti6al4v',
-        E_mpa=114.0e3,
+        E=114.0e3,
         nu=0.342,
-        rho_gcc=4.43,
-        cte_mm_mm_C=8.6e-6,
-        tc_w_mK=6.7,
-        hc_J_gC=0.526,
-        Sy_mpa=880.0,
-        Su_mpa=950.0,
+        rho=4.43,
+        cte=8.6e-6,
+        tc=6.7,
+        hc=0.526,
+        Sy=880.0,
+        Su=950.0,
     )
     
     part1 = ClampedPart(
@@ -93,7 +93,7 @@ def main() -> None:
     
     print(part1)
     print(part1.area())
-    print(part1.material.E_mpa)
+    print(part1.material.E)
     print(part1.stiffness())
 
 

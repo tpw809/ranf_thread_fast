@@ -26,9 +26,9 @@ import thread_fast.nsts_08307a as nsts_08307a
 import thread_fast.nasa_tm_106943 as nasa_tm_106943
 import thread_fast.nasa_std_5020.nasa_std_5020b as nasa_std_5020b
 from thread_fast.kubler_bulten_nut_factor import kubler_bulten_nut_factor
-from thread_fast.material_class import Material
+from thread_fast.materials.material_class import Material
 from thread_fast.threads.metric_thread_class import ExternalMetricThread
-from thread_fast.process_material_input import process_material_input
+from thread_fast.materials.process_material_input import process_material_input
 from thread_fast.threads.process_metric_thread import process_metric_thread_input
 from thread_fast.process_nut_input import process_nut_input
 from thread_fast.process_fastener_input import process_fastener_input

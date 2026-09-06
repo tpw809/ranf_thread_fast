@@ -1,3 +1,4 @@
+"""Compare nut factor K"""
 import numpy as np
 import thread_fast
 import thread_fast.nsts_08307a as nsts_08307a
@@ -59,12 +60,12 @@ print(f"alpha2 = {alpha2} [rad]")
 
 
 K_kb = thread_fast.kubler_bulten_nut_factor(
-    P=pitch, 
-    d_2=E, 
-    mu_t=0.15, 
-    mu_b=0.15, 
-    d_w=2.0*R_e, 
-    d=D,
+    P=pitch,  # thread pitch
+    d_2=E,  # pitch diameter
+    mu_t=0.15,  # thread friction coefficient
+    mu_b=0.15,  # bearing friction coefficient
+    d_w=2.0*R_e,  # effective bearing diameter
+    d=D,  # nominal thread diameter
 )
 print(f"K_kb = {K_kb}")
 
@@ -72,25 +73,25 @@ print(f"K_kb = {K_kb}")
 K_08307 = nsts_08307a.nut_factor(
     R_t=r_m,  # mean radius of thread
     R_e=R_e,  # mean head or nut radius
-    mu_t_min=0.1,
-    mu_t_typ=0.15, 
-    mu_t_max=0.2,
-    mu_b_min=0.1,
-    mu_b_typ=0.15, 
-    mu_b_max=0.2,
-    alpha=psi, 
-    beta=beta, 
-    D=D,
+    mu_t_min=0.1,  # min friction coefficient between threads
+    mu_t_typ=0.15,  # typical friction coefficient between threads
+    mu_t_max=0.2,  # max friction coefficient between threads
+    mu_b_min=0.1,  # min friction coefficient at bearing interface
+    mu_b_typ=0.15,  # typical friction coefficient at bearing interface
+    mu_b_max=0.2,  # max friction coefficient at bearing interface
+    alpha=psi,  # thread lead angle
+    beta=beta,  # thread half angle (30 deg for unified thread form)
+    D=D,  # basic major diameter of external threads
 )
 print(f"K_08307 = {K_08307}")
 
 
 K_106943 = nasa_tm_106943.eq2(
-    D_p=E, 
-    D=D, 
-    psi=psi, 
-    alpha=beta, 
-    mu=0.15, 
-    mu_c=0.15,
+    D_p=E,  # mean thread diameter
+    D=D,  # nominal fastener shank diameter
+    psi=psi,  # thread helix (lead) angle (rad)
+    alpha=beta,  # thread angle (half angle?)
+    mu=0.15,  # friction coefficient between threads
+    mu_c=0.15,  # friction coefficient between bolt head or nut and abutment
 )
 print(f"K_106943 = {K_106943}")
