@@ -29,6 +29,7 @@ Calculated:
 
 """
 import numpy as np
+
 import thread_fast.conversion_factors as cf
 import thread_fast.nsts_08307a as nsts_08307a
 import thread_fast.nasa_tm_106943 as nasa_tm_106943
@@ -57,9 +58,14 @@ def process_fastener_input(input_dict: dict):
     
     
     """
-    # check required inputs:
-    
+    # check type:
     assert input_dict['type'] == 'Fastener'
+    
+    # check if this data has already been processed:
+    if input_dict.get('processed_bool') == True:
+        return input_dict
+    
+    # check required inputs:
     
     assert input_dict.get('name') is not None
     
@@ -188,6 +194,9 @@ def process_fastener_input(input_dict: dict):
     else:
         pass
         # TODO: validity check...
+    
+    # add 'processed' tag:
+    input_dict['processed_bool'] = True
     
     return input_dict
     

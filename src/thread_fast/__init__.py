@@ -5,14 +5,16 @@ import thread_fast.nsts_08307a.nsts_08307a as nsts_08307a
 from thread_fast.kubler_bulten_nut_factor import kubler_bulten_nut_factor
 import thread_fast.mil_hdbk_60.mil_hdbk_60 as mil_hdbk_60
 import thread_fast.sandia.sandia as sandia
+
+# object oriented:
 from thread_fast.materials.material_class import Material
-from thread_fast.nut_class import Nut
-from thread_fast.washer_class import Washer
+from thread_fast.object_oriented.nut_class import Nut
+from thread_fast.object_oriented.washer_class import Washer
 from thread_fast.threads.metric_thread_class import MetricThread
 from thread_fast.threads.metric_thread_class import ExternalMetricThread
 from thread_fast.threads.metric_thread_class import InternalMetricThread
-from thread_fast.fastener_class import Fastener
-from thread_fast.bolted_joint_class import BoltedJoint
+from thread_fast.object_oriented.fastener_class import Fastener
+from thread_fast.object_oriented.bolted_joint_class import BoltedJoint
 
 # process functions:
 from thread_fast.materials.process_material_input import process_material_input
@@ -24,6 +26,8 @@ from thread_fast.process_bolted_joint_input import process_bolted_joint_input
 # Databases:
 import thread_fast.materials.english_material_database as english_material_database
 import thread_fast.materials.metric_material_database as metric_material_database
-import thread_fast.threads.english_thread_database as english_thead_database
+import thread_fast.threads.english_thread_database as english_thread_database
 # TODO: metric thread database...
+
 # TODO: standard component databases...
+import thread_fast.components.MS20033_thru_MS20046C as MS20033_thru_MS20046C

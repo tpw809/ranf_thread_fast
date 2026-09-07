@@ -1,15 +1,15 @@
 """English Fastener Class Definition
 Timothy P Woodard
 July 1, 2021
+
+UTS = Unified Thread Standard
+UN = Unified Thread Standard 
+UNC = Unified Thread Standard Coarse
+UNF = Unified Thread Standard Fine
+UNEF = Unified Thread Standard Extra Fine
+UNJ = Unified Thread Standard Inch Aerospace Modified Thread (larger dm)
 """
 import numpy as np
-
-# UTS = Unified Thread Standard
-# UN = Unified Thread Standard 
-# UNC = Unified Thread Standard Coarse
-# UNF = Unified Thread Standard Fine
-# UNEF = Unified Thread Standard Extra Fine
-# UNJ = Unified Thread Standard Inch Aerospace Modified Thread (larger dm)
 
 
 class EnglishFastener:
@@ -69,14 +69,14 @@ class EnglishFastener:
 
     @property
     def dp(self):  
-        """# [in], thread pitch diameter
-        # from machinery handbook 29th ed. page 1528
+        """[in], thread pitch diameter
+        from machinery handbook 29th ed. page 1528
         """
         return self.d_outer - 0.649519 * self.pitch
         
     @property
     def dm(self):  
-        """# [in], thread minor diameter
+        """[in], thread minor diameter
         from machinery handbook 29th ed. page 1528
         """
         # return self.d_outer - 1.082532 * self.pitch
@@ -84,7 +84,7 @@ class EnglishFastener:
 
     @property
     def thread_tensile_stress_area(self):  
-        """# [in^2], stress area in threaded portion"""
+        """[in^2], stress area in threaded portion"""
         return (np.pi / 4.0) * ((self.dm + self.dp) / 2.0)**2
         
     @property
@@ -93,11 +93,11 @@ class EnglishFastener:
         
     @property
     def da(self):  
-        """# [in], thread stress diameter"""
+        """[in], thread stress diameter"""
         return np.sqrt(4.0 * self.thread_tensile_stress_area / np.pi)
         
     def tension_torque_t1(self, pb):  
-        """# [in-lb], torque required to apply desired tension
+        """[in-lb], torque required to apply desired tension
         # pb = axial load (tension desired)
         """
         # [rad], ramp angle of the threads (helix, lead)
@@ -105,14 +105,14 @@ class EnglishFastener:
         return pb * np.tan(beta) * self.dp / 2.0  # [in-lb]
 
     def thread_friction_torque_t2(self, mu, pb):  
-        """# [in-lb], torque to overcome thread friction
+        """[in-lb], torque to overcome thread friction
         # mu = friction between threads
         # pb = axial load (tension applied) [lb]
         """
         return self.dp * mu * pb / (2.0 * np.cos(self.alpha))  # [in-lb]
 
     def washer_friction_torque_t3(self, mu, pb):  
-        """# [in-lb], torque to overcome friction between bearing surfaces
+        """[in-lb], torque to overcome friction between bearing surfaces
         # mu = friction between bolt or nut head and bearing surface (washer)
         # pb = axial load (tension applied) [lb]
         """
@@ -127,10 +127,11 @@ class EnglishFastener:
         return theta  # [deg]
         
     def lb(self, lj, hn, hb):  
-        """[in], effective bolt length for joint calculations
-        # lj = length of the clamped joint
-        # hn = length of the nut or threaded hole
-        # hb = length of the bolt head
+        """[in], effective bolt length for joint calculation
+        
+        lj = length of the clamped joint
+        hn = length of the nut or threaded hole
+        hb = length of the bolt head
         """
         lt = lj - self.l_shank  # [in], length of threaded portion
         lb = (self.da / self.d_outer)**2 * (self.l_shank + hb / 2.0) + lt + (hn / 2.0)
@@ -146,7 +147,7 @@ class EnglishFastener:
         return delta
         
     def torque_for_tension(self, preload, k=0.2):  
-        """# [in-lb], torque required for desired tension (preload)"""
+        """[in-lb], torque required for desired tension (preload)"""
         torque = k * preload * self.d_outer
         return torque
 
@@ -156,6 +157,7 @@ class EnglishFastener:
         
     def estimated_k(self, mus, muw):
         """from Machinery's Handbook 29th ed., Page 1529
+        
         mus = coefficient of friction between the threads
         muw = coefficient of friction between bolt or nut bearing surfaces
         """

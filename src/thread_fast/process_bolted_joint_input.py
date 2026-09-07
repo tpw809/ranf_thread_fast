@@ -21,6 +21,7 @@ Parameters:
 """
 import json
 import numpy as np
+
 import thread_fast.conversion_factors as cf
 import thread_fast.nsts_08307a as nsts_08307a
 import thread_fast.nasa_tm_106943 as nasa_tm_106943
@@ -48,10 +49,14 @@ def process_bolted_joint_input(input_dict: dict):
     
     
     """
-    # check required inputs:
-    
+    # check type:
     assert input_dict['type'] == 'BoltedJoint'
     
+    # check if this data has already been processed:
+    if input_dict.get('processed_bool') == True:
+        return input_dict
+    
+    # check required inputs:
     assert input_dict.get('name') is not None
     
     # assert 'fastener' in input_dict
@@ -983,7 +988,8 @@ def process_bolted_joint_input(input_dict: dict):
     # Bearing under Bolt Head or Nut:
     # NASA-TM-106943 eq75:
     
-    
+    # add 'processed' tag:
+    input_dict['processed_bool'] = True
     
     return input_dict
 

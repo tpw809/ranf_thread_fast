@@ -24,6 +24,7 @@ Processed Outputs:
 
 """
 import numpy as np
+
 import thread_fast.conversion_factors as cf
 from thread_fast.materials.material_class import Material
 from thread_fast.materials.process_material_input import process_material_input

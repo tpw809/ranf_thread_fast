@@ -22,11 +22,11 @@ import thread_fast.nsts_08307a as nsts_08307a
 import thread_fast.nasa_tm_106943 as nasa_tm_106943
 import thread_fast.nasa_std_5020.nasa_std_5020b as nasa_std_5020b
 from thread_fast.kubler_bulten_nut_factor import kubler_bulten_nut_factor
-from thread_fast.nut_class import Nut
+from thread_fast.object_oriented.nut_class import Nut
 from thread_fast.materials.material_class import Material
-from thread_fast.fastener_class import Fastener
-from thread_fast.washer_class import Washer
-from thread_fast.clamped_part_class import ClampedPart
+from thread_fast.object_oriented.fastener_class import Fastener
+from thread_fast.object_oriented.washer_class import Washer
+from thread_fast.object_oriented.clamped_part_class import ClampedPart
 from thread_fast.threads.metric_thread_class import MetricThread
 from thread_fast.threads.metric_thread_class import ExternalMetricThread
 from thread_fast.threads.metric_thread_class import InternalMetricThread

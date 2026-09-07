@@ -23,6 +23,7 @@ Processed Outputs:
 
 """
 import numpy as np
+
 import thread_fast.conversion_factors as cf
 from thread_fast.materials.material_class import Material
 from thread_fast.materials.process_material_input import process_material_input
@@ -39,10 +40,14 @@ def process_clamped_part_input(input_dict: dict):
     - D_hole: hole (inner) diameter
     - D_outer: outer diameter (bearing area)
     """
-    # check required inputs:
-    
+    # check type:
     assert input_dict['type'] == 'ClampedPart'
     
+    # check if this data has already been processed:
+    if input_dict.get('processed_bool') == True:
+        return input_dict
+    
+    # check required inputs:
     assert 'name' in input_dict
     
     assert 'material' in input_dict
@@ -89,7 +94,8 @@ def process_clamped_part_input(input_dict: dict):
     else:
         assert input_dict['stiffness'] > 0.0
     
-    # TODO: add 'processed' tag ???
+    # add 'processed' tag:
+    input_dict['processed_bool'] = True
     
     return input_dict
 
