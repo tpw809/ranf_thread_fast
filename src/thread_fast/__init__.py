@@ -8,6 +8,7 @@ import thread_fast.sandia.sandia as sandia
 
 # object oriented:
 from thread_fast.materials.material_class import Material
+from thread_fast.materials.metric_material_class import MetricMaterial
 from thread_fast.object_oriented.nut_class import Nut
 from thread_fast.object_oriented.washer_class import Washer
 from thread_fast.threads.metric_thread_class import MetricThread

@@ -74,6 +74,30 @@ UNC_ext_7_8_9 = {
 }
 
 #########################
+# UNJC Coarse Thread, Controlled Root:
+# from MIL-S-8879C, Table II, pg 18:
+#########################
+
+UNJC_ext_3_4_10 = {
+    "name": "Unified Thread Coarse Size 3/4, 10tpi",
+    "units": "english: in",
+    "basic_major_diameter": 0.75,
+    "tpi": 10,  # threads per inch = threads / inch
+    "pitch": 1.0/10.0,
+    "external": True,
+}
+
+UNJC_ext_7_8_9 = {
+    "name": "Unified Thread Coarse Size 7/8, 9tpi",
+    "units": "english: in",
+    "basic_major_diameter": 0.875,
+    "tpi": 9,  # threads per inch = threads / inch
+    "pitch": 1.0/9.0,
+    "external": True,
+}
+
+
+#########################
 # UNF Fine Thread:
 #########################
 
@@ -89,9 +113,32 @@ UNF_ext_3_4_16 = {
 
 #########################
 # UNJF Fine Thread, Controlled Root:
+# from MIL-S-8879C, Table III, pg 20:
 #########################
 
-# from MIL-S-8879C, Table III, pg 20:
+#########################
+# External Threads:
+#########################
+
+UNJF_ext_10_32_class3A = {
+    "name": "Unified Thread Fine Size #10, 32tpi",
+    "units": "english: in",
+    "basic_major_diameter": 0.19,
+    "tpi": 32,  # threads per inch = threads / inch
+    "pitch": 1.0/32.0,
+    "external": True,
+    "class": "3A",
+    "series": "UNJF",
+    "min_major_diameter": 0.1840,
+    "max_major_diameter": 0.1900,
+    "min_pitch_diameter": 0.1674,
+    "max_pitch_diameter": 0.1697,
+    "min_minor_diameter": 0.1497,
+    "max_minor_diameter": 0.1539,
+    "min_root_radius": 0.0047,
+    "max_root_radius": 0.0056,
+}
+
 UNJF_ext_1_4_28_class3A = {
     "name": "Unified Thread Fine Size 1/4, 28tpi",
     "units": "english: in",
@@ -101,17 +148,16 @@ UNJF_ext_1_4_28_class3A = {
     "external": True,
     "class": "3A",
     "series": "UNJF",
-    "min_major_diameter": 0.2,
-    "max_major_diameter": 0.2,
-    "min_pitch_diameter": 0.2,
-    "max_pitch_diameter": 0.2,
-    "min_minor_diameter": 0.2,
-    "max_minor_diameter": 0.2,
-    "min_root_radius": 0.00,
-    "max_root_radius": 0.00,
+    "min_major_diameter": 0.2435,
+    "max_major_diameter": 0.2500,
+    "min_pitch_diameter": 0.2243,
+    "max_pitch_diameter": 0.2268,
+    "min_minor_diameter": 0.2041,
+    "max_minor_diameter": 0.2088,
+    "min_root_radius": 0.0054,
+    "max_root_radius": 0.0064,
 }
 
-# from MIL-S-8879C, Table III, pg 20:
 UNJF_ext_3_8_24_class3A = {
     "name": "Unified Thread Fine Size 3/8, 24tpi",
     "units": "english: in",
@@ -131,7 +177,6 @@ UNJF_ext_3_8_24_class3A = {
     "max_root_radius": 0.0075,
 }
 
-# from MIL-S-8879C, Table III, pg 20:
 UNJF_ext_7_8_14_class3A = {
     "name": "Unified Thread Fine Size 7/8, 14tpi",
     "units": "english: in",
@@ -152,12 +197,35 @@ UNJF_ext_7_8_14_class3A = {
 }
 
 
+#########################
+# Internal Threads:
+#########################
+
+UNJF_int_3_8_24_class3A = {
+    "name": "Unified Thread Fine Size 3/8, 24tpi",
+    "units": "english: in",
+    "basic_major_diameter": 0.375,
+    "tpi": 24,  # threads per inch = threads / inch
+    "pitch": 1.0/24.0,
+    "internal": True,
+    "class": "3B",
+    "series": "UNJF",
+    "min_major_diameter": 0.3750,
+    # "max_major_diameter": 0.0,
+    "min_pitch_diameter": 0.3479,
+    "max_pitch_diameter": 0.3516,
+    "min_minor_diameter": 0.3344,
+    "max_minor_diameter": 0.3418,
+    "min_root_radius": 0.00,
+    "max_root_radius": 0.00,
+}
 
 #########################
-# UNF Extra Fine Thread:
+# UNJEF Extra Fine Thread, Controlled Root radius:
+# from MIL-S-8879C, Table IV, pg 21:
 #########################
 
-UNEF_ext_12_32 = {
+UNJEF_ext_12_32 = {
     "name": "Unified Thread Extra Fine Size #12, 32tpi",
     "units": "english: in",
     "basic_major_diameter": 0.2160,
@@ -166,11 +234,56 @@ UNEF_ext_12_32 = {
     "external": True,
 }
 
-UNEF_ext_1_4_32 = {
+UNJEF_ext_1_4_32 = {
     "name": "Unified Thread Extra Fine Size 1/4, 32tpi",
     "units": "english: in",
-    "basic_major_diameter": 0.25,
+    "basic_major_diameter": 0.2500,
     "tpi": 32,  # threads per inch = threads / inch
     "pitch": 1.0/32.0,
     "external": True,
 }
+
+UNJEF_ext_5_16_32 = {
+    "name": "Unified Thread Extra Fine Size 5/16, 32tpi",
+    "units": "english: in",
+    "basic_major_diameter": 0.3125,
+    "tpi": 32,  # threads per inch = threads / inch
+    "pitch": 1.0/32.0,
+    "external": True,
+}
+
+UNJEF_ext_3_8_32 = {
+    "name": "Unified Thread Extra Fine Size 3/8, 32tpi",
+    "units": "english: in",
+    "basic_major_diameter": 0.3750,
+    "tpi": 32,  # threads per inch = threads / inch
+    "pitch": 1.0/32.0,
+    "external": True,
+}
+
+
+def main() -> None:
+    print("\nEnglish Unified Thread Database:\n")
+    
+    print("\nUNC Series:\n")
+    
+    print("\nUNF Series:\n")
+    
+    print("\nUNEF Series:\n")
+    
+    
+    print("\nUNJC Series:\n")
+    
+    print("\nUNJF Series:\n")
+    print(UNJF_ext_10_32_class3A)
+    print(UNJF_ext_1_4_28_class3A)
+    print(UNJF_ext_3_8_24_class3A)
+    
+    
+    print("\nUNJEF Series:\n")
+    
+    
+    
+if __name__ == "__main__":
+    main()
+    

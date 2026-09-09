@@ -19,7 +19,7 @@ input_dict = {
 }
 
 # test from dict:
-test_input_dict_mat = thread_fast.Material.from_dict(input_dict)
+test_input_dict_mat = thread_fast.MetricMaterial.from_dict(input_dict)
 print(test_input_dict_mat)
 
 # test standard constructor:
