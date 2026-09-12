@@ -21,6 +21,7 @@ from thread_fast.object_oriented.bolted_joint_class import BoltedJoint
 from thread_fast.materials.process_material_input import process_material_input
 from thread_fast.threads.process_metric_thread import process_metric_thread_input
 from thread_fast.process_nut_input import process_nut_input
+from thread_fast.process_washer_input import process_washer_input
 from thread_fast.process_fastener_input import process_fastener_input
 from thread_fast.process_bolted_joint_input import process_bolted_joint_input
 

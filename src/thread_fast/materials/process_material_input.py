@@ -167,11 +167,11 @@ def main() -> None:
         'Scy': 900.0,  # contact (bearing) yield strength
         'Scu': 1200.0,  # contact (bearing) ultimate strength
     }
-    # print(f"\ninput_dict = \n{input_dict}\n")
+    print(f"\ninput_dict: \n")
     print(json.dumps(input_dict, indent=4))
     
     output_dict = process_material_input(input_dict)
-    # print(f"\noutput_dict = \n{output_dict}\n")
+    print(f"\noutput_dict: \n")
     print(json.dumps(output_dict, indent=4))
     
     input_dict = {
@@ -191,11 +191,11 @@ def main() -> None:
         # 'Scy': 900.0,  # contact (bearing) yield strength
         # 'Scu': 1200.0,  # contact (bearing) ultimate strength
     }
-    # print(f"\ninput_dict = \n{input_dict}\n")
+    print(f"\ninput_dict: \n")
     print(json.dumps(input_dict, indent=4))
     
     output_dict = process_material_input(input_dict, verbose=True)
-    # print(f"\noutput_dict = \n{output_dict}\n")
+    print(f"\noutput_dict: \n")
     print(json.dumps(output_dict, indent=4))
     
     input_dict = {
@@ -215,11 +215,11 @@ def main() -> None:
         'Scy': None,  # contact (bearing) yield strength
         'Scu': None,  # contact (bearing) ultimate strength
     }
-    # print(f"\ninput_dict = \n{input_dict}\n")
+    print(f"\ninput_dict: \n")
     print(json.dumps(input_dict, indent=4))
     
     output_dict = process_material_input(input_dict, verbose=True)
-    # print(f"\noutput_dict = \n{output_dict}\n")
+    print(f"\noutput_dict: \n")
     print(json.dumps(output_dict, indent=4))
     
     

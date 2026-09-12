@@ -1,13 +1,5 @@
 """Process input and return validated and completed data.
 
-Use functional programming instead of object oriented...
-
-focus on web-app interface...
-
-Goal: user can input as little or as much as they want...
-
-Also try going unitless...
-
 Parameters:
 
 - type: 'ClampedPart'
@@ -18,9 +10,9 @@ Parameters:
 - D_outer: outer diameter
 
 Processed Outputs:
-- area:
-- stiffness:
 
+- area
+- stiffness
 """
 import json
 import numpy as np
@@ -50,30 +42,22 @@ def process_clamped_part_input(input_dict: dict):
     
     # check required inputs:
     assert 'name' in input_dict
-    
     assert 'material' in input_dict
-    
     assert 'D_hole' in input_dict
-    
     assert 'D_outer' in input_dict
-    
     assert 'thickness' in input_dict
     
     D_hole = input_dict['D_hole']
-    
     D_outer = input_dict['D_outer']
-    
     thickness = input_dict['thickness']
     
     # hole diameter:
-    assert D_hole > 0.0, "hole diamter must be > 0"
+    assert D_hole > 0.0, "clamped part hole diamter must be > 0"
     
     # outer diameter:
-    assert D_outer > D_hole, "outer diamter must be > hole diameter"
+    assert D_outer > D_hole, "clamped part outer diamter must be > hole diameter"
     
-    assert thickness > 0.0, "thickness must be > 0"
-    
-    # only process if it does not already exist...
+    assert thickness > 0.0, "clamped part thickness must be > 0"
     
     # TODO: limit area to under head or nut...
     if input_dict.get('area') is None:
@@ -113,10 +97,9 @@ def main() -> None:
         'Sty': 600.0,  # tensile yield strength
         'Stu': 800.0,  # tensile ultimate strength
     }
-    # print(f"\ninput: \n{material_dict}")
-    print(json.dumps(material_dict, indent=4))
+
     material_dict = process_material_input(material_dict)
-    # print(f"\noutput: \n{material_dict}")
+    print(f"\nmaterial_dict: \n")
     print(json.dumps(material_dict, indent=4))
     
     print("\nClampedPart:")
@@ -128,10 +111,9 @@ def main() -> None:
         'D_outer': 8.5,
         'thickness': 5.0,
     }
-    # print(f"\ninput: \n{input_dict}")
-    print(json.dumps(input_dict, indent=4))
+
     output_dict = process_clamped_part_input(input_dict)
-    # print(f"\noutput: \n{output_dict}")
+    print(f"\noutput: \n")
     print(json.dumps(output_dict, indent=4))
     
 

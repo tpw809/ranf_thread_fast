@@ -1,11 +1,4 @@
-"""
-Use functional programming instead of object oriented...
-
-focus on web-app interface...
-
-Goal: user can input as little or as much as they want...
-
-Also try going unitless...
+"""Process input and return validated and completed data.
 
 Parameters:
 
@@ -35,7 +28,7 @@ import thread_fast.conversion_factors as cf
 import thread_fast.nsts_08307a as nsts_08307a
 import thread_fast.nasa_tm_106943 as nasa_tm_106943
 from thread_fast.materials.process_material_input import process_material_input
-from thread_fast.threads.process_metric_thread import process_metric_thread_input
+from thread_fast.threads.process_thread_input import process_thread_input
 
 
 def process_fastener_input(
@@ -54,11 +47,7 @@ def process_fastener_input(
     - L_shank
     - L_thread
     
-    
     Optional:
-    
-    
-    
     """
     if verbose:
         print("Running process_fastener_input(verbose=True)...")
@@ -71,19 +60,12 @@ def process_fastener_input(
         return input_dict
     
     # check required inputs:
-    
     assert input_dict.get('name') is not None
-    
     assert input_dict.get('material') is not None
-    
     assert input_dict.get('thread') is not None
-    
     assert 'Do_head' in input_dict
-    
     assert 'Do_shank' in input_dict
-    
     assert 'L_shank' in input_dict
-    
     assert 'L_thread' in input_dict
     
     material = input_dict['material']
@@ -91,7 +73,7 @@ def process_fastener_input(
     input_dict['material'] = material
     
     thread = input_dict['thread']
-    thread = process_metric_thread_input(thread)
+    thread = process_thread_input(thread)
     input_dict['thread'] = thread
     
     Do_head = input_dict['Do_head']
@@ -247,7 +229,7 @@ def main() -> None:
     material_dict = process_material_input(
         material_dict, 
         verbose=True)
-    # print(f"material_dict = \n{material_dict}")
+    print(f"\nmaterial_dict = \n")
     print(json.dumps(material_dict, indent=4))
     
     thread_dict = {
@@ -265,11 +247,11 @@ def main() -> None:
     }
     
     thread_dict = process_metric_thread_input(thread_dict, verbose=True)
-    # print(f"thread_dict = \n{thread_dict}")
+    print(f"\nthread_dict = \n")
     print(json.dumps(thread_dict, indent=4))
     
     # minimal fastener input dictionary:
-    input_dict = {
+    fastener_dict = {
         'type': 'Fastener',
         'units': 'metric: N, mm, MPa, C',
         'name': 'fastener_test_input_dict',
@@ -280,17 +262,17 @@ def main() -> None:
         'L_shank': 10.0,
         'L_thread': 10.0,
     }
-    # print(f"\ninput_dict = \n{input_dict}\n")
-    print(json.dumps(input_dict, indent=4))
+    print(f"\nfastener_dict = \n")
+    print(json.dumps(fastener_dict, indent=4))
     
     # test fastener processor:
-    output_dict = process_fastener_input(input_dict, 
+    fastener_dict = process_fastener_input(fastener_dict, 
         verbose=True)
-    # print(f"\noutput_dict = \n{output_dict}\n")
-    print(json.dumps(output_dict, indent=4))
+    print(f"\nfastener_dict = \n")
+    print(json.dumps(fastener_dict, indent=4))
     
     # test accessing data:
-    thread_pitch = output_dict['thread']['pitch']
+    thread_pitch = fastener_dict['thread']['pitch']
     print(f"thread pitch = {thread_pitch}")
 
 

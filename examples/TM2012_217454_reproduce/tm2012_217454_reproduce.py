@@ -26,6 +26,7 @@ Target preload = 8000 lb
 600 in-lb for insert configuration
 
 """
+import json
 import numpy as np
 
 import thread_fast
@@ -38,14 +39,15 @@ bolt_material_dict = thread_fast.english_material_database.a286_mat_dict
 
 bolt_material_dict = thread_fast.process_material_input(bolt_material_dict)
 
-print(f"\nBolt material: \n{bolt_material_dict}")
+print(f"\nBolt material: \n")
+print(json.dumps(bolt_material_dict, indent=4))
 
 puck_material1_dict = thread_fast.english_material_database.SS440C_mat_dict
 
 puck_material1_dict = thread_fast.process_material_input(puck_material1_dict)
 
-print(f"\nPuck material: \n{puck_material1_dict}")
-
+print(f"\nPuck material: \n")
+print(json.dumps(puck_material1_dict, indent=4))
 
 ######################
 # Threads:
@@ -53,14 +55,16 @@ print(f"\nPuck material: \n{puck_material1_dict}")
 
 # bolt:
 bolt_thread_dict = thread_fast.english_thread_database.UNJF_ext_3_8_24_class3A
-print(f"\nBolt thread = \n{bolt_thread_dict}")
+print(f"\nBolt thread: \n")
+print(json.dumps(bolt_thread_dict, indent=4))
 
 # insert:
 insert_thread_dict = None
 
 # nut:
 nut_thread_dict = thread_fast.english_thread_database.UNJF_int_3_8_24_class3A
-print(f"\nNut thread = \n{nut_thread_dict}")
+print(f"\nNut thread: \n")
+print(json.dumps(nut_thread_dict, indent=4))
 
 
 ######################
@@ -79,10 +83,10 @@ bolt_dict = {
     'L_shank': 10.0,
     'L_thread': 10.0,
 }
-print(f"\nbolt_dict = \n{bolt_dict}\n")
 
 bolt_dict = thread_fast.process_fastener_input(bolt_dict)
-print(f"\nbolt_dict = \n{bolt_dict}\n")
+print(f"\nbolt_dict: \n")
+print(json.dumps(bolt_dict, indent=4))
 
 
 ######################
@@ -98,11 +102,10 @@ nut_dict = {
     'Do': 8.5,
     'length': 5.0,
 }
-print(f"\nnut_dict = \n{nut_dict}\n")
 
 nut_dict = thread_fast.process_nut_input(nut_dict)
-print(f"\nnut_dict = \n{nut_dict}\n")
-
+print(f"\nnut_dict: \n")
+print(json.dumps(nut_dict, indent=4))
 
 ######################
 # Insert:
@@ -124,9 +127,10 @@ washer_dict = {
     'D_outer': 8.5,
     'thickness': 2.0,
 }
-print(f"\nwasher_dict: \n{washer_dict}\n")
+
 washer_dict = thread_fast.process_washer_input(washer_dict)
-print(f"\nwasher_dict: \n{washer_dict}\n")
+print(f"\nwasher_dict: \n")
+print(json.dumps(washer_dict, indent=4))
 
 
 ######################
@@ -143,9 +147,10 @@ clamped_part1_dict = {
     'D_outer': 12.5,
     'thickness': 5.0,
 }
-print(f"\nclamped_part1_dict: \n{clamped_part1_dict}\n")
+
 # clamped_part1_dict = process_clamped_part_input(clamped_part1_dict)
-# print(f"\nclamped_part1_dict: \n{clamped_part1_dict}\n")
+print(f"\nclamped_part1_dict: \n")
+print(json.dumps(clamped_part1_dict, indent=4))
 
 clamped_part2_dict = {
     'type': 'ClampedPart',
@@ -156,9 +161,10 @@ clamped_part2_dict = {
     'D_outer': 12.5,
     'thickness': 10.0,
 }
-print(f"\nclamped_part2_dict: \n{clamped_part2_dict}\n")
+
 # clamped_part2_dict = process_clamped_part_input(clamped_part2_dict)
-# print(f"\nclamped_part2_dict: \n{clamped_part2_dict}\n")
+print(f"\nclamped_part2_dict: \n")
+print(json.dumps(clamped_part2_dict, indent=4))
 
 
 ######################
@@ -255,12 +261,10 @@ bolted_joint_dict = {
     'applied_preload': None,  # optional override
     'phi': None,
 }
-print(f"\nbolted_joint_dict: \n{bolted_joint_dict}\n")
-
 
 bolted_joint_dict = thread_fast.process_bolted_joint_input(bolted_joint_dict)
-print(f"\nbolted_joint_dict: \n{bolted_joint_dict}\n")
-
+print(f"\nbolted_joint_dict: \n")
+print(json.dumps(bolted_joint_dict, indent=4))
 
 # Find Predicted Failure Loads:
 

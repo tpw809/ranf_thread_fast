@@ -1,13 +1,5 @@
 """Process input and return validated and completed data.
 
-Use functional programming instead of object oriented...
-
-focus on web-app interface...
-
-Goal: user can input as little or as much as they want...
-
-Also try going unitless...
-
 Mandatory Parameters:
 
 - type: Metric_Thread
@@ -16,11 +8,9 @@ Mandatory Parameters:
 - pitch: thread pitch
 - beta_rad: thread half angle in radians
 
-
 Calculated / Optional Parameters:
 
 - H: fundamental triangle height
-
 """
 import json
 import numpy as np
@@ -69,13 +59,10 @@ def process_metric_thread_input(
     
     # check required inputs:
     assert input_dict.get('name') is not None
-    
     assert input_dict['pitch'] > 0.0
-    
-    # assert 'tolerance_grade' in input_dict
     assert input_dict.get('tolerance_grade') is not None
-    
     assert input_dict.get('allowance_class') is not None
+    assert input_dict.get('profile') is not None
     
     # assert 'external' in input_dict
     if input_dict.get('internal') is None:
@@ -87,17 +74,12 @@ def process_metric_thread_input(
     
     # assert input_dict['external'] != input_dict['internal']
     
-    # assert 'profile' in input_dict
-    assert input_dict.get('profile') is not None
-    
-    
     # check / fill parameter:
     if 'beta_rad' in input_dict:
         assert input_dict['beta_rad'] >= 0.0
         input_dict['beta_deg'] = cf.rad_to_deg * input_dict['beta_rad']
     else:
         input_dict['beta_rad'] = cf.deg_to_rad * input_dict['beta_deg']
-    
     
     # Make calculations:
     basic_major_diameter = input_dict['basic_major_diameter']
@@ -118,8 +100,7 @@ def process_metric_thread_input(
     
     profile = input_dict['profile']
     
-    # height of fundamental triangle:
-    # from: iso 68
+    # height of fundamental triangle, H, from ISO 68:
     if input_dict.get('H') is None:
         if verbose:
             print("calculating metric thread triangle height, H...")
@@ -137,8 +118,7 @@ def process_metric_thread_input(
     input_dict['LE_min'] = LE_min
     input_dict['LE_max'] = LE_max
     
-    # basic pitch diameter:
-    # ISO 724:
+    # basic pitch diameter, from ISO 724:
     if input_dict.get('basic_pitch_diameter') is None:
         if verbose:
             print("calculating metric thread basic pitch diameter...")
@@ -188,7 +168,6 @@ def process_metric_thread_input(
     else:
         psi_rad = input_dict['psi_rad']
     
-    
     ###########################
     # External Thread
     ###########################
@@ -225,7 +204,6 @@ def process_metric_thread_input(
         print(input_dict['basic_minor_diameter'] == d3)
         print(f"d3 = {d3}")
         print(f"basic_minor_diameter = {input_dict['basic_minor_diameter']}")
-        
         
         # major diameter tolerance:
         if input_dict.get('Td') is None:
@@ -532,7 +510,7 @@ def process_metric_thread_input(
 
 def main() -> None:
     
-    input_dict = {
+    thread_dict = {
         'type': 'Metric_Thread',
         'units': 'metric: N, mm, MPa, C',
         'name': 'test_input_dict',
@@ -545,15 +523,15 @@ def main() -> None:
         'tolerance_grade': 6,
         'allowance_class': 'h',
     }
-    # print(f"input_dict = \n{input_dict}\n")
-    print(json.dumps(input_dict, indent=4))
+    print(f"\nthread_dict: \n")
+    print(json.dumps(thread_dict, indent=4))
     
-    output_dict = process_metric_thread_input(input_dict, verbose=True)
-    # print(f"output_dict = \n{output_dict}\n")
+    output_dict = process_metric_thread_input(thread_dict, verbose=True)
+    print(f"output_dict: \n")
     print(json.dumps(output_dict, indent=4))
     
     output_dict = process_metric_thread_input(output_dict, verbose=True)
-    # print(f"output_dict = \n{output_dict}\n")
+    print(f"output_dict: \n")
     print(json.dumps(output_dict, indent=4))
     
     
@@ -570,15 +548,15 @@ def main() -> None:
         'tolerance_grade': 6,
         'allowance_class': 'H',
     }
-    # print(f"input_dict = \n{input_dict}\n")
+    print(f"input_dict: \n")
     print(json.dumps(input_dict, indent=4))
     
     output_dict = process_metric_thread_input(input_dict, verbose=True)
-    # print(f"output_dict = \n{output_dict}\n")
+    print(f"output_dict: \n")
     print(json.dumps(output_dict, indent=4))
     
     output_dict = process_metric_thread_input(output_dict, verbose=True)
-    # print(f"output_dict = \n{output_dict}\n")
+    print(f"output_dict: \n")
     print(json.dumps(output_dict, indent=4))
     
 
