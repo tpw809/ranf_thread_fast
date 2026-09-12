@@ -6,7 +6,7 @@ focus on web-app interface...
 
 Goal: user can input as little or as much as they want...
 
-Also try going unitless...
+Unitless.
 
 Parameters:
 
@@ -24,6 +24,7 @@ Parameters:
 - Scy: contact (bearing) yield strength (stress)
 - Scu: contact (bearing) ultimate strength (stress)
 """
+import json
 import numpy as np
 
 
@@ -73,7 +74,10 @@ def calc_Ssu_mpa(Stu: float) -> float:
     return Stu / np.sqrt(3.0)
 
 
-def process_material_input(input_dict: dict):
+def process_material_input(
+        input_dict: dict,
+        verbose:bool=False,
+    ):
     """Read and modify the input dict to ensure completeness and validity.
     
     Must supply:
@@ -90,6 +94,9 @@ def process_material_input(input_dict: dict):
     - Scy: contact (bearing) yield strength
     - Scu: contact (bearing) ulimate strength
     """
+    if verbose:
+        print("Running process_material_input(verbose=True)...")
+    
     # check type:
     assert input_dict['type'] == 'Material', "type must be Material"
     
@@ -145,6 +152,7 @@ def main() -> None:
     
     input_dict = {
         'type': 'Material',
+        'units': 'metric: N, mm, MPa, C',
         'name': 'test_input_dict',
         'E': 200000.0,  # modulus of elasticity
         'nu': 0.3,  # Poisson's ratio
@@ -159,13 +167,16 @@ def main() -> None:
         'Scy': 900.0,  # contact (bearing) yield strength
         'Scu': 1200.0,  # contact (bearing) ultimate strength
     }
-    print(f"\ninput_dict = \n{input_dict}\n")
+    # print(f"\ninput_dict = \n{input_dict}\n")
+    print(json.dumps(input_dict, indent=4))
     
     output_dict = process_material_input(input_dict)
-    print(f"\noutput_dict = \n{output_dict}\n")
+    # print(f"\noutput_dict = \n{output_dict}\n")
+    print(json.dumps(output_dict, indent=4))
     
     input_dict = {
         'type': 'Material',
+        'units': 'metric: N, mm, MPa, C',
         'name': 'test_input_dict',
         'E': 200000.0,  # modulus of elasticity
         'nu': 0.3,  # Poisson's ratio
@@ -180,13 +191,16 @@ def main() -> None:
         # 'Scy': 900.0,  # contact (bearing) yield strength
         # 'Scu': 1200.0,  # contact (bearing) ultimate strength
     }
-    print(f"\ninput_dict = \n{input_dict}\n")
+    # print(f"\ninput_dict = \n{input_dict}\n")
+    print(json.dumps(input_dict, indent=4))
     
-    output_dict = process_material_input(input_dict)
-    print(f"\noutput_dict = \n{output_dict}\n")
+    output_dict = process_material_input(input_dict, verbose=True)
+    # print(f"\noutput_dict = \n{output_dict}\n")
+    print(json.dumps(output_dict, indent=4))
     
     input_dict = {
         'type': 'Material',
+        'units': 'metric: N, mm, MPa, C',
         'name': 'test_input_dict',
         'E': 200000.0,  # modulus of elasticity
         'nu': 0.3,  # Poisson's ratio
@@ -201,10 +215,12 @@ def main() -> None:
         'Scy': None,  # contact (bearing) yield strength
         'Scu': None,  # contact (bearing) ultimate strength
     }
-    print(f"\ninput_dict = \n{input_dict}\n")
+    # print(f"\ninput_dict = \n{input_dict}\n")
+    print(json.dumps(input_dict, indent=4))
     
-    output_dict = process_material_input(input_dict)
-    print(f"\noutput_dict = \n{output_dict}\n")
+    output_dict = process_material_input(input_dict, verbose=True)
+    # print(f"\noutput_dict = \n{output_dict}\n")
+    print(json.dumps(output_dict, indent=4))
     
     
 if __name__ == "__main__":

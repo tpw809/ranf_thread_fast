@@ -56,20 +56,24 @@ major_diameter = size_number * 0.013 + 0.060
 #########################
 
 UNC_ext_3_4_10 = {
+    "type": "Thread",
     "name": "Unified Thread Coarse Size 3/4, 10tpi",
     "units": "english: in",
+    'beta_deg': 30.0,  # deg
     "basic_major_diameter": 0.75,
     "tpi": 10,  # threads per inch = threads / inch
-    "pitch": 1.0/10.0,
+    "pitch": 1.0/10.0,  # in
     "external": True,
 }
 
 UNC_ext_7_8_9 = {
+    "type": "Thread",
     "name": "Unified Thread Coarse Size 7/8, 9tpi",
     "units": "english: in",
+    'beta_deg': 30.0,  # deg
     "basic_major_diameter": 0.875,
     "tpi": 9,  # threads per inch = threads / inch
-    "pitch": 1.0/9.0,
+    "pitch": 1.0/9.0,  # in
     "external": True,
 }
 
@@ -79,20 +83,24 @@ UNC_ext_7_8_9 = {
 #########################
 
 UNJC_ext_3_4_10 = {
+    "type": "Thread",
     "name": "Unified Thread Coarse Size 3/4, 10tpi",
     "units": "english: in",
+    'beta_deg': 30.0,  # deg
     "basic_major_diameter": 0.75,
     "tpi": 10,  # threads per inch = threads / inch
-    "pitch": 1.0/10.0,
+    "pitch": 1.0/10.0,  # in
     "external": True,
 }
 
 UNJC_ext_7_8_9 = {
+    "type": "Thread",
     "name": "Unified Thread Coarse Size 7/8, 9tpi",
     "units": "english: in",
+    'beta_deg': 30.0,  # deg
     "basic_major_diameter": 0.875,
     "tpi": 9,  # threads per inch = threads / inch
-    "pitch": 1.0/9.0,
+    "pitch": 1.0/9.0,  # in
     "external": True,
 }
 
@@ -102,11 +110,13 @@ UNJC_ext_7_8_9 = {
 #########################
 
 UNF_ext_3_4_16 = {
+    "type": "Thread",
     "name": "Unified Thread Fine Size 3/4, 16tpi",
     "units": "english: in",
+    'beta_deg': 30.0,  # deg
     "basic_major_diameter": 0.75,
     "tpi": 16,  # threads per inch = threads / inch
-    "pitch": 1.0/16.0,
+    "pitch": 1.0/16.0,  # in
     "external": True,
 }
 
@@ -121,11 +131,13 @@ UNF_ext_3_4_16 = {
 #########################
 
 UNJF_ext_10_32_class3A = {
+    "type": "Thread",
     "name": "Unified Thread Fine Size #10, 32tpi",
     "units": "english: in",
+    'beta_deg': 30.0,  # deg
     "basic_major_diameter": 0.19,
     "tpi": 32,  # threads per inch = threads / inch
-    "pitch": 1.0/32.0,
+    "pitch": 1.0/32.0,  # in
     "external": True,
     "class": "3A",
     "series": "UNJF",
@@ -140,11 +152,13 @@ UNJF_ext_10_32_class3A = {
 }
 
 UNJF_ext_1_4_28_class3A = {
+    "type": "Thread",
     "name": "Unified Thread Fine Size 1/4, 28tpi",
     "units": "english: in",
+    'beta_deg': 30.0,  # deg
     "basic_major_diameter": 0.25,
     "tpi": 28,  # threads per inch = threads / inch
-    "pitch": 1.0/28.0,
+    "pitch": 1.0/28.0,  # in
     "external": True,
     "class": "3A",
     "series": "UNJF",
@@ -159,11 +173,13 @@ UNJF_ext_1_4_28_class3A = {
 }
 
 UNJF_ext_3_8_24_class3A = {
+    "type": "Thread",
     "name": "Unified Thread Fine Size 3/8, 24tpi",
     "units": "english: in",
+    'beta_deg': 30.0,  # deg
     "basic_major_diameter": 0.375,
     "tpi": 24,  # threads per inch = threads / inch
-    "pitch": 1.0/24.0,
+    "pitch": 1.0/24.0,  # in
     "external": True,
     "class": "3A",
     "series": "UNJF",
@@ -178,11 +194,13 @@ UNJF_ext_3_8_24_class3A = {
 }
 
 UNJF_ext_7_8_14_class3A = {
+    "type": "Thread",
     "name": "Unified Thread Fine Size 7/8, 14tpi",
     "units": "english: in",
+    'beta_deg': 30.0,  # deg
     "basic_major_diameter": 0.875,
     "tpi": 14,  # threads per inch = threads / inch
-    "pitch": 1.0/14.0,
+    "pitch": 1.0/14.0,  # in
     "external": True,
     "class": "3A",
     "series": "UNJF",
@@ -202,11 +220,13 @@ UNJF_ext_7_8_14_class3A = {
 #########################
 
 UNJF_int_3_8_24_class3A = {
+    "type": "Thread",
     "name": "Unified Thread Fine Size 3/8, 24tpi",
     "units": "english: in",
+    'beta_deg': 30.0,  # deg
     "basic_major_diameter": 0.375,
     "tpi": 24,  # threads per inch = threads / inch
-    "pitch": 1.0/24.0,
+    "pitch": 1.0/24.0,  # in
     "internal": True,
     "class": "3B",
     "series": "UNJF",
@@ -226,43 +246,53 @@ UNJF_int_3_8_24_class3A = {
 #########################
 
 UNJEF_ext_12_32 = {
+    "type": "Thread",
     "name": "Unified Thread Extra Fine Size #12, 32tpi",
     "units": "english: in",
+    'beta_deg': 30.0,  # deg
     "basic_major_diameter": 0.2160,
     "tpi": 32,  # threads per inch = threads / inch
-    "pitch": 1.0/32.0,
+    "pitch": 1.0/32.0,  # in
     "external": True,
 }
 
 UNJEF_ext_1_4_32 = {
+    "type": "Thread",
     "name": "Unified Thread Extra Fine Size 1/4, 32tpi",
     "units": "english: in",
+    'beta_deg': 30.0,  # deg
     "basic_major_diameter": 0.2500,
     "tpi": 32,  # threads per inch = threads / inch
-    "pitch": 1.0/32.0,
+    "pitch": 1.0/32.0,  # in
     "external": True,
 }
 
 UNJEF_ext_5_16_32 = {
+    "type": "Thread",
     "name": "Unified Thread Extra Fine Size 5/16, 32tpi",
     "units": "english: in",
+    'beta_deg': 30.0,  # deg
     "basic_major_diameter": 0.3125,
     "tpi": 32,  # threads per inch = threads / inch
-    "pitch": 1.0/32.0,
+    "pitch": 1.0/32.0,  # in
     "external": True,
 }
 
 UNJEF_ext_3_8_32 = {
+    "type": "Thread",
     "name": "Unified Thread Extra Fine Size 3/8, 32tpi",
     "units": "english: in",
+    'beta_deg': 30.0,  # deg
     "basic_major_diameter": 0.3750,
     "tpi": 32,  # threads per inch = threads / inch
-    "pitch": 1.0/32.0,
+    "pitch": 1.0/32.0,  # in
     "external": True,
 }
 
 
 def main() -> None:
+    import json
+    
     print("\nEnglish Unified Thread Database:\n")
     
     print("\nUNC Series:\n")
@@ -275,10 +305,9 @@ def main() -> None:
     print("\nUNJC Series:\n")
     
     print("\nUNJF Series:\n")
-    print(UNJF_ext_10_32_class3A)
-    print(UNJF_ext_1_4_28_class3A)
-    print(UNJF_ext_3_8_24_class3A)
-    
+    print(json.dumps(UNJF_ext_10_32_class3A, indent=4))
+    print(json.dumps(UNJF_ext_1_4_28_class3A, indent=4))
+    print(json.dumps(UNJF_ext_3_8_24_class3A, indent=4))
     
     print("\nUNJEF Series:\n")
     

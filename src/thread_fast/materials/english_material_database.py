@@ -157,16 +157,21 @@ SS440C_mat_dict = {
 
 
 def main() -> None:
-    print(a286_mat_dict)
-    print(inconel_718_mat_dict)
-    print(mp35n_mat_dict)
-    print(SS15_5PH_H1025_mat_dict)
-    print(nitronic60_lvl3_cold_worked_mat_dict)
-    print(CRES301_mat_dict)
-    print(Al7075_T6_mat_dict)
-    print(Al6061_T6_mat_dict)
-    print(ti6al4v_grade5_mat_dict)
-    print(SS440C_mat_dict)
+    import json
+    from thread_fast.materials.process_material_input import process_material_input
+    
+    process_material_input(a286_mat_dict, verbose=True)
+    print(json.dumps(a286_mat_dict, indent=4))
+    
+    print(json.dumps(inconel_718_mat_dict, indent=4))
+    print(json.dumps(mp35n_mat_dict, indent=4))
+    print(json.dumps(SS15_5PH_H1025_mat_dict, indent=4))
+    print(json.dumps(nitronic60_lvl3_cold_worked_mat_dict, indent=4))
+    print(json.dumps(CRES301_mat_dict, indent=4))
+    print(json.dumps(Al7075_T6_mat_dict, indent=4))
+    print(json.dumps(Al6061_T6_mat_dict, indent=4))
+    print(json.dumps(ti6al4v_grade5_mat_dict, indent=4))
+    print(json.dumps(SS440C_mat_dict, indent=4))
     
     
 if __name__ == "__main__":

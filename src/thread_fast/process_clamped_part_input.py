@@ -22,6 +22,7 @@ Processed Outputs:
 - stiffness:
 
 """
+import json
 import numpy as np
 
 import thread_fast.conversion_factors as cf
@@ -112,9 +113,11 @@ def main() -> None:
         'Sty': 600.0,  # tensile yield strength
         'Stu': 800.0,  # tensile ultimate strength
     }
-    print(f"\ninput: \n{material_dict}")
+    # print(f"\ninput: \n{material_dict}")
+    print(json.dumps(material_dict, indent=4))
     material_dict = process_material_input(material_dict)
-    print(f"\noutput: \n{material_dict}")
+    # print(f"\noutput: \n{material_dict}")
+    print(json.dumps(material_dict, indent=4))
     
     print("\nClampedPart:")
     input_dict = {
@@ -125,9 +128,11 @@ def main() -> None:
         'D_outer': 8.5,
         'thickness': 5.0,
     }
-    print(f"\ninput: \n{input_dict}")
+    # print(f"\ninput: \n{input_dict}")
+    print(json.dumps(input_dict, indent=4))
     output_dict = process_clamped_part_input(input_dict)
-    print(f"\noutput: \n{output_dict}")
+    # print(f"\noutput: \n{output_dict}")
+    print(json.dumps(output_dict, indent=4))
     
 
 if __name__ == "__main__":

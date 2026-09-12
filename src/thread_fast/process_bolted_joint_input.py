@@ -37,7 +37,10 @@ from thread_fast.process_washer_input import process_washer_input
 from thread_fast.process_clamped_part_input import process_clamped_part_input
 
 
-def process_bolted_joint_input(input_dict: dict):
+def process_bolted_joint_input(
+        input_dict: dict,
+        verbose: bool=False,
+    ):
     """Read and modify the input dict to ensure completeness and validity.
     
     Must supply:
@@ -49,6 +52,9 @@ def process_bolted_joint_input(input_dict: dict):
     
     
     """
+    if verbose:
+        print("Running process_bolted_joint_input(verbose=True)...")
+    
     # check type:
     assert input_dict['type'] == 'BoltedJoint'
     
@@ -180,7 +186,10 @@ def process_bolted_joint_input(input_dict: dict):
     # Loaded Parts Index:
     assert 'loaded_part_index' in input_dict
     loaded_part_index = input_dict['loaded_part_index']
-    print(loaded_part_index)
+    
+    if verbose: 
+        print(loaded_part_index)
+    
     assert len(loaded_part_index) >= 2, "there must be at least 2 loaded parts (equal and opposite reaction)"
     
     #################################
@@ -228,7 +237,9 @@ def process_bolted_joint_input(input_dict: dict):
     clamped_parts = input_dict['clamped_parts']
         
     L_total_fast = fastener['length']
-    print(f"L_total_fast = {L_total_fast}")
+    
+    if verbose:
+        print(f"L_total_fast = {L_total_fast}")
     
     #TODO: adjust for threaded holes or inserts...
     L_total_clamped_parts = 0.0
@@ -243,7 +254,8 @@ def process_bolted_joint_input(input_dict: dict):
                 temp_length = 0.0
         L_total_clamped_parts += temp_length
     
-    print(f"L_total_clamped_parts = {L_total_clamped_parts}")
+    if verbose:
+        print(f"L_total_clamped_parts = {L_total_clamped_parts}")
     
     # TODO: include length of nut or insert
     # must extent past by 1 full thread
@@ -271,7 +283,8 @@ def process_bolted_joint_input(input_dict: dict):
         assert input_dict['L_e'] > 0.0
         L_e = input_dict['L_e']
     
-    print(f"Length of Engagement = {L_e}")
+    if verbose:
+        print(f"Length of Engagement = {L_e}")
     
     ###############################
     # Joint Stiffness:
@@ -279,7 +292,9 @@ def process_bolted_joint_input(input_dict: dict):
     
     # [N/mm], fastener (bolt) stiffness:
     K_b = fastener['stiffness']
-    print(f"K_b, bolt stiffness = {K_b}")
+    
+    if verbose:
+        print(f"K_b, bolt stiffness = {K_b}")
     
     
     # joint modulus:
@@ -312,13 +327,15 @@ def process_bolted_joint_input(input_dict: dict):
     
     # [N/mm], estimated clamped parts (joint) stiffness:
     if input_dict.get('K_j') is None:
-        print("estimating joint stiffness...")
+        if verbose:
+            print("estimating joint stiffness...")
         K_j_106943 = nasa_tm_106943.eq33(
             E_j=E_j,
             D=fastener['thread']['basic_major_diameter'],
             L=L_total_clamped_parts,
         )
-        print(f"K_j_106943 = {K_j_106943}")
+        if verbose:
+            print(f"K_j_106943 = {K_j_106943}")
         
         # joint stiffness:
         K_j = K_j_106943
@@ -333,7 +350,8 @@ def process_bolted_joint_input(input_dict: dict):
     ###############################
     
     if input_dict.get('phi') is None:
-        print("estimating joint stiffness factor, phi...")
+        if verbose:
+            print("estimating joint stiffness factor, phi...")
         # NASA-TM-106943 eq 29:
         # NASA-STD-5020B eq 9:
         phi = nasa_std_5020b.eq9(
@@ -342,11 +360,13 @@ def process_bolted_joint_input(input_dict: dict):
         )
         input_dict['phi'] = phi
     else:
-        print("joint stiffness factor, phi provided")
+        if verbose:
+            print("joint stiffness factor, phi provided")
         phi = input_dict['phi']
         assert phi > 0.0
     
-    print(f"joint stiffness factor, phi = {phi}")
+    if verbose:
+        print(f"joint stiffness factor, phi = {phi}")
     
     
     ###############################
@@ -408,7 +428,8 @@ def process_bolted_joint_input(input_dict: dict):
         assert 0.0 < input_dict['n'] < 1.0
         n = input_dict['n']
     
-    print(f"load introduction factor, n = {n}")
+    if verbose:
+        print(f"load introduction factor, n = {n}")
     
     
     ###############################
@@ -416,7 +437,8 @@ def process_bolted_joint_input(input_dict: dict):
     ###############################
     
     if input_dict.get('nut_factor') is None:
-        print("calculating nut factors...")
+        if verbose:
+            print("calculating nut factors...")
         
         # what is mean thread diameter for K?
         #TODO: update to be average of ext and int:
@@ -461,9 +483,10 @@ def process_bolted_joint_input(input_dict: dict):
             mu_c=mu_abutment,
         )
         
-        print(f"K_kb = {K_kb}")
-        print(f"K_08307 = {K_08307}")
-        print(f"K_106943 = {K_106943}")
+        if verbose:
+            print(f"K_kb = {K_kb}")
+            print(f"K_08307 = {K_08307}")
+            print(f"K_106943 = {K_106943}")
         
         K_min = np.min([
             K_kb, 
@@ -488,9 +511,10 @@ def process_bolted_joint_input(input_dict: dict):
         K_nom = K[1]
     
     
-    print(f"K_min = {K_min}")
-    print(f"K_nom = {K_nom}")
-    print(f"K_max = {K_max}")
+    if verbose:
+        print(f"K_min = {K_min}")
+        print(f"K_nom = {K_nom}")
+        print(f"K_max = {K_max}")
     
     
     
@@ -511,7 +535,9 @@ def process_bolted_joint_input(input_dict: dict):
         F_ty=fastener['material']['Sty'],  # F_ty = material tensile yield strength
         preload_stress_ratio=preload_stress_ratio,
     )
-    print(f"T_applied_nom = {T_applied_nom}")
+    
+    if verbose:
+        print(f"T_applied_nom = {T_applied_nom}")
     
     T_applied_min = nasa_tm_106943.eq3(
         D=fastener['thread']['basic_major_diameter'],  # major diameter
@@ -520,7 +546,9 @@ def process_bolted_joint_input(input_dict: dict):
         F_ty=fastener['material']['Sty'],  # F_ty = material tensile yield strength
         preload_stress_ratio=preload_stress_ratio,
     )
-    print(f"T_applied_min = {T_applied_min}")
+    
+    if verbose:
+        print(f"T_applied_min = {T_applied_min}")
     
     T_applied_max = nasa_tm_106943.eq3(
         D=fastener['thread']['basic_major_diameter'],  # major diameter
@@ -529,7 +557,9 @@ def process_bolted_joint_input(input_dict: dict):
         F_ty=fastener['material']['Sty'],  # F_ty = material tensile yield strength
         preload_stress_ratio=preload_stress_ratio,
     )
-    print(f"T_applied_max = {T_applied_max}")
+    
+    if verbose:
+        print(f"T_applied_max = {T_applied_max}")
     
     ###############################
     # Predicted Initial Preload: 
@@ -542,21 +572,27 @@ def process_bolted_joint_input(input_dict: dict):
         K_nom=K_nom,
         D=fastener['thread']['basic_major_diameter'],
     )
-    print(f"P_i_nom = {P_i_nom}")
+    
+    if verbose:
+        print(f"P_i_nom = {P_i_nom}")
     
     P_i_min = nasa_std_5020b.eq4(
         c_min=lower_preload_tolerance_factor,
         gamma=preload_uncertainty_factor,
         P_pi_nom=P_i_nom,
     )
-    print(f"P_i_min = {P_i_min}")
+    
+    if verbose:
+        print(f"P_i_min = {P_i_min}")
     
     P_i_max = nasa_std_5020b.eq3(
         c_max=upper_preload_tolerance_factor,
         gamma=preload_uncertainty_factor,
         P_pi_nom=P_i_nom,
     )
-    print(f"P_i_max = {P_i_max}")
+    
+    if verbose:
+        print(f"P_i_max = {P_i_max}")
     
     # delta_b = 
     
@@ -602,8 +638,9 @@ def process_bolted_joint_input(input_dict: dict):
     P_th_max = np.max([P_th_min, P_th_max])
     P_th_min = P_th_min_temp
     
-    print(f"P_th_min = {P_th_min} [N]")
-    print(f"P_th_max = {P_th_max} [N]")
+    if verbose:
+        print(f"P_th_min = {P_th_min}")
+        print(f"P_th_max = {P_th_max}")
     
     
     #################################
@@ -613,7 +650,8 @@ def process_bolted_joint_input(input_dict: dict):
     # includes changes due to thermal conditions
     
     if input_dict.get('P_max') is None:
-        print("calculating max preload...")
+        if verbose:
+            print("calculating max preload...")
     
         # NASA-STD-5020B eq1:
         P_max = nasa_std_5020b.eq1(
@@ -627,7 +665,8 @@ def process_bolted_joint_input(input_dict: dict):
         P_max = input_dict['P_max']
     
     if input_dict.get('P_min') is None:
-        print("calculating min preload...")
+        if verbose:
+            print("calculating min preload...")
     
         # NASA-STD-5020B eq2mod:
         # P_min = P_i_min - preload_loss_due_to_material_creep
@@ -647,8 +686,9 @@ def process_bolted_joint_input(input_dict: dict):
     assert P_max >= 0.0, 'max preload must be >= 0'
     assert P_min <= P_max, "error in final preload prediction"
     
-    print(f"P_min = {P_min} [N]")
-    print(f"P_max = {P_max} [N]")
+    if verbose:
+        print(f"P_min = {P_min}")
+        print(f"P_max = {P_max}")
     
     
     ######################################
@@ -662,7 +702,8 @@ def process_bolted_joint_input(input_dict: dict):
     
     # bolt load (ultimate):
     if input_dict.get('P_b_u') is None:
-        print("calculating ultimate bolt load...")
+        if verbose:
+            print("calculating ultimate bolt load...")
         P_b_u = nsts_08307a.bolt_axial_load_for_strength(
             PLD_max=P_max, 
             n=n, 
@@ -683,7 +724,9 @@ def process_bolted_joint_input(input_dict: dict):
         P=applied_tensile_load, 
         P_b=P_b_u,
     )
-    print(f"MS_tu_nsts08307a = {MS_tu_nsts08307a}")
+    
+    if verbose:
+        print(f"MS_tu_nsts08307a = {MS_tu_nsts08307a}")
     
     # TODO: override for P_tu_allow, P_ty_allow: implemented at fastener level...
     
@@ -695,14 +738,18 @@ def process_bolted_joint_input(input_dict: dict):
         P_tu_allow=fastener['P_tu_allow'], 
         P_p_max=P_max,
     )
-    print(f"P_prime_tu = {P_prime_tu}")
+    
+    if verbose:
+        print(f"P_prime_tu = {P_prime_tu}")
     
     P_prime_sep = nasa_std_5020b.eq11(
         P_p_max=P_max, 
         n=n, 
         phi=phi,
     )
-    print(f"P_prime_sep = {P_prime_sep}")
+    
+    if verbose:
+        print(f"P_prime_sep = {P_prime_sep}")
     
     # ultimate tensile load: NASA-STD-5020B eq6:
     # ultimate tensile margin of safety:
@@ -712,7 +759,9 @@ def process_bolted_joint_input(input_dict: dict):
         P_tL=applied_tensile_load,
         FF=FF,  # fitting factor
     )
-    print(f"MS_tu_5020b_crit1 = {MS_tu_5020b_crit1}")
+    
+    if verbose:
+        print(f"MS_tu_5020b_crit1 = {MS_tu_5020b_crit1}")
     
     # ultimate tensile load: NASA-STD-5020B eq7:
     # ultimate tensile margin of safety:
@@ -722,7 +771,9 @@ def process_bolted_joint_input(input_dict: dict):
         P_tL=applied_tensile_load,
         FF=FF,  # fitting factor
     )
-    print(f"MS_tu_5020b = {MS_tu_5020b_crit2}")
+    
+    if verbose:
+        print(f"MS_tu_5020b = {MS_tu_5020b_crit2}")
     
     # yield axial load: NASA-STD-5020B eq15:
     # yield tensile margin of safety:
@@ -732,7 +783,9 @@ def process_bolted_joint_input(input_dict: dict):
         P_tL=applied_tensile_load,
         FF=FF,  # fitting factor
     )
-    print(f"MS_ty_5020b = {MS_ty_5020b_crit1}")
+    
+    if verbose:
+        print(f"MS_ty_5020b = {MS_ty_5020b_crit1}")
     
     P_prime_ty = nasa_std_5020b.eq17(
         n=n, 
@@ -740,7 +793,9 @@ def process_bolted_joint_input(input_dict: dict):
         P_ty_allow=fastener['P_ty_allow'], 
         P_p_max=P_max,
     )
-    print(f"P_prime_ty = {P_prime_ty}")
+    
+    if verbose:
+        print(f"P_prime_ty = {P_prime_ty}")
     
     MS_ty_5020b_crit2 = nasa_std_5020b.eq16(
         P_prime_ty=P_prime_ty, 
@@ -748,7 +803,9 @@ def process_bolted_joint_input(input_dict: dict):
         P_tL=applied_tensile_load,
         FF=FF,  # fitting factor
     )
-    print(f"MS_ty_5020b = {MS_ty_5020b_crit2}")
+    
+    if verbose:
+        print(f"MS_ty_5020b = {MS_ty_5020b_crit2}")
     
     ######################################
     # Shear only fastener strength:
@@ -765,14 +822,18 @@ def process_bolted_joint_input(input_dict: dict):
     # NASA-STD-5020B eq 12:
     # threads NOT in shear plane:
     P_su_allow_1 = fastener['P_su_allow_1']
-    print("threads NOT in shear plane:")
-    print(f"fastener P_su_allow_1 = {P_su_allow_1}")
+    
+    if verbose:
+        print("threads NOT in shear plane:")
+        print(f"fastener P_su_allow_1 = {P_su_allow_1}")
     
     # NASA-STD-5020B eq 13:
     # threads in shear plane:
     P_su_allow_2 = fastener['P_su_allow_2']
-    print("threads in shear plane:")
-    print(f"fastener P_su_allow_2 = {P_su_allow_2}")
+    
+    if verbose:
+        print("threads in shear plane:")
+        print(f"fastener P_su_allow_2 = {P_su_allow_2}")
     
     # ultimate fastener shear margin of safety:
     
@@ -782,7 +843,9 @@ def process_bolted_joint_input(input_dict: dict):
         P_sL=applied_shear_load, 
         FF=FF,  # fitting factor
     )
-    print(f"MS_su_5020b_1 = {MS_su_5020b_1}")
+    
+    if verbose:
+        print(f"MS_su_5020b_1 = {MS_su_5020b_1}")
     
     
     MS_su_5020b_2 = nasa_std_5020b.eq14(
@@ -791,7 +854,9 @@ def process_bolted_joint_input(input_dict: dict):
         P_sL=applied_shear_load, 
         FF=FF,  # fitting factor
     )
-    print(f"MS_su_5020b_2 = {MS_su_5020b_2}")
+    
+    if verbose:
+        print(f"MS_su_5020b_2 = {MS_su_5020b_2}")
     
     
     
@@ -835,7 +900,8 @@ def process_bolted_joint_input(input_dict: dict):
         P_sep=P_sep_106943,
         SF=SF_sep,
     )
-    print(f"MS_sep_106943 = {MS_sep_106943}")
+    if verbose:
+        print(f"MS_sep_106943 = {MS_sep_106943}")
     
     
     # NASA-STD-5020B, eq19:
@@ -845,7 +911,8 @@ def process_bolted_joint_input(input_dict: dict):
         P_tL=applied_tensile_load,
         FF=FF, 
     )
-    print(f"MS_sep_5020b = {MS_sep_5020b}")
+    if verbose:
+        print(f"MS_sep_5020b = {MS_sep_5020b}")
     
     # NSTS08307A, joint_separation_margin_of_safety:
     P_sep_nsts08307a = nsts_08307a.joint_separation_load(
@@ -859,7 +926,8 @@ def process_bolted_joint_input(input_dict: dict):
         phi=phi,
         P_sep=P_sep_nsts08307a,
     )
-    print(f"MS_sep_nsts08307a = {MS_sep_nsts08307a}")
+    if verbose:
+        print(f"MS_sep_nsts08307a = {MS_sep_nsts08307a}")
     
     
     ######################################
@@ -873,7 +941,7 @@ def process_bolted_joint_input(input_dict: dict):
     # Shear Pull Out of Threads:
     ######################################
     
-    # TODO: rederive the thread shear area...
+    # TODO: re-derive the thread shear area...
     
     # external threads pull out shear area:
     A_se = nsts_08307a.external_thread_shear_area(
@@ -885,7 +953,8 @@ def process_bolted_joint_input(input_dict: dict):
         G_e=fastener['thread']['es'],  # allowance on ext threads
         pitch=fastener['thread']['pitch'],
     )
-    print(f"A_se = {A_se}")
+    if verbose:
+        print(f"A_se = {A_se}")
     
     # TODO: fix A_se
     A_se = 1.0
@@ -901,7 +970,8 @@ def process_bolted_joint_input(input_dict: dict):
         G_e=fastener['thread']['es'],  # allowance on ext threads
         pitch=fastener['thread']['pitch'],
     )
-    print(f"A_si = {A_si}")
+    if verbose:
+        print(f"A_si = {A_si}")
     
     # TODO: fix A_si
     A_si = 1.0
@@ -926,7 +996,8 @@ def process_bolted_joint_input(input_dict: dict):
         P=applied_tensile_load, 
         P_b=P_b_u,
     )
-    print(f"MS_thread_shear_pull_out_u_08307a = {MS_thread_shear_pull_out_u_08307a}")
+    if verbose:
+        print(f"MS_thread_shear_pull_out_u_08307a = {MS_thread_shear_pull_out_u_08307a}")
     
     # for nut internal threads:
     MS_thread_shear_pull_out_u_08307a = nsts_08307a.thread_shear_pull_out_margin(
@@ -935,7 +1006,8 @@ def process_bolted_joint_input(input_dict: dict):
         P=applied_tensile_load, 
         P_b=P_b_u,
     )
-    print(f"MS_thread_shear_pull_out_u_08307a = {MS_thread_shear_pull_out_u_08307a}")
+    if verbose:
+        print(f"MS_thread_shear_pull_out_u_08307a = {MS_thread_shear_pull_out_u_08307a}")
     
     input_dict['MS_thread_shear_pull_out_u_08307a'] = MS_thread_shear_pull_out_u_08307a
     
@@ -958,7 +1030,8 @@ def process_bolted_joint_input(input_dict: dict):
         F_su=nut['material']['Ssu'], 
         A_s=A_s_min,  # TODO: check this!
     )
-    print(f"P_ult_thread_shear = {P_ult_thread_shear}")
+    if verbose:
+        print(f"P_ult_thread_shear = {P_ult_thread_shear}")
     
     input_dict['P_ult_thread_shear'] = P_ult_thread_shear
     
@@ -968,7 +1041,8 @@ def process_bolted_joint_input(input_dict: dict):
         P_ult=P_ult_thread_shear, 
         P_b=P_b_u,
     )
-    print(f"MS_thread_shear_106943 = {MS_thread_shear_106943}")
+    if verbose:
+        print(f"MS_thread_shear_106943 = {MS_thread_shear_106943}")
     
     input_dict['MS_thread_shear_106943'] = MS_thread_shear_106943
     
@@ -999,6 +1073,7 @@ def main() -> None:
     print("\nFastener Material:")
     fastener_material_dict = {
         'type': 'Material',
+        'units': 'metric: N, mm, MPa, C',
         'name': 'fastener_material_dict',
         'E': 200000.0,  # modulus of elasticity
         'nu': 0.3,  # Poisson's ratio
@@ -1006,13 +1081,15 @@ def main() -> None:
         'Sty': 600.0,  # tensile yield strength
         'Stu': 800.0,  # tensile ultimate strength
     }
-    print(f"\nfastener material input: \n{fastener_material_dict}\n")
+    # print(f"\nfastener material input: \n{fastener_material_dict}\n")
     # fastener_material_dict = process_material_input(fastener_material_dict)
     # print(f"\noutput: \n{fastener_material_dict}\n")
+    print(json.dumps(fastener_material_dict, indent=4))
     
     print("\nNut Material:")
     nut_material_dict = {
         'type': 'Material',
+        'units': 'metric: N, mm, MPa, C',
         'name': 'nut_material_dict',
         'E': 200000.0,  # modulus of elasticity
         'nu': 0.3,  # Poisson's ratio
@@ -1020,11 +1097,13 @@ def main() -> None:
         'Sty': 600.0,  # tensile yield strength
         'Stu': 800.0,  # tensile ultimate strength
     }
-    print(f"\nnut material input: \n{nut_material_dict}\n")
+    # print(f"\nnut material input: \n{nut_material_dict}\n")
+    print(json.dumps(nut_material_dict, indent=4))
     
     print("\nFastener Thread:")
     fastener_thread_dict = {
         'type': 'Metric_Thread',
+        'units': 'metric: N, mm, MPa, C',
         'name': 'fastener_thread_dict',
         'basic_major_diameter': 6.0,
         'pitch': 1.0,
@@ -1035,11 +1114,13 @@ def main() -> None:
         'tolerance_grade': 6,
         'allowance_class': 'h',
     }
-    print(f"\nFastener Thread input: \n{fastener_thread_dict}\n")
+    # print(f"\nFastener Thread input: \n{fastener_thread_dict}\n")
+    print(json.dumps(fastener_thread_dict, indent=4))
     
     print("\nNut Thread:")
     nut_thread_dict = {
         'type': 'Metric_Thread',
+        'units': 'metric: N, mm, MPa, C',
         'name': 'test_input_dict',
         'basic_major_diameter': 6.0,
         'pitch': 1.0,
@@ -1050,22 +1131,26 @@ def main() -> None:
         'tolerance_grade': 6,
         'allowance_class': 'H',
     }
-    print(f"\nnut_thread_dict = \n{nut_thread_dict}\n")
+    # print(f"\nnut_thread_dict = \n{nut_thread_dict}\n")
+    print(json.dumps(nut_thread_dict, indent=4))
     
     print("\nNut:")
     nut_dict = {
         'type': 'Nut',
+        'units': 'metric: N, mm, MPa, C',
         'name': 'nut_dict',
         'material': nut_material_dict,
         'thread': nut_thread_dict,
         'Do': 8.5,
         'length': 5.0,
     }
-    print(f"\nnut_dict = \n{nut_dict}\n")
+    # print(f"\nnut_dict = \n{nut_dict}\n")
+    print(json.dumps(nut_dict, indent=4))
     
     print("\nFastener:")
     fastener_dict = {
         'type': 'Fastener',
+        'units': 'metric: N, mm, MPa, C',
         'name': 'fastener_dict',
         'material': fastener_material_dict,
         'thread': fastener_thread_dict,
@@ -1075,11 +1160,12 @@ def main() -> None:
         'L_thread': 20.0,
     }
     print(f"\nfastener_dict = \n{fastener_dict}\n")
-    
+    print(json.dumps(fastener_dict, indent=4))
     
     print("\nWasher Material:")
     washer_material_dict = {
         'type': 'Material',
+        'units': 'metric: N, mm, MPa, C',
         'name': 'washer_material_dict',
         'E': 200000.0,  # modulus of elasticity
         'nu': 0.3,  # Poisson's ratio
@@ -1087,27 +1173,31 @@ def main() -> None:
         'Sty': 600.0,  # tensile yield strength
         'Stu': 800.0,  # tensile ultimate strength
     }
-    print(f"\ninput: \n{washer_material_dict}\n")
+    # print(f"\ninput: \n{washer_material_dict}\n")
     # washer_material_dict = process_material_input(washer_material_dict)
     # print(f"\noutput: \n{washer_material_dict}\n")
+    print(json.dumps(washer_material_dict, indent=4))
     
     print("\nWasher:")
     washer_dict = {
         'type': 'Washer',
+        'units': 'metric: N, mm, MPa, C',
         'name': 'washer_test_input_dict',
         'material': washer_material_dict,
         'D_hole': 6.1,
         'D_outer': 8.5,
         'thickness': 2.0,
     }
-    print(f"\ninput: \n{washer_dict}\n")
+    # print(f"\ninput: \n{washer_dict}\n")
     # washer_dict = process_washer_input(washer_dict)
     # print(f"\noutput: \n{washer_dict}\n")
+    print(json.dumps(washer_dict, indent=4))
     
     
     # Loaded parts:
     ti6al4v_material_dict = {
         'type': 'Material',
+        'units': 'metric: N, mm, MPa, C',
         'name': 'ti6al4v',
         'E': 114.0e3,  # modulus of elasticity
         'nu': 0.342,  # Poisson's ratio
@@ -1119,32 +1209,37 @@ def main() -> None:
     print("\nClampedPart:")
     clamped_part1_dict = {
         'type': 'ClampedPart',
+        'units': 'metric: N, mm, MPa, C',
         'name': 'clamped_part1',
         'material': ti6al4v_material_dict,
         'D_hole': 6.1,
         'D_outer': 12.5,
         'thickness': 5.0,
     }
-    print(f"\ninput: \n{clamped_part1_dict}\n")
+    # print(f"\ninput: \n{clamped_part1_dict}\n")
     # clamped_part1_dict = process_clamped_part_input(clamped_part1_dict)
     # print(f"\noutput: \n{clamped_part1_dict}\n")
+    print(json.dumps(clamped_part1_dict, indent=4))
     
     clamped_part2_dict = {
         'type': 'ClampedPart',
+        'units': 'metric: N, mm, MPa, C',
         'name': 'clamped_part2',
         'material': ti6al4v_material_dict,
         'D_hole': 6.1,
         'D_outer': 12.5,
         'thickness': 10.0,
     }
-    print(f"\ninput: \n{clamped_part2_dict}\n")
+    # print(f"\ninput: \n{clamped_part2_dict}\n")
     # clamped_part2_dict = process_clamped_part_input(clamped_part2_dict)
     # print(f"\noutput: \n{clamped_part2_dict}\n")
+    print(json.dumps(clamped_part2_dict, indent=4))
     
     
     print("\nBoltedJoint:")
     bolted_joint_input_dict = {
         'type': 'BoltedJoint',
+        'units': 'metric: N, mm, MPa, C',
         'name': 'bolted_joint_input_test',
         'fastener': fastener_dict,
         'clamped_parts': [washer_dict, clamped_part1_dict, clamped_part2_dict, washer_dict],
@@ -1177,17 +1272,20 @@ def main() -> None:
         'applied_preload': None,  # optional override
         'phi': None,
     }
-    print(f"\ninput: \n{bolted_joint_input_dict}\n")
+    # print(f"\ninput: \n{bolted_joint_input_dict}\n")
+    print(json.dumps(bolted_joint_input_dict, indent=4))
     
     # save input to json:
     with open("bolted_joint_input_example.json", "w") as json_file:
         json.dump(bolted_joint_input_dict, json_file)
 
-    output_dict = process_bolted_joint_input(bolted_joint_input_dict)
-    print(f"\noutput: \n{output_dict}\n")
+    output_dict = process_bolted_joint_input(bolted_joint_input_dict, verbose=True)
+    # print(f"\noutput: \n{output_dict}\n")
+    print(json.dumps(output_dict, indent=4))
     
-    output_dict = process_bolted_joint_input(output_dict)
-    print(f"\noutput: \n{output_dict}\n")
+    output_dict = process_bolted_joint_input(output_dict, verbose=True)
+    # print(f"\noutput: \n{output_dict}\n")
+    print(json.dumps(output_dict, indent=4))
     
     # test invalid input:
     # process_bolted_joint_input({})

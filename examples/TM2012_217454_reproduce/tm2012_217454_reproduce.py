@@ -51,16 +51,16 @@ print(f"\nPuck material: \n{puck_material1_dict}")
 # Threads:
 ######################
 
+# bolt:
 bolt_thread_dict = thread_fast.english_thread_database.UNJF_ext_3_8_24_class3A
-
 print(f"\nBolt thread = \n{bolt_thread_dict}")
 
+# insert:
 insert_thread_dict = None
 
+# nut:
 nut_thread_dict = thread_fast.english_thread_database.UNJF_int_3_8_24_class3A
-
 print(f"\nNut thread = \n{nut_thread_dict}")
-
 
 
 ######################
@@ -71,10 +71,11 @@ print(f"\nNut thread = \n{nut_thread_dict}")
 bolt_dict = {
     'type': 'Fastener',
     'name': 'fastener_test_input_dict',
+    'units': 'english: in, lb',
     'material': bolt_material_dict,
     'thread': bolt_thread_dict,
     'Do_head': 8.5,
-    'Do_shank': 5.0,
+    'Do_shank': 3.0/8.0,
     'L_shank': 10.0,
     'L_thread': 10.0,
 }
@@ -90,6 +91,7 @@ print(f"\nbolt_dict = \n{bolt_dict}\n")
 
 nut_dict = {
     'type': 'Nut',
+    'units': 'english: in, lb, psi, F',
     'name': 'nut_test_input_dict',
     'material': bolt_material_dict,
     'thread': nut_thread_dict,
@@ -108,6 +110,23 @@ print(f"\nnut_dict = \n{nut_dict}\n")
 
 
 
+######################
+# Washers:
+######################
+
+print("\nWasher:")
+washer_dict = {
+    'type': 'Washer',
+    'units': 'english: in, lb, psi, F',
+    'name': 'washer',
+    'material': puck_material1_dict,
+    'D_hole': 3.0/8.0,
+    'D_outer': 8.5,
+    'thickness': 2.0,
+}
+print(f"\nwasher_dict: \n{washer_dict}\n")
+washer_dict = thread_fast.process_washer_input(washer_dict)
+print(f"\nwasher_dict: \n{washer_dict}\n")
 
 
 ######################
@@ -117,27 +136,29 @@ print("\nClampedParts:")
 
 clamped_part1_dict = {
     'type': 'ClampedPart',
+    'units': 'english: in, lb, psi, F',
     'name': 'clamped_part1',
     'material': puck_material1_dict,
     'D_hole': 6.1,
     'D_outer': 12.5,
     'thickness': 5.0,
 }
-print(f"\ninput: \n{clamped_part1_dict}\n")
+print(f"\nclamped_part1_dict: \n{clamped_part1_dict}\n")
 # clamped_part1_dict = process_clamped_part_input(clamped_part1_dict)
-# print(f"\noutput: \n{clamped_part1_dict}\n")
+# print(f"\nclamped_part1_dict: \n{clamped_part1_dict}\n")
 
 clamped_part2_dict = {
     'type': 'ClampedPart',
+    'units': 'english: in, lb, psi, F',
     'name': 'clamped_part2',
     'material': puck_material1_dict,
     'D_hole': 6.1,
     'D_outer': 12.5,
     'thickness': 10.0,
 }
-print(f"\ninput: \n{clamped_part2_dict}\n")
+print(f"\nclamped_part2_dict: \n{clamped_part2_dict}\n")
 # clamped_part2_dict = process_clamped_part_input(clamped_part2_dict)
-# print(f"\noutput: \n{clamped_part2_dict}\n")
+# print(f"\nclamped_part2_dict: \n{clamped_part2_dict}\n")
 
 
 ######################
@@ -201,13 +222,14 @@ print(test_matrix[0])
 print("\nBoltedJoint:")
 bolted_joint_dict = {
     'type': 'BoltedJoint',
+    'units': 'english: lb, in, psi, F',
     'name': 'bolted_joint_input_test',
-    'fastener': fastener_dict,
+    'fastener': bolt_dict,
     'clamped_parts': [washer_dict, clamped_part1_dict, clamped_part2_dict, washer_dict],
     'nut': nut_dict,
     # 'insert': None,
     # 'threaded_hole': None,
-    'mu_thread': 0.15,  # coefficient of friction between threads
+    'mu_thread': 0.15,  # threads coefficient of friction
     'mu_abutment': 0.1,  # coefficient of friction between head or nut and washer
     'separation_safety_factor': 1.2,
     'yield_safety_factor': 1.1,

@@ -18,6 +18,7 @@ Parameters:
 - Do: outer diameter for bearing area
 
 """
+import json
 import numpy as np
 
 import thread_fast.conversion_factors as cf
@@ -104,10 +105,12 @@ def main() -> None:
         'Sty': 600.0,  # tensile yield strength
         'Stu': 800.0,  # tensile ultimate strength
     }
-    print(f"\nmaterial_dict = \n{material_dict}\n")
+    # print(f"\nmaterial_dict = \n{material_dict}\n")
+    print(json.dumps(material_dict, indent=4))
     
     material_dict = process_material_input(material_dict)
-    print(f"\nmaterial_dict = \n{material_dict}\n")
+    # print(f"\nmaterial_dict = \n{material_dict}\n")
+    print(json.dumps(material_dict, indent=4))
     
     thread_dict = {
         'type': 'Metric_Thread',
@@ -121,10 +124,12 @@ def main() -> None:
         'tolerance_grade': 6,
         'allowance_class': 'H',
     }
-    print(f"\nthread_dict = \n{thread_dict}\n")
+    # print(f"\nthread_dict = \n{thread_dict}\n")
+    print(json.dumps(thread_dict, indent=4))
     
     thread_dict = process_metric_thread_input(thread_dict)
-    print(f"\nthread_dict = \n{thread_dict}\n")
+    # print(f"\nthread_dict = \n{thread_dict}\n")
+    print(json.dumps(thread_dict, indent=4))
     
     input_dict = {
         'type': 'Nut',
@@ -134,10 +139,12 @@ def main() -> None:
         'Do': 8.5,
         'length': 5.0,
     }
-    print(f"\ninput_dict = \n{input_dict}\n")
+    # print(f"\ninput_dict = \n{input_dict}\n")
+    print(json.dumps(input_dict, indent=4))
     
     output_dict = process_nut_input(input_dict)
-    print(f"\noutput_dict = \n{output_dict}\n")
+    # print(f"\noutput_dict = \n{output_dict}\n")
+    print(json.dumps(output_dict, indent=4))
     
 
 if __name__ == "__main__":

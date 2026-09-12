@@ -28,6 +28,7 @@ Calculated:
 - P_tu_allow
 
 """
+import json
 import numpy as np
 
 import thread_fast.conversion_factors as cf
@@ -37,7 +38,10 @@ from thread_fast.materials.process_material_input import process_material_input
 from thread_fast.threads.process_metric_thread import process_metric_thread_input
 
 
-def process_fastener_input(input_dict: dict):
+def process_fastener_input(
+        input_dict: dict,
+        verbose: bool=False,
+    ):
     """Read and modify the input dict to ensure completeness and validity.
     
     Must supply:
@@ -56,6 +60,9 @@ def process_fastener_input(input_dict: dict):
     
     
     """
+    if verbose:
+        print("Running process_fastener_input(verbose=True)...")
+
     # check type:
     assert input_dict['type'] == 'Fastener'
     
@@ -101,7 +108,8 @@ def process_fastener_input(input_dict: dict):
     # [mm^2], minimum minor diameter area for the fastener threads:
     # NSTS 08307A, bolt_tensile_stress_area
     if input_dict.get('A_t') is None:
-        print("calculating A_t...")
+        if verbose:
+            print("calculating A_t...")
         A_t = nsts_08307a.bolt_tensile_stress_area(
             D_e_bsc=thread['basic_major_diameter'], 
             n_0=None,  # tpi
@@ -112,23 +120,34 @@ def process_fastener_input(input_dict: dict):
         pass
         # TODO: validate...
     
+    if verbose:
+        print(f"A_t = {input_dict['A_t']}")
+    
     # [N], allowable ultimate tensile load:
     # NSTS 08307A page A-4, ultimate tensile load:
     if input_dict.get('P_tu_allow') is None:
-        print("calculating P_tu_allow...")
+        if verbose:
+            print("calculating P_tu_allow...")
         P_tu_allow = input_dict['A_t'] * material['Stu']
         input_dict['P_tu_allow'] = P_tu_allow
     else:
         pass
         # TODO: validate...
     
+    if verbose:
+        print(f"P_tu_allow = {input_dict['P_tu_allow']}")
+    
     if input_dict.get('P_ty_allow') is None:
-        print("calculating P_ty_allow...")
+        if verbose:
+            print("calculating P_ty_allow...")
         P_ty_allow = input_dict['A_t'] * material['Sty']
         input_dict['P_ty_allow'] = P_ty_allow
     else:
         pass
         # TODO: validate...
+    
+    if verbose:
+        print(f"P_ty_allow = {input_dict['P_ty_allow']}")
     
     # [N], allowable ultimate shear load:
     # NASA-STD-5020B eq 12 & 13
@@ -144,6 +163,9 @@ def process_fastener_input(input_dict: dict):
     else:
         pass
         # TODO: validity check...
+    
+    if verbose:
+        print(f"A_bolt = {input_dict['A_bolt']}")
     
     # P_su_allow: allowable ultimate shear load
     # depends on if threads are in the shear plane...
@@ -166,6 +188,10 @@ def process_fastener_input(input_dict: dict):
         pass
         # TODO: validity check...
     
+    if verbose:
+        print(f"P_su_allow_1 = {P_su_allow_1}")
+        print(f"P_su_allow_2 = {P_su_allow_2}")
+    
     # Ro_shank = Do_shank / 2.0
     
     # total tensile length:
@@ -187,7 +213,8 @@ def process_fastener_input(input_dict: dict):
         
         # combined stiffness in series:
         k_total = 1.0 / (1.0 / k_shank + 1.0 / k_thread)
-        print(f"k_b_total = {k_total} [N/mm]")
+        if verbose:
+            print(f"k_b_total = {k_total}")
         input_dict['stiffness'] = k_total
     else:
         pass
@@ -203,19 +230,29 @@ def main() -> None:
     
     material_dict = {
         'type': 'Material',
+        'units': 'metric: N, mm, MPa, C',
         'name': 'test_input_dict',
-        'E': 200000.0,  # modulus of elasticity
+        'E': 200.0e3,  # modulus of elasticity, MPa
         'nu': 0.3,  # Poisson's ratio
-        'cte': 2.0e-6,  # coefficient of thermal expansion
-        'Sty': 600.0,  # tensile yield strength
-        'Stu': 800.0,  # tensile ultimate strength
+        'cte': 15.0e-6,  # coefficient of thermal expansion
+        'Sty': 600.0,  # tensile yield strength, MPa
+        'Stu': 800.0,  # tensile ultimate strength, MPa
+        #'Ssy': ,  # shear yield strength, MPa
+        #'Ssu': ,  # shear ultimate strength, MPa
+        #'Scy': ,  # contact (bearing) yield strength, MPa
+        #'Scu': ,  # contact (bearing) ultimate strength, MPa
     }
+    print(json.dumps(material_dict, indent=4))
     
-    material_dict = process_material_input(material_dict)
-    print(f"material_dict = \n{material_dict}")
+    material_dict = process_material_input(
+        material_dict, 
+        verbose=True)
+    # print(f"material_dict = \n{material_dict}")
+    print(json.dumps(material_dict, indent=4))
     
     thread_dict = {
         'type': 'Metric_Thread',
+        'units': 'metric: N, mm, MPa, C',
         'name': 'test_input_dict',
         'basic_major_diameter': 6.0,
         'pitch': 1.0,
@@ -227,12 +264,14 @@ def main() -> None:
         'allowance_class': 'h',
     }
     
-    thread_dict = process_metric_thread_input(thread_dict)
-    print(f"thread_dict = \n{thread_dict}")
+    thread_dict = process_metric_thread_input(thread_dict, verbose=True)
+    # print(f"thread_dict = \n{thread_dict}")
+    print(json.dumps(thread_dict, indent=4))
     
     # minimal fastener input dictionary:
     input_dict = {
         'type': 'Fastener',
+        'units': 'metric: N, mm, MPa, C',
         'name': 'fastener_test_input_dict',
         'material': material_dict,
         'thread': thread_dict,
@@ -241,11 +280,14 @@ def main() -> None:
         'L_shank': 10.0,
         'L_thread': 10.0,
     }
-    print(f"\ninput_dict = \n{input_dict}\n")
+    # print(f"\ninput_dict = \n{input_dict}\n")
+    print(json.dumps(input_dict, indent=4))
     
     # test fastener processor:
-    output_dict = process_fastener_input(input_dict)
-    print(f"\noutput_dict = \n{output_dict}\n")
+    output_dict = process_fastener_input(input_dict, 
+        verbose=True)
+    # print(f"\noutput_dict = \n{output_dict}\n")
+    print(json.dumps(output_dict, indent=4))
     
     # test accessing data:
     thread_pitch = output_dict['thread']['pitch']
